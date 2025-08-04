@@ -46,7 +46,7 @@ public class InvoiceDAO {
                 invoice.date = resultSet.getTimestamp("date");
                 invoice.customer = resultSet.getString("customer");
                 invoice.room_id = resultSet.getString("room_id");
-                invoice.unitPrice = resultSet.getBigDecimal("unitPrice");
+                invoice.unitPrice = resultSet.getDouble("unitPrice");
                 invoice.hour = resultSet.getInt("hour");
                 invoice.day = resultSet.getInt("day");
                 invoice.type = resultSet.getString("type");
@@ -54,48 +54,48 @@ public class InvoiceDAO {
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving invoices: " + e.getMessage());
-        } finally {
+        } /* finally {
             try {
                 if (resultSet != null) resultSet.close();
                 if (statement != null) statement.close();
             } catch (SQLException e) {
                 System.err.println("Error closing resources: " + e.getMessage());
             }
-        }
+        } */
         
         return invoices;
     }
     
-    public void closeConnection() {
-        if (conn != null) {
-            try {
-                conn.close();
-                System.out.println("Database connection closed.");
-            } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
-            }
-        }
-    }
+    // public void closeConnection() {
+    //     if (conn != null) {
+    //         try {
+    //             conn.close();
+    //             System.out.println("Database connection closed.");
+    //         } catch (SQLException e) {
+    //             System.err.println("Error closing connection: " + e.getMessage());
+    //         }
+    //     }
+    // }
 
-    public static void main(String[] args) {
-        databaseAuthGateway auth = new databaseKey();
-        InvoiceDAO dao = new InvoiceDAO(auth);
-        System.out.println("InvoiceDAO initialized with database authentication gateway.");
+    // public static void main(String[] args) {
+    //     databaseAuthGateway auth = new databaseKey();
+    //     InvoiceDAO dao = new InvoiceDAO(auth);
+    //     System.out.println("InvoiceDAO initialized with database authentication gateway.");
         
-        // Lấy danh sách invoice
-        List<InvoiceDTO> invoices = dao.getAll();
-        System.out.println("\n=== DANH SÁCH INVOICE ===");
-        System.out.println("Retrieved " + invoices.size() + " invoices from database:");
+    //     // Lấy danh sách invoice
+    //     List<InvoiceDTO> invoices = dao.getAll();
+    //     System.out.println("\n=== DANH SÁCH INVOICE ===");
+    //     System.out.println("Retrieved " + invoices.size() + " invoices from database:");
         
-        for (InvoiceDTO invoice : invoices) {
-            System.out.println("ID: " + invoice.id + 
-                             " | Customer: " + invoice.customer + 
-                             " | Room: " + invoice.room_id + 
-                             " | Type: " + invoice.type + 
-                             " | Price: " + invoice.unitPrice);
-        }
+    //     for (InvoiceDTO invoice : invoices) {
+    //         System.out.println("ID: " + invoice.id + 
+    //                          " | Customer: " + invoice.customer + 
+    //                          " | Room: " + invoice.room_id + 
+    //                          " | Type: " + invoice.type + 
+    //                          " | Price: " + invoice.unitPrice);
+    //     }
         
-        // Đóng connection
-        dao.closeConnection();
-    }
+    //     // Đóng connection
+    //     dao.closeConnection();
+    // }
 }

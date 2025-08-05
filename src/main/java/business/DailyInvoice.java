@@ -8,6 +8,17 @@ public class DailyInvoice extends Invoice {
         super(id, date, customer, room_id, unitPrice);
         this.day = day;
     }
+    
+    // Getter for day - cần thiết cho UI binding
+    public int getDay() {
+        return day;
+    }
+    
+    // Setter for day
+    public void setDay(int day) {
+        this.day = day;
+    }
+    
     @Override
     public double calculateTotal() {
         if (day <=0){
@@ -18,6 +29,7 @@ public class DailyInvoice extends Invoice {
             return day * unitPrice;
         }
     }
+    
     @Override
     public String type() {
         return "Daily Invoice";

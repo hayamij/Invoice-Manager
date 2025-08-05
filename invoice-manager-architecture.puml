@@ -1,0 +1,93 @@
+@startuml Invoice Manager - Package Diagram
+
+!theme plain
+skinparam packageStyle rectangle
+
+package "Invoice Manager System" {
+    
+    package "Presentation Layer" <<Rectangle>> {
+        package "Controllers" {
+            class App
+            class PrimaryController
+            class SecondaryController
+        }
+        
+        package "Models" {
+            class InvoiceListModel
+            class InvoiceListItem
+        }
+        
+        package "Observer Pattern" {
+            interface Subscriber
+            class Publisher
+        }
+        
+        package "FXML Views" {
+            file "primary.fxml"
+            file "secondary.fxml"
+        }
+    }
+    
+    package "Business Layer" <<Rectangle>> {
+        package "Entities" {
+            abstract class Invoice
+            class HourlyInvoice
+            class DailyInvoice
+        }
+        
+        package "Use Cases" {
+            class InvoiceListControl
+            class addInvoice
+        }
+    }
+    
+    package "Persistence Layer" <<Rectangle>> {
+        package "Data Access" {
+            class InvoiceDAO
+            interface InvoiceDAOGateway
+        }
+        
+        package "DTOs" {
+            class InvoiceDTO
+        }
+        
+        package "Database Connection" {
+            interface databaseAuthGateway
+            class databaseKey
+        }
+    }
+    
+    package "External Dependencies" <<Rectangle>> {
+        package "JavaFX" {
+            class Application
+            class TableView
+            class TextField
+        }
+        
+        package "Database" {
+            database "SQL Server"
+        }
+        
+        package "JDBC" {
+            class "MSSQL Driver"
+        }
+    }
+}
+
+' Dependencies between layers
+"Presentation Layer" --> "Business Layer" : uses
+"Business Layer" --> "Persistence Layer" : uses
+"Persistence Layer" --> "External Dependencies" : uses
+
+' Internal dependencies
+Controllers --> Models : uses
+Controllers --> "Observer Pattern" : implements
+"Use Cases" --> Entities : creates/manages
+"Data Access" --> DTOs : returns
+"Data Access" --> "Database Connection" : uses
+
+note top of "Presentation Layer" : User Interface Layer\n- JavaFX Controllers\n- FXML Views\n- UI Models
+note top of "Business Layer" : Business Logic Layer\n- Domain Entities\n- Use Cases\n- Business Rules
+note top of "Persistence Layer" : Data Access Layer\n- Database Operations\n- Data Transfer Objects\n- Connection Management
+
+@enduml

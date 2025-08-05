@@ -9,8 +9,19 @@ public class HourlyInvoice extends Invoice {
         super(id, date, customer, room_id, unitPrice);
         this.hour = hour;
     }
+    
+    // Getter for hour - cần thiết cho UI binding
+    public int getHour() {
+        return hour;
+    }
+    
+    // Setter for hour
+    public void setHour(int hour) {
+        this.hour = hour;
+    }
+    
     @Override
-    protected double calculateTotal() {
+    public double calculateTotal() {
         if (hour <= 0) {
             return 0;
         } else if (hour >= 24 && hour <= 30) {
@@ -21,8 +32,9 @@ public class HourlyInvoice extends Invoice {
             return hour * unitPrice;
         }
     }
+    
     @Override
-    protected String type() {
+    public String type() {
         return "Hourly Invoice";
     }
 }

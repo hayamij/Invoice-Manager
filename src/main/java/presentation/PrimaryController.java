@@ -2,15 +2,24 @@ package presentation;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import business.InvoiceListControl;
+import persistence.InvoiceDAO;
+import persistence.InvoiceDAOGateway;
+import persistence.databaseKey;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 public class PrimaryController implements Initializable {
 
+    // Business layer - tạo dependencies trực tiếp
+    private InvoiceListControl invoiceControl;
+    
     // Form fields
     @FXML private TextField customerField;
     @FXML private TextField roomField;
@@ -31,16 +40,16 @@ public class PrimaryController implements Initializable {
     @FXML private Button refreshButton;
     
     // Table
-    @FXML private TableView<?> invoiceTable;
-    @FXML private TableColumn<?, ?> idColumn;
-    @FXML private TableColumn<?, ?> dateColumn;
-    @FXML private TableColumn<?, ?> customerColumn;
-    @FXML private TableColumn<?, ?> roomColumn;
-    @FXML private TableColumn<?, ?> typeColumn;
-    @FXML private TableColumn<?, ?> unitPriceColumn;
-    @FXML private TableColumn<?, ?> hourColumn;
-    @FXML private TableColumn<?, ?> dayColumn;
-    @FXML private TableColumn<?, ?> totalColumn;
+    @FXML private TableView<InvoiceListItem> invoiceTable;
+    @FXML private TableColumn<InvoiceListItem, String> idColumn;
+    @FXML private TableColumn<InvoiceListItem, String> dateColumn;
+    @FXML private TableColumn<InvoiceListItem, String> customerColumn;
+    @FXML private TableColumn<InvoiceListItem, String> roomColumn;
+    @FXML private TableColumn<InvoiceListItem, String> typeColumn;
+    @FXML private TableColumn<InvoiceListItem, Double> unitPriceColumn;
+    @FXML private TableColumn<InvoiceListItem, Integer> hourColumn;
+    @FXML private TableColumn<InvoiceListItem, Integer> dayColumn;
+    @FXML private TableColumn<InvoiceListItem, Double> totalColumn;
     
     // Labels
     @FXML private Label statusLabel;
@@ -49,8 +58,15 @@ public class PrimaryController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // ✅ Tạo dependencies trực tiếp thay vì dùng DIContainer
+        InvoiceDAOGateway daoGateway = new InvoiceDAO(new databaseKey());
+        invoiceControl = new InvoiceListControl(daoGateway);
+
         // Initialize ComboBox
         typeComboBox.setItems(FXCollections.observableArrayList("hourly", "daily"));
+        
+        // Initialize TableView columns
+        setupTableColumns();
         
         // Set default status
         statusLabel.setText("");
@@ -88,6 +104,91 @@ public class PrimaryController implements Initializable {
         
         // Set default selection to "hourly"
         typeComboBox.setValue("hourly");
+        
+        // Load initial data
+        loadInvoiceData();
+    }
+    
+    /**
+     * Setup TableView columns with proper cell value factories
+     */
+    private void setupTableColumns() {
+        // Use simple property bindings for InvoiceListItem
+        idColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleStringProperty(item.id);
+        });
+        
+        dateColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleStringProperty(item.date);
+        });
+        
+        customerColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleStringProperty(item.customer);
+        });
+        
+        roomColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleStringProperty(item.room_id);
+        });
+        
+        typeColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleStringProperty(item.type);
+        });
+        
+        unitPriceColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleObjectProperty<>(Double.parseDouble(item.unitPrice));
+        });
+        
+        hourColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleObjectProperty<>(item.hour > 0 ? item.hour : null);
+        });
+        
+        dayColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleObjectProperty<>(item.day > 0 ? item.day : null);
+        });
+        
+        totalColumn.setCellValueFactory(cellData -> {
+            InvoiceListItem item = cellData.getValue();
+            return new javafx.beans.property.SimpleObjectProperty<>(item.totalPrice);
+        });
+    }
+    
+    /**
+     * Load invoice data from business layer and display in table
+     */
+    private void loadInvoiceData() {
+        try {
+            List<InvoiceListItem> invoiceItems = invoiceControl.getAllInvoiceItems();
+            ObservableList<InvoiceListItem> observableItems = FXCollections.observableArrayList(invoiceItems);
+            invoiceTable.setItems(observableItems);
+            
+            // Update statistics
+            updateStatistics(invoiceItems);
+            
+            statusLabel.setText("Đã tải " + invoiceItems.size() + " hóa đơn");
+        } catch (Exception e) {
+            statusLabel.setText("Lỗi tải dữ liệu: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Update statistics labels
+     */
+    private void updateStatistics(List<InvoiceListItem> invoiceItems) {
+        int totalCount = invoiceItems.size();
+        double totalRevenue = invoiceItems.stream()
+            .mapToDouble(item -> item.totalPrice)
+            .sum();
+        
+        totalInvoicesLabel.setText("Tổng số hóa đơn: " + totalCount);
+        totalAmountLabel.setText(String.format("Tổng doanh thu: %.2f VND", totalRevenue));
     }
 
     @FXML
@@ -126,8 +227,8 @@ public class PrimaryController implements Initializable {
 
     @FXML
     private void refreshTable() {
-        statusLabel.setText("");
-        // TODO: Implement refresh table logic
+        statusLabel.setText("Đang tải lại danh sách...");
+        loadInvoiceData();
     }
 
     @FXML

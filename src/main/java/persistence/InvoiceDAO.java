@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class InvoiceDAO {
+public class InvoiceDAO implements InvoiceDAOGateway {
     private Connection conn;
 
     public InvoiceDAO(databaseAuthGateway databaseAuthGateway) {
@@ -64,6 +64,20 @@ public class InvoiceDAO {
         } */
         
         return invoices;
+    }
+    
+    @Override
+    public boolean add(InvoiceDTO invoice) {
+        // TODO: Implement add functionality
+        // This method should insert a new invoice into the database
+        try {
+            // Implementation will be added later
+            System.out.println("Add invoice method called - not implemented yet");
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error adding invoice: " + e.getMessage());
+            return false;
+        }
     }
     
     // public void closeConnection() {

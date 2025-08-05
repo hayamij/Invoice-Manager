@@ -17,8 +17,9 @@ public abstract class Invoice {
         this.unitPrice = unitPrice;
     }
 
-    protected abstract double calculateTotal();
-    protected abstract String type();
+    // Public methods để Presentation layer có thể truy cập
+    public abstract double calculateTotal();
+    public abstract String type();
 
     // Getters and Setters
     public String getId() { return id; }

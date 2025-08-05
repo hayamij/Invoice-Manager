@@ -1,0 +1,59 @@
+@startuml Invoice Manager - Sequence Diagram
+
+!theme plain
+skinparam sequenceMessageAlign center
+
+title Invoice Manager - Add Invoice Flow
+
+actor User
+participant "PrimaryController" as PC
+participant "InvoiceListControl" as ILC
+participant "addInvoice" as AI
+participant "InvoiceDAO" as DAO
+participant "databaseKey" as DK
+database "SQL Server" as DB
+
+User -> PC: Click "Thêm hóa đơn"
+activate PC
+
+PC -> PC: Validate form data
+PC -> ILC: Create business object
+activate ILC
+
+alt Invoice Type is "hourly"
+    ILC -> ILC: Create HourlyInvoice
+else Invoice Type is "daily"
+    ILC -> ILC: Create DailyInvoice
+end
+
+ILC -> AI: execute(invoiceDTO)
+activate AI
+
+AI -> DAO: add(invoiceDTO)
+activate DAO
+
+DAO -> DK: getServer(), getDatabase(),\ngetUsername(), getPassword()
+activate DK
+DK --> DAO: connection details
+deactivate DK
+
+DAO -> DB: INSERT INTO invoices...
+activate DB
+DB --> DAO: Success/Failure
+deactivate DB
+
+DAO --> AI: boolean result
+deactivate DAO
+
+AI --> ILC: boolean result
+deactivate AI
+
+ILC --> PC: Success/Failure
+deactivate ILC
+
+PC -> PC: Update UI status
+PC -> PC: Refresh table
+PC -> User: Display result
+deactivate PC
+
+@enduml

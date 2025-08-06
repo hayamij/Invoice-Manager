@@ -33,35 +33,28 @@ public class InvoiceDAO implements InvoiceDAOGateway {
 	
 	public List<InvoiceDTO> getAll() {
         List<InvoiceDTO> invoices = new ArrayList<>();
-        Statement statement = null;
-        ResultSet resultSet = null;
+        String sql = "SELECT * FROM invoices";
         
-        try {
-            statement = conn.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM invoices");
+        // ✅ Sử dụng try-with-resources để tự động đóng resources
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
             
             while (resultSet.next()) {
                 InvoiceDTO invoice = new InvoiceDTO();
-                invoice.id = resultSet.getString("id");
-                invoice.date = resultSet.getTimestamp("date");
-                invoice.customer = resultSet.getString("customer");
-                invoice.room_id = resultSet.getString("room_id");
-                invoice.unitPrice = resultSet.getDouble("unitPrice");
-                invoice.hour = resultSet.getInt("hour");
-                invoice.day = resultSet.getInt("day");
-                invoice.type = resultSet.getString("type");
+                invoice.setId(resultSet.getString("id"));
+                invoice.setDate(resultSet.getTimestamp("date"));
+                invoice.setCustomer(resultSet.getString("customer"));
+                invoice.setRoom_id(resultSet.getString("room_id"));
+                invoice.setUnitPrice(resultSet.getDouble("unitPrice"));
+                invoice.setHour(resultSet.getInt("hour"));
+                invoice.setDay(resultSet.getInt("day"));
+                invoice.setType(resultSet.getString("type"));
                 invoices.add(invoice);
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving invoices: " + e.getMessage());
-        } /* finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                System.err.println("Error closing resources: " + e.getMessage());
-            }
-        } */
+            e.printStackTrace();
+        }
         
         return invoices;
     }

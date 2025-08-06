@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import business.InvoiceListControl;
 import business.DIContainer;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -17,6 +16,9 @@ public class PrimaryController implements Initializable {
 
     // Business layer - tạo dependencies trực tiếp
     private InvoiceListControl invoiceControl;
+    
+    // Model with Observer capabilities
+    private InvoiceListModel invoiceListModel;
     
     // Form fields
     @FXML private TextField customerField;
@@ -58,12 +60,18 @@ public class PrimaryController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // ✅ Sử dụng DIContainer để giải quyết vi phạm DIP
         invoiceControl = DIContainer.getInstance().getInvoiceListControl();
+        
+        // Initialize model with Observer pattern
+        invoiceListModel = new InvoiceListModel();
 
         // Initialize ComboBox
         typeComboBox.setItems(FXCollections.observableArrayList("hourly", "daily"));
         
         // Initialize TableView columns
         setupTableColumns();
+        
+        // Bind table to model
+        invoiceTable.itemsProperty().bind(invoiceListModel.invoicesProperty());
         
         // Set default status
         statusLabel.setText("");
@@ -95,6 +103,14 @@ public class PrimaryController implements Initializable {
                     hourField.setVisible(false);
                     hourField.setManaged(false);
                     hourField.clear();
+                }
+                
+                // Load default values from settings
+                AppSettings settings = AppSettings.getInstance();
+                if (newValue.equals("hourly")) {
+                    unitPriceField.setText(String.valueOf(settings.getDefaultHourlyRate()));
+                } else {
+                    unitPriceField.setText(String.valueOf(settings.getDefaultDailyRate()));
                 }
             }
         });
@@ -163,11 +179,15 @@ public class PrimaryController implements Initializable {
     private void loadInvoiceData() {
         try {
             List<InvoiceListItem> invoiceItems = invoiceControl.getAllInvoiceItems();
-            ObservableList<InvoiceListItem> observableItems = FXCollections.observableArrayList(invoiceItems);
-            invoiceTable.setItems(observableItems);
+            
+            // Update model (which will automatically notify table due to binding)
+            invoiceListModel.setInvoices(invoiceItems);
             
             // Update statistics
             updateStatistics(invoiceItems);
+            
+            // Trigger statistics update notification
+            invoiceListModel.notifyStatisticsUpdate();
             
             statusLabel.setText("Đã tải " + invoiceItems.size() + " hóa đơn");
         } catch (Exception e) {

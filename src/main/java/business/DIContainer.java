@@ -6,14 +6,15 @@ import persistence.databaseAuthGateway;
 import persistence.databaseKey;
 
 /**
- * Dependency Injection Container
- * Giải quyết vi phạm DIP và tách rời dependencies
+ * Enhanced Dependency Injection Container
+ * Manages all application services and dependencies
  */
 public class DIContainer {
     
     private static DIContainer instance;
     private InvoiceDAOGateway invoiceDAOGateway;
     private InvoiceListControl invoiceListControl;
+    private InvoiceService invoiceService;
     
     private DIContainer() {
         // Private constructor để implement Singleton
@@ -48,10 +49,21 @@ public class DIContainer {
     }
     
     /**
+     * Tạo và trả về InvoiceService với proper dependency injection
+     */
+    public InvoiceService getInvoiceService() {
+        if (invoiceService == null) {
+            invoiceService = new InvoiceService(getInvoiceDAOGateway());
+        }
+        return invoiceService;
+    }
+    
+    /**
      * Reset container (useful for testing)
      */
     public void reset() {
         invoiceDAOGateway = null;
         invoiceListControl = null;
+        invoiceService = null;
     }
 }

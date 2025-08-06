@@ -1,16 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="presentation.SecondaryController">
-    <children>
-        <Label text="Secondary View" />
-        <Button fx:id="secondaryButton" text="Switch to Primary View" onAction="#switchToPrimary" />
-    </children>
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
-</VBox>
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="presentation.SecondaryController">
+
+    <!-- Header -->
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #34495e; -fx-padding: 15;">
+            <Label text="Invoice Manager - Settings and Reports" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="statusLabel" text="Ready" style="-fx-text-fill: #ecf0f1; -fx-font-size: 12px;" />
+        </HBox>
+    </top>
+
+    <!-- Main Content -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 20;">
+                
+                <!-- Settings Section -->
+                <VBox spacing="15" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 5;">
+                    <Label text="COMPANY SETTINGS" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                    
+                    <GridPane hgap="15" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="150" />
+                            <ColumnConstraints minWidth="300" />
+                            <ColumnConstraints minWidth="150" />
+                            <ColumnConstraints minWidth="300" />
+                        </columnConstraints>
+                        
+                        <!-- Company Info -->
+                        <Label text="Company Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="companyNameField" promptText="Enter company name" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <Label text="Phone:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <TextField fx:id="companyPhoneField" promptText="Enter phone number" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                        
+                        <Label text="Address:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="companyAddressField" promptText="Enter company address" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3" />
+                    </GridPane>
+                </VBox>
+                
+                <!-- Default Values Section -->
+                <VBox spacing="15" style="-fx-background-color: #e8f5e8; -fx-padding: 20; -fx-background-radius: 5;">
+                    <Label text="DEFAULT VALUES" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                    
+                    <GridPane hgap="15" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="150" />
+                            <ColumnConstraints minWidth="200" />
+                            <ColumnConstraints minWidth="150" />
+                            <ColumnConstraints minWidth="200" />
+                        </columnConstraints>
+                        
+                        <Label text="Default Type:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <ComboBox fx:id="defaultInvoiceTypeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="0" maxWidth="Infinity" />
+                        
+                        <Label text="Default Hourly Rate:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Spinner fx:id="defaultHourlyRateSpinner" GridPane.columnIndex="1" GridPane.rowIndex="1" maxWidth="Infinity" />
+                        
+                        <Label text="Default Daily Rate:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Spinner fx:id="defaultDailyRateSpinner" GridPane.columnIndex="3" GridPane.rowIndex="1" maxWidth="Infinity" />
+                    </GridPane>
+                    
+                    <!-- Settings Buttons -->
+                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
+                        <Button fx:id="saveSettingsButton" text="Save Settings" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#saveSettings" />
+                        <Button fx:id="resetSettingsButton" text="Reset to Defaults" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#resetSettings" />
+                    </HBox>
+                </VBox>
+                
+                <!-- Reports Section -->
+                <VBox spacing="15" style="-fx-background-color: #fff3e0; -fx-padding: 20; -fx-background-radius: 5;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="BUSINESS REPORTS" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="refreshReportsButton" text="Refresh Reports" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#refreshReports" />
+                    </HBox>
+                    
+                    <GridPane hgap="20" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="250" />
+                            <ColumnConstraints minWidth="250" />
+                        </columnConstraints>
+                        
+                        <!-- Financial Reports -->
+                        <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 3;">
+                            <Label text="Financial Summary" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                            <Label fx:id="totalInvoicesReportLabel" text="Total Invoices: 0" />
+                            <Label fx:id="totalRevenueReportLabel" text="Total Revenue: 0 VND" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;" />
+                            <Label fx:id="averageRevenueLabel" text="Average Revenue: 0 VND" />
+                        </VBox>
+                        
+                        <!-- Invoice Type Reports -->
+                        <VBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 3;">
+                            <Label text="Invoice Types" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                            <Label fx:id="hourlyInvoiceCountLabel" text="Hourly Invoices: 0" />
+                            <Label fx:id="dailyInvoiceCountLabel" text="Daily Invoices: 0" />
+                        </VBox>
+                    </GridPane>
+                </VBox>
+                
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Footer -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #ecf0f1; -fx-padding: 10;">
+            <Button fx:id="backToPrimaryButton" text="&lt; Back to Main" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#switchToPrimary" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="Invoice Manager System v1.0" style="-fx-text-fill: #7f8c8d; -fx-font-size: 10px;" />
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -24,4 +24,4 @@ còn note chưa hoàn thành thì để dấu (-), cái nào hoàn thành rồi 
 (-) ...
 
 (?) ae muốn giao diện danh sách có sẵn các ô nhập thông tin ở bên trên luôn không? hay phải bấm nút thêm sẽ pop-up form khác để nhập
-->
+-> thêm pop up sẽ dễ thiết kế với kiểm soát hơn là nhập ngay lên trên ấy, tổng quan trông nó cux gọn hơn nữa.

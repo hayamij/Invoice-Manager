@@ -1,14 +1,15 @@
 package business;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import persistence.InvoiceDAO;
 import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDTO;
-import persistence.databaseKey;
 import presentation.InvoiceListItem;
 
+/**
+ * Business Control class chỉ tập trung vào điều phối business logic
+ * Đã tách conversion và statistics ra các service riêng
+ */
 public class InvoiceListControl {
     
     private InvoiceDAOGateway invoiceDAOGateway;
@@ -18,13 +19,6 @@ public class InvoiceListControl {
         this.invoiceDAOGateway = invoiceDAOGateway;
     }
     
-    // Deprecated constructor - should be removed
-    @Deprecated
-    public InvoiceListControl() {
-        // VI PHẠM DIP - chỉ để backward compatibility
-        this.invoiceDAOGateway = new InvoiceDAO(new databaseKey());
-    }
-    
     /**
      * Lấy tất cả invoice dưới dạng presentation model (cho UI)
      * Không expose business entities ra presentation layer
@@ -32,46 +26,11 @@ public class InvoiceListControl {
     public List<InvoiceListItem> getAllInvoiceItems() {
         try {
             List<InvoiceDTO> dtoList = invoiceDAOGateway.getAll();
-            return convertDTOsToInvoiceListItems(dtoList);
+            return InvoiceConverter.convertDTOsToInvoiceListItems(dtoList);
         } catch (Exception e) {
             System.err.println("Error loading invoice items: " + e.getMessage());
             return List.of(); // Return empty list on error
         }
-    }
-    
-    /**
-     * Convert DTOs từ persistence layer sang presentation models
-     */
-    private List<InvoiceListItem> convertDTOsToInvoiceListItems(List<InvoiceDTO> dtoList) {
-        return dtoList.stream()
-            .map(this::convertDTOToInvoiceListItem)
-            .collect(Collectors.toList());
-    }
-    
-    /**
-     * Convert single DTO to InvoiceListItem (presentation model)
-     */
-    private InvoiceListItem convertDTOToInvoiceListItem(InvoiceDTO dto) {
-        InvoiceListItem item = new InvoiceListItem();
-        item.id = dto.id;
-        item.date = dto.date.toString();
-        item.customer = dto.customer;
-        item.room_id = dto.room_id;
-        item.type = dto.type;
-        item.unitPrice = String.valueOf(dto.unitPrice);
-        item.hour = dto.hour;
-        item.day = dto.day;
-        
-        // Calculate total price based on type
-        if ("hourly".equals(dto.type)) {
-            item.totalPrice = dto.unitPrice * dto.hour;
-        } else if ("daily".equals(dto.type)) {
-            item.totalPrice = dto.unitPrice * dto.day;
-        } else {
-            item.totalPrice = 0.0;
-        }
-        
-        return item;
     }
 
     /**
@@ -80,20 +39,11 @@ public class InvoiceListControl {
     public List<Invoice> getAllInvoices() {
         try {
             List<InvoiceDTO> dtoList = invoiceDAOGateway.getAll();
-            return convertDTOsToBusinessObjects(dtoList);
+            return InvoiceConverter.convertDTOsToBusinessObjects(dtoList);
         } catch (Exception e) {
             System.err.println("Error loading invoices: " + e.getMessage());
             return List.of(); // Return empty list on error
         }
-    }
-    
-    /**
-     * Convert DTOs từ persistence layer sang business objects using Factory Pattern
-     */
-    private List<Invoice> convertDTOsToBusinessObjects(List<InvoiceDTO> dtoList) {
-        return dtoList.stream()
-            .map(InvoiceFactory::createInvoice)  // ✅ Sử dụng Factory Pattern
-            .collect(Collectors.toList());
     }
     
     /**
@@ -107,18 +57,23 @@ public class InvoiceListControl {
     }
     
     /**
-     * Tính tổng doanh thu
+     * Tính tổng doanh thu - delegate to StatisticsService
      */
     public double getTotalRevenue() {
-        return getAllInvoices().stream()
-            .mapToDouble(Invoice::calculateTotal)
-            .sum();
+        return StatisticsService.calculateTotalRevenue(getAllInvoices());
     }
     
     /**
-     * Đếm số lượng invoice
+     * Đếm số lượng invoice - delegate to StatisticsService
      */
     public int getTotalInvoiceCount() {
-        return getAllInvoices().size();
+        return StatisticsService.countInvoices(getAllInvoices());
+    }
+    
+    /**
+     * Tính doanh thu trung bình
+     */
+    public double getAverageRevenue() {
+        return StatisticsService.calculateAverageRevenue(getAllInvoices());
     }
 }

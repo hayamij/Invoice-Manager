@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import business.InvoiceListControl;
-import persistence.InvoiceDAO;
-import persistence.InvoiceDAOGateway;
-import persistence.databaseKey;
+import business.DIContainer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -58,9 +56,8 @@ public class PrimaryController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // ✅ Tạo dependencies trực tiếp thay vì dùng DIContainer
-        InvoiceDAOGateway daoGateway = new InvoiceDAO(new databaseKey());
-        invoiceControl = new InvoiceListControl(daoGateway);
+        // ✅ Sử dụng DIContainer để giải quyết vi phạm DIP
+        invoiceControl = DIContainer.getInstance().getInvoiceListControl();
 
         // Initialize ComboBox
         typeComboBox.setItems(FXCollections.observableArrayList("hourly", "daily"));
@@ -113,50 +110,50 @@ public class PrimaryController implements Initializable {
      * Setup TableView columns with proper cell value factories
      */
     private void setupTableColumns() {
-        // Use simple property bindings for InvoiceListItem
+        // Use getters instead of direct field access
         idColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.id);
+            return new javafx.beans.property.SimpleStringProperty(item.getId());
         });
         
         dateColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.date);
+            return new javafx.beans.property.SimpleStringProperty(item.getDate());
         });
         
         customerColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.customer);
+            return new javafx.beans.property.SimpleStringProperty(item.getCustomer());
         });
         
         roomColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.room_id);
+            return new javafx.beans.property.SimpleStringProperty(item.getRoomId());
         });
         
         typeColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.type);
+            return new javafx.beans.property.SimpleStringProperty(item.getType());
         });
         
         unitPriceColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(Double.parseDouble(item.unitPrice));
+            return new javafx.beans.property.SimpleObjectProperty<>(Double.parseDouble(item.getUnitPrice()));
         });
         
         hourColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(item.hour > 0 ? item.hour : null);
+            return new javafx.beans.property.SimpleObjectProperty<>(item.getHour() > 0 ? item.getHour() : null);
         });
         
         dayColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(item.day > 0 ? item.day : null);
+            return new javafx.beans.property.SimpleObjectProperty<>(item.getDay() > 0 ? item.getDay() : null);
         });
         
         totalColumn.setCellValueFactory(cellData -> {
             InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(item.totalPrice);
+            return new javafx.beans.property.SimpleObjectProperty<>(item.getTotalPrice());
         });
     }
     
@@ -184,7 +181,7 @@ public class PrimaryController implements Initializable {
     private void updateStatistics(List<InvoiceListItem> invoiceItems) {
         int totalCount = invoiceItems.size();
         double totalRevenue = invoiceItems.stream()
-            .mapToDouble(item -> item.totalPrice)
+            .mapToDouble(item -> item.getTotalPrice())
             .sum();
         
         totalInvoicesLabel.setText("Tổng số hóa đơn: " + totalCount);

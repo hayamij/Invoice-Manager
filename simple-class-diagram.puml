@@ -1,0 +1,148 @@
+@startuml Invoice Manager Simplified Class Diagram
+
+!theme plain
+
+' Presentation Layer
+package "🖥️ Presentation Layer" #E1F5FE {
+    class App {
+        + main(args: String[])
+        + start(stage: Stage)
+    }
+    
+    class PrimaryController {
+        - invoiceControl: InvoiceListControl
+        + initialize()
+        + loadInvoiceData()
+        + addInvoice()
+        + updateInvoice()
+        + deleteInvoice()
+    }
+    
+    class InvoiceListItem {
+        - id: String
+        - customer: String
+        - totalPrice: double
+        + setters/getters
+    }
+}
+
+' Business Layer  
+package "🔧 Business Layer" #E8F5E8 {
+    class DIContainer <<Singleton>> {
+        + getInstance(): DIContainer
+        + getInvoiceListControl(): InvoiceListControl
+    }
+    
+    class InvoiceListControl {
+        + getAllInvoiceItems(): List<InvoiceListItem>
+        + getAllInvoices(): List<Invoice>
+        + getTotalRevenue(): double
+    }
+    
+    abstract class Invoice {
+        + {abstract} calculateTotal(): double
+        + {abstract} type(): String
+    }
+    
+    class HourlyInvoice {
+        - hour: int
+        + calculateTotal(): double
+    }
+    
+    class DailyInvoice {
+        - day: int
+        + calculateTotal(): double
+    }
+    
+    class InvoiceFactory <<Factory>> {
+        + createInvoice(dto: InvoiceDTO): Invoice
+    }
+    
+    class InvoiceConverter <<Service>> {
+        + convertDTOsToInvoiceListItems(): List<InvoiceListItem>
+        + convertDTOsToBusinessObjects(): List<Invoice>
+    }
+    
+    class StatisticsService <<Service>> {
+        + calculateTotalRevenue(): double
+        + countInvoices(): int
+    }
+}
+
+' Persistence Layer
+package "💾 Persistence Layer" #FFF3E0 {
+    interface InvoiceDAOGateway {
+        + getAll(): List<InvoiceDTO>
+        + add(invoice: InvoiceDTO): boolean
+    }
+    
+    class InvoiceDAO {
+        - conn: Connection
+        + getAll(): List<InvoiceDTO>
+    }
+    
+    class InvoiceDTO {
+        - id: String
+        - customer: String
+        - unitPrice: double
+        + setters/getters
+    }
+    
+    interface databaseAuthGateway {
+        + getServer(): String
+        + getDatabase(): String
+    }
+    
+    class databaseKey {
+        - server: String
+        - database: String
+        + getters
+    }
+}
+
+' Relationships
+App --> PrimaryController
+PrimaryController --> DIContainer : uses
+PrimaryController --> InvoiceListItem : displays
+
+DIContainer --> InvoiceListControl : creates
+InvoiceListControl --> InvoiceDAOGateway : uses
+InvoiceListControl --> InvoiceConverter : uses
+InvoiceListControl --> StatisticsService : uses
+
+InvoiceConverter --> InvoiceFactory : uses
+InvoiceFactory --> Invoice : creates
+Invoice <|-- HourlyInvoice
+Invoice <|-- DailyInvoice
+
+InvoiceConverter --> InvoiceDTO : uses
+InvoiceConverter --> InvoiceListItem : creates
+
+InvoiceDAOGateway <|.. InvoiceDAO
+InvoiceDAO --> databaseAuthGateway : uses
+databaseAuthGateway <|.. databaseKey
+InvoiceDAO --> InvoiceDTO : manages
+
+' Legend
+legend top left
+    <b>📊 Invoice Manager System</b>
+    
+    <b>Architecture:</b> 3-Tier (Presentation, Business, Persistence)
+    
+    <b>Design Patterns:</b>
+    • Singleton (DIContainer)
+    • Factory (InvoiceFactory) 
+    • Template Method (Invoice hierarchy)
+    • Strategy (DAO interfaces)
+    • Dependency Injection
+    • Service Layer
+    
+    <b>SOLID Principles:</b>
+    ✅ Single Responsibility
+    ✅ Open/Closed
+    ✅ Liskov Substitution
+    ✅ Interface Segregation
+    ✅ Dependency Inversion
+end legend
+
+@enduml

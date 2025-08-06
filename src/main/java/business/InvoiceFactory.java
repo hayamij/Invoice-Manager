@@ -19,29 +19,31 @@ public class InvoiceFactory {
             throw new IllegalArgumentException("InvoiceDTO cannot be null");
         }
         
-        switch (dto.type.toLowerCase()) {
+        validateDTO(dto);
+        
+        switch (dto.getType().toLowerCase()) {
             case "hourly":
                 return new HourlyInvoice(
-                    dto.id, 
-                    dto.date, 
-                    dto.customer, 
-                    dto.room_id, 
-                    dto.unitPrice, 
-                    dto.hour
+                    dto.getId(), 
+                    dto.getDate(), 
+                    dto.getCustomer(), 
+                    dto.getRoom_id(), 
+                    dto.getUnitPrice(), 
+                    dto.getHour()
                 );
                 
             case "daily":
                 return new DailyInvoice(
-                    dto.id, 
-                    dto.date, 
-                    dto.customer, 
-                    dto.room_id, 
-                    dto.unitPrice, 
-                    dto.day
+                    dto.getId(), 
+                    dto.getDate(), 
+                    dto.getCustomer(), 
+                    dto.getRoom_id(), 
+                    dto.getUnitPrice(), 
+                    dto.getDay()
                 );
                 
             default:
-                throw new IllegalArgumentException("Unknown invoice type: " + dto.type);
+                throw new IllegalArgumentException("Unknown invoice type: " + dto.getType());
         }
     }
     
@@ -49,13 +51,13 @@ public class InvoiceFactory {
      * Validates DTO before creating Invoice
      */
     private static void validateDTO(InvoiceDTO dto) {
-        if (dto.id == null || dto.id.trim().isEmpty()) {
+        if (dto.getId() == null || dto.getId().trim().isEmpty()) {
             throw new IllegalArgumentException("Invoice ID cannot be null or empty");
         }
-        if (dto.customer == null || dto.customer.trim().isEmpty()) {
+        if (dto.getCustomer() == null || dto.getCustomer().trim().isEmpty()) {
             throw new IllegalArgumentException("Customer cannot be null or empty");
         }
-        if (dto.unitPrice <= 0) {
+        if (dto.getUnitPrice() <= 0) {
             throw new IllegalArgumentException("Unit price must be positive");
         }
     }

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import business.InvoiceListControl;
 import business.Invoice;
 import business.StatisticsService;
+import business.InvoiceListItem;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

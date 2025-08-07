@@ -5,16 +5,51 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Enhanced ViewModel for Invoice List với Publisher capabilities
- * Combines JavaFX Properties với Observer pattern for real-time updates
+ * Enhanced ViewModel for Invoice List với simplified Observer pattern
+ * Combines JavaFX Properties với simplified notifications for real-time updates
  */
-public class InvoiceListModel extends Publisher<InvoiceListEvent> {
+public class InvoiceListModel {
+    
+    /**
+     * Simple Subscriber interface
+     */
+    public interface Subscriber {
+        void update();
+        default String getSubscriberName() { return this.getClass().getSimpleName(); }
+    }
+    
     private final ListProperty<InvoiceListItem> invoices;
+    private final List<Subscriber> subscribers = new CopyOnWriteArrayList<>();
     
     public InvoiceListModel() {
         this.invoices = new SimpleListProperty<>(FXCollections.observableArrayList());
+    }
+    
+    // Simplified Publisher methods
+    public void registerSubscriber(Subscriber subscriber) {
+        if (subscriber != null && !subscribers.contains(subscriber)) {
+            subscribers.add(subscriber);
+            System.out.println("Subscriber registered: " + subscriber.getClass().getSimpleName());
+        }
+    }
+    
+    public void removeSubscriber(Subscriber subscriber) {
+        if (subscribers.remove(subscriber)) {
+            System.out.println("Subscriber removed: " + subscriber.getClass().getSimpleName());
+        }
+    }
+    
+    public void notifySubscribers() {
+        for (Subscriber subscriber : subscribers) {
+            try {
+                subscriber.update();
+            } catch (Exception e) {
+                System.err.println("Error notifying subscriber: " + e.getMessage());
+            }
+        }
     }
     
     // JavaFX Property for automatic UI binding
@@ -29,7 +64,7 @@ public class InvoiceListModel extends Publisher<InvoiceListEvent> {
     public void setInvoices(ObservableList<InvoiceListItem> invoices) {
         this.invoices.set(invoices);
         // Notify subscribers về data reload
-        notifySubscribers(new InvoiceListEvent(InvoiceListEvent.EventType.LIST_REFRESHED, invoices));
+        notifySubscribers();
     }
     
     public void setInvoices(List<InvoiceListItem> invoiceList) {
@@ -40,22 +75,21 @@ public class InvoiceListModel extends Publisher<InvoiceListEvent> {
     public void addInvoice(InvoiceListItem invoice) {
         this.invoices.add(invoice);
         // Notify subscribers về item được thêm
-        notifySubscribers(new InvoiceListEvent(InvoiceListEvent.EventType.ITEM_ADDED, invoice));
+        notifySubscribers();
     }
     
     public void updateInvoice(int index, InvoiceListItem invoice) {
         if (index >= 0 && index < this.invoices.size()) {
-            InvoiceListItem oldInvoice = this.invoices.get(index);
             this.invoices.set(index, invoice);
             // Notify subscribers về item được update
-            notifySubscribers(new InvoiceListEvent(InvoiceListEvent.EventType.ITEM_UPDATED, invoice, oldInvoice));
+            notifySubscribers();
         }
     }
     
     public void removeInvoice(InvoiceListItem invoice) {
         if (this.invoices.remove(invoice)) {
             // Notify subscribers về item được xóa
-            notifySubscribers(new InvoiceListEvent(InvoiceListEvent.EventType.ITEM_REMOVED, invoice));
+            notifySubscribers();
         }
     }
     
@@ -73,7 +107,7 @@ public class InvoiceListModel extends Publisher<InvoiceListEvent> {
     public void clear() {
         this.invoices.clear();
         // Notify subscribers về list được clear
-        notifySubscribers(new InvoiceListEvent(InvoiceListEvent.EventType.LIST_CLEARED, null));
+        notifySubscribers();
     }
     
     public int size() {
@@ -88,15 +122,10 @@ public class InvoiceListModel extends Publisher<InvoiceListEvent> {
     }
     
     /**
-     * Calculate và notify thống kê realtime
+     * Notify statistics update
      */
     public void notifyStatisticsUpdate() {
-        double totalRevenue = this.invoices.stream()
-            .mapToDouble(InvoiceListItem::getTotalPrice)
-            .sum();
-        int totalCount = this.invoices.size();
-        
-        StatisticsData stats = new StatisticsData(totalCount, totalRevenue);
-        notifySubscribers(new InvoiceListEvent(InvoiceListEvent.EventType.STATISTICS_UPDATED, stats));
+        // Simply notify that statistics have updated
+        notifySubscribers();
     }
 }

@@ -1,12 +1,12 @@
 package presentation;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import business.InvoiceListControl;
-import business.DIContainer;
+import business.Invoice;
+import business.StatisticsService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,6 +19,11 @@ public class PrimaryController implements Initializable {
     
     // Model with Observer capabilities
     private InvoiceListModel invoiceListModel;
+    
+    // Search fields
+    @FXML private TextField searchField;
+    @FXML private Button searchButton;
+    @FXML private Button clearSearchButton;
     
     // Form fields
     @FXML private TextField customerField;
@@ -55,11 +60,12 @@ public class PrimaryController implements Initializable {
     @FXML private Label statusLabel;
     @FXML private Label totalInvoicesLabel;
     @FXML private Label totalAmountLabel;
+    @FXML private Button monthlyStatsButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // ✅ Sử dụng DIContainer để giải quyết vi phạm DIP
-        invoiceControl = DIContainer.getInstance().getInvoiceListControl();
+        // ✅ Sử dụng Factory method từ InvoiceListControl
+        invoiceControl = InvoiceListControl.createInstance();
         
         // Initialize model with Observer pattern
         invoiceListModel = new InvoiceListModel();
@@ -105,12 +111,11 @@ public class PrimaryController implements Initializable {
                     hourField.clear();
                 }
                 
-                // Load default values from settings
-                AppSettings settings = AppSettings.getInstance();
+                // Set default values directly
                 if (newValue.equals("hourly")) {
-                    unitPriceField.setText(String.valueOf(settings.getDefaultHourlyRate()));
+                    unitPriceField.setText("100.0");
                 } else {
-                    unitPriceField.setText(String.valueOf(settings.getDefaultDailyRate()));
+                    unitPriceField.setText("500.0");
                 }
             }
         });
@@ -247,9 +252,62 @@ public class PrimaryController implements Initializable {
         statusLabel.setText("Đang tải lại danh sách...");
         loadInvoiceData();
     }
-
+    
     @FXML
-    private void switchToSecondary() throws IOException {
-        App.setRoot("secondary");
+    private void searchInvoices() {
+        String searchText = searchField.getText().trim();
+        if (searchText.isEmpty()) {
+            loadInvoiceData(); // Load all if empty
+            return;
+        }
+        
+        statusLabel.setText("Đang tìm kiếm...");
+        List<InvoiceListItem> filteredInvoices = invoiceListModel.getInvoices().stream()
+            .filter(invoice -> 
+                invoice.getCustomer().toLowerCase().contains(searchText.toLowerCase()) ||
+                invoice.getRoomId().toLowerCase().contains(searchText.toLowerCase())
+            )
+            .toList();
+            
+        invoiceTable.setItems(FXCollections.observableArrayList(filteredInvoices));
+        statusLabel.setText("Tìm thấy " + filteredInvoices.size() + " hóa đơn");
+        updateStatistics(filteredInvoices);
+    }
+    
+    @FXML
+    private void clearSearch() {
+        searchField.clear();
+        loadInvoiceData();
+        statusLabel.setText("Đã xóa bộ lọc");
+    }
+    
+    @FXML
+    private void showMonthlyStats() {
+        try {
+            List<Invoice> invoices = invoiceControl.getAllInvoices();
+            var monthlyStats = StatisticsService.calculateMonthlyAverageRevenue(invoices);
+            var roomTypeStats = StatisticsService.countByRoomType(invoices);
+            
+            StringBuilder message = new StringBuilder("=== THỐNG KÊ ===\n\n");
+            
+            message.append("📊 TRUNG BÌNH DOANH THU THEO THÁNG:\n");
+            monthlyStats.forEach((month, avg) -> 
+                message.append(String.format("• %s: %.2f VND\n", month, avg))
+            );
+            
+            message.append("\n🏨 SỐ LƯỢNG THEO LOẠI PHÒNG:\n");
+            roomTypeStats.forEach((type, count) ->
+                message.append(String.format("• %s: %d hóa đơn\n", type, count))
+            );
+            
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Thống kê hệ thống");
+            alert.setHeaderText("Báo cáo thống kê chi tiết");
+            alert.setContentText(message.toString());
+            alert.showAndWait();
+            
+        } catch (Exception e) {
+            statusLabel.setText("Lỗi khi tạo thống kê: " + e.getMessage());
+        }
     }
 }

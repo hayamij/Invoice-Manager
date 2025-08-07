@@ -1,7 +1,7 @@
-package presentation;
+package business;
 
 /**
- * Presentation Model cho Invoice trong UI
+ * Business Model cho Invoice List Item
  * Áp dụng Encapsulation và validation
  */
 public class InvoiceListItem {

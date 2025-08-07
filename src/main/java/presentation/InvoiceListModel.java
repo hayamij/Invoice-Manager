@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import business.InvoiceListItem;
 
 /**
  * Enhanced ViewModel for Invoice List với simplified Observer pattern

@@ -7,7 +7,6 @@ import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDAO;
 import persistence.databaseKey;
 import persistence.InvoiceDTO;
-import presentation.InvoiceListItem;
 
 /**
  * Business Control class chỉ tập trung vào điều phối business logic

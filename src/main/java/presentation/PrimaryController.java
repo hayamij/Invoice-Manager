@@ -3,6 +3,7 @@ package presentation;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import business.InvoiceListControl;
 import business.Invoice;
@@ -267,7 +268,7 @@ public class PrimaryController implements Initializable {
                 invoice.getCustomer().toLowerCase().contains(searchText.toLowerCase()) ||
                 invoice.getRoomId().toLowerCase().contains(searchText.toLowerCase())
             )
-            .toList();
+            .collect(Collectors.toList());
             
         invoiceTable.setItems(FXCollections.observableArrayList(filteredInvoices));
         statusLabel.setText("Tìm thấy " + filteredInvoices.size() + " hóa đơn");

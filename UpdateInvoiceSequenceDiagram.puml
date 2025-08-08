@@ -1,0 +1,32 @@
+@startuml UpdateInvoiceSequence
+actor "User" as User
+boundary "PrimaryController (B)" as Boundary
+control "UpdateInvoiceUseCase (C)" as Control
+entity "HourlyInvoice/DailyInvoice (E)" as InvoiceEntity
+database "InvoiceDAO" as DAO
+
+User -> Boundary : nhập thông tin sửa hóa đơn
+activate Boundary
+Boundary -> Control : updateInvoice(id, customer, room, type, unitPrice, hour, day)
+activate Control
+Control -> Control : kiểm tra dữ liệu đầu vào
+alt type == "hourly"
+    Control -> InvoiceEntity : HourlyInvoice.calculateTotal(unitPrice, hour)
+    activate InvoiceEntity
+    InvoiceEntity --> Control : trả về tổng tiền
+    deactivate InvoiceEntity
+else type == "daily"
+    Control -> InvoiceEntity : DailyInvoice.calculateTotal(unitPrice, day)
+    activate InvoiceEntity
+    InvoiceEntity --> Control : trả về tổng tiền
+    deactivate InvoiceEntity
+end
+Control -> DAO : updateInvoice(InvoiceDTO)
+activate DAO
+DAO --> Control : boolean (thành công/thất bại)
+deactivate DAO
+Control --> Boundary : boolean (thành công/thất bại)
+deactivate Control
+Boundary --> User : thông báo kết quả
+deactivate Boundary
+@enduml

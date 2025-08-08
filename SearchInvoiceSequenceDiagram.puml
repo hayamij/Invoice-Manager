@@ -1,0 +1,21 @@
+@startuml SearchInvoiceSequence
+actor "User" as User
+boundary "PrimaryController (B)" as Boundary
+control "SearchInvoiceUseCase (C)" as Control
+database "InvoiceDAO" as DAO
+
+User -> Boundary : nhập từ khóa tìm kiếm
+activate Boundary
+Boundary -> Control : executeForUI(searchTerm)
+activate Control
+Control -> Control : kiểm tra dữ liệu đầu vào
+Control -> DAO : getAll()
+activate DAO
+DAO --> Control : List<InvoiceDTO>
+deactivate DAO
+Control -> Control : lọc và tạo List<InvoiceSearchResult>
+Control --> Boundary : List<InvoiceSearchResult>
+deactivate Control
+Boundary --> User : hiển thị kết quả tìm kiếm
+deactivate Boundary
+@enduml

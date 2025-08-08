@@ -1,11 +1,12 @@
 package business;
 
-import java.util.Date;
 
 public class HourlyInvoice extends Invoice {
     private int hour;
 
-
+    public HourlyInvoice() {
+        
+    }
     // Getter for hour - cần thiết cho UI binding
     public int getHour() {
         return hour;

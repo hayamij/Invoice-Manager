@@ -1,12 +1,12 @@
 package business;
 
-import persistence.InvoiceDAO;
+import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDTO;
 
 public class UpdateInvoiceUseCase {
-    private final InvoiceDAO invoiceDAO;
+    private final InvoiceDAOGateway invoiceDAO;
 
-    public UpdateInvoiceUseCase(InvoiceDAO invoiceDAO) {
+    public UpdateInvoiceUseCase(InvoiceDAOGateway invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
 

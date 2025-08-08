@@ -1,0 +1,49 @@
+@startuml AddInvoiceClassDiagram
+package presentation {
+    class PrimaryController {
+        +addInvoice(...)
+        ...
+    }
+}
+
+package business {
+    class AddInvoiceUseCase {
+        -invoiceDAO: InvoiceDAO
+        +addInvoice(customer, room, type, unitPriceStr, hourStr, dayStr): boolean
+    }
+    class HourlyInvoice {
+        +calculateTotal(unitPrice: double, hour: int): double
+    }
+    class DailyInvoice {
+        +calculateTotal(unitPrice: double, day: int): double
+    }
+}
+
+package persistence {
+    class InvoiceDAO {
+        +insertInvoice(invoice: InvoiceDTO): boolean
+    }
+    class InvoiceDTO {
+        -customer: String
+        -room_id: String
+        -type: String
+        -unitPrice: double
+        -hour: int
+        -day: int
+        -date: Date
+        +setCustomer(...)
+        +setRoom_id(...)
+        +setType(...)
+        +setUnitPrice(...)
+        +setHour(...)
+        +setDay(...)
+        +setDate(...)
+    }
+}
+
+presentation.PrimaryController --> business.AddInvoiceUseCase
+business.AddInvoiceUseCase --> business.HourlyInvoice
+business.AddInvoiceUseCase --> business.DailyInvoice
+business.AddInvoiceUseCase --> persistence.InvoiceDAO
+persistence.InvoiceDAO --> persistence.InvoiceDTO
+@enduml

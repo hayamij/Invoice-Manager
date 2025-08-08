@@ -1,8 +1,11 @@
 package business;
-import java.util.Date;
 
 public class DailyInvoice extends Invoice {
     private int day;
+
+    public DailyInvoice() {
+
+    }
 
     // Getter for day - cần thiết cho UI binding
     public int getDay() {

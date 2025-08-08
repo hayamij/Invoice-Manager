@@ -11,25 +11,33 @@ import java.util.List;
 
 public class InvoiceDAO implements InvoiceDAOGateway {
     private Connection conn;
+    private databaseAuthGateway databaseAuth;
 
-    public InvoiceDAO(databaseAuthGateway databaseAuthGateway) {
+    public InvoiceDAO() {
+        // Tự động tạo databaseAuthGateway và connect trong constructor
+        this.databaseAuth = new databaseKey();
+        
         try {
-			//load driver
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-			System.out.println("Driver loaded successfully!");
+            //load driver
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            System.out.println("Driver loaded successfully!");
 
-			String url = "jdbc:sqlserver://" + databaseAuthGateway.getServer() + ";databaseName=" + databaseAuthGateway.getDatabase() + ";trustServerCertificate=true;";
+            String url = "jdbc:sqlserver://" + databaseAuth.getServer() + 
+                        ";databaseName=" + databaseAuth.getDatabase() + 
+                        ";trustServerCertificate=true;";
 
-			System.out.println("Attempting to connect to: " + url);
-			conn = DriverManager.getConnection(url, databaseAuthGateway.getUsername(), databaseAuthGateway.getPassword());
-			System.out.println("Connected successfully to database!");
-			
-		} catch (ClassNotFoundException e) {
-			System.err.println("SQL Server Driver not found!" + e.getMessage());
-		} catch (SQLException e) {
-			System.err.println("Database connection failed!" + e.getMessage());
-		}
-	}
+            System.out.println("Attempting to connect to: " + url);
+            conn = DriverManager.getConnection(url, 
+                                             databaseAuth.getUsername(), 
+                                             databaseAuth.getPassword());
+            System.out.println("Connected successfully to database!");
+            
+        } catch (ClassNotFoundException e) {
+            System.err.println("SQL Server Driver not found!" + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Database connection failed!" + e.getMessage());
+        }
+    }
 	
 	public List<InvoiceDTO> getAll() {
         List<InvoiceDTO> invoices = new ArrayList<>();
@@ -58,21 +66,59 @@ public class InvoiceDAO implements InvoiceDAOGateway {
         
         return invoices;
     }
-    
-    @Override
-    public boolean add(InvoiceDTO invoice) {
-        // TODO: Implement add functionality
-        // This method should insert a new invoice into the database
-        try {
-            // Implementation will be added later
-            System.out.println("Add invoice method called - not implemented yet");
-            return false;
-        } catch (Exception e) {
-            System.err.println("Error adding invoice: " + e.getMessage());
+
+    public boolean updateInvoice(InvoiceDTO invoiceDTO) {
+        String sql = "UPDATE invoices SET date = ?, customer = ?, room_id = ?, unitPrice = ?, hour = ?, day = ?, type = ? WHERE id = ?";
+        try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.getDate().getTime()));
+            stmt.setString(2, invoiceDTO.getCustomer());
+            stmt.setString(3, invoiceDTO.getRoom_id());
+            stmt.setDouble(4, invoiceDTO.getUnitPrice());
+            stmt.setInt(5, invoiceDTO.getHour());
+            stmt.setInt(6, invoiceDTO.getDay());
+            stmt.setString(7, invoiceDTO.getType());
+            stmt.setString(8, invoiceDTO.getId());
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating invoice: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
-    
+
+    public boolean insertInvoice(InvoiceDTO invoiceDTO) {
+        String sql = "INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.getDate().getTime()));
+            stmt.setString(2, invoiceDTO.getCustomer());
+            stmt.setString(3, invoiceDTO.getRoom_id());
+            stmt.setDouble(4, invoiceDTO.getUnitPrice());
+            stmt.setInt(5, invoiceDTO.getHour());
+            stmt.setInt(6, invoiceDTO.getDay());
+            stmt.setString(7, invoiceDTO.getType());
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error inserting invoice: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteInvoice(String id) {
+        String sql = "DELETE FROM invoices WHERE id = ?";
+        try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting invoice: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // public void closeConnection() {
     //     if (conn != null) {
     //         try {

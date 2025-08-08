@@ -69,9 +69,8 @@
                     <Button fx:id="addButton" text="Thêm hóa đơn" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#addInvoice" />
                     <Button fx:id="updateButton" text="Cập nhật" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#updateInvoice" />
                     <Button fx:id="deleteButton" text="Xóa" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#deleteInvoice" />
-                    <Button fx:id="clearButton" text="Làm mới" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#clearForm" />
-                    <Region HBox.hgrow="ALWAYS" />
                     <Button fx:id="refreshButton" text="Tải lại danh sách" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#refreshTable" />
+                    <Button fx:id="statsButton" text="Thống kê" onAction="#handleStatsButton" />
                 </HBox>
             </VBox>
             
@@ -99,7 +98,7 @@
                     <Separator orientation="VERTICAL" />
                     <Label fx:id="totalAmountLabel" text="Tổng doanh thu: 0 VND" style="-fx-font-weight: bold; -fx-text-fill: #27ae60;" />
                     <Separator orientation="VERTICAL" />
-                    <Button fx:id="monthlyStatsButton" text="Thống kê theo tháng" style="-fx-background-color: #8e44ad; -fx-text-fill: white;" onAction="#showMonthlyStats" />
+                    <Button fx:id="monthlyStatsButton" text="Thống kê" style="-fx-background-color: #8e44ad; -fx-text-fill: white;" />
                 </HBox>
             </VBox>
             

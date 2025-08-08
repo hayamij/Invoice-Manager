@@ -16,4 +16,6 @@
 -- ('2023-01-03 12:00:00', 'Alice Johnson', '103', 150.00, 8, null, 'hourly'),
 -- ('2023-01-04 13:00:00', 'Bob Brown', '104', 250.00, null, 10, 'daily');
 
--- select * from invoices;
+select * from invoices;
+
+select * from users;

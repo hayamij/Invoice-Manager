@@ -16,9 +16,13 @@ public abstract class Invoice {
         this.room_id = room_id;
         this.unitPrice = unitPrice;
     }
-
+    
+    public Invoice() {
+        // Constructor rỗng cho Invoice
+    }
+    
     // Public methods để Presentation layer có thể truy cập
-    public abstract double calculateTotal();
+    public abstract double calculateTotal(double unitPrice, int hour);
     public abstract String type();
 
     // Getters and Setters

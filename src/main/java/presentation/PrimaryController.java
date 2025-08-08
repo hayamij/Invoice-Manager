@@ -1,315 +1,270 @@
 package presentation;
 
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-
-import business.InvoiceListControl;
-import business.Invoice;
-import business.StatisticsService;
-import business.InvoiceListItem;
-import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.collections.FXCollections;
+import javafx.beans.property.SimpleStringProperty;
+import business.ShowInvoiceListUseCase;
+import business.SearchInvoiceUseCase;
+import business.UpdateInvoiceUseCase;
+import business.DeleteInvoiceUseCase;
+import business.MonthlyAverageInvoiceUseCase;
+import business.ShowInvoiceTypeStatsUseCase;
+import business.ShowInvoiceListUseCase.InvoiceDisplayData;
+import business.SearchInvoiceUseCase.InvoiceSearchResult;
+import java.util.List;
+import java.sql.Date;
+import java.util.ArrayList;
+import presentation.App;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
-public class PrimaryController implements Initializable {
+public class PrimaryController {
 
-    // Business layer - tạo dependencies trực tiếp
-    private InvoiceListControl invoiceControl;
-    
-    // Model with Observer capabilities
-    private InvoiceListModel invoiceListModel;
-    
-    // Search fields
-    @FXML private TextField searchField;
-    @FXML private Button searchButton;
-    @FXML private Button clearSearchButton;
-    
-    // Form fields
-    @FXML private TextField customerField;
-    @FXML private TextField roomField;
-    @FXML private TextField unitPriceField;
+    // UI Components
+    @FXML private TableView<InvoiceDisplayData> invoiceTable;
+    @FXML private TableColumn<InvoiceDisplayData, String> idColumn, customerColumn, dateColumn, roomColumn, typeColumn, unitPriceColumn, hourColumn, dayColumn, totalColumn;
+    @FXML private ListView<String> invoiceListView;
+    @FXML private Label statusLabel, totalInvoicesLabel;
+    @FXML private TextField searchField, customerField, roomField, unitPriceField, hourField, dayField;
     @FXML private ComboBox<String> typeComboBox;
-    @FXML private TextField hourField;
-    @FXML private TextField dayField;
-    
-    // Labels for dynamic fields
-    @FXML private Label hourLabel;
-    @FXML private Label dayLabel;
-    
-    // Buttons
-    @FXML private Button addButton;
-    @FXML private Button updateButton;
-    @FXML private Button deleteButton;
-    @FXML private Button clearButton;
-    @FXML private Button refreshButton;
-    
-    // Table
-    @FXML private TableView<InvoiceListItem> invoiceTable;
-    @FXML private TableColumn<InvoiceListItem, String> idColumn;
-    @FXML private TableColumn<InvoiceListItem, String> dateColumn;
-    @FXML private TableColumn<InvoiceListItem, String> customerColumn;
-    @FXML private TableColumn<InvoiceListItem, String> roomColumn;
-    @FXML private TableColumn<InvoiceListItem, String> typeColumn;
-    @FXML private TableColumn<InvoiceListItem, Double> unitPriceColumn;
-    @FXML private TableColumn<InvoiceListItem, Integer> hourColumn;
-    @FXML private TableColumn<InvoiceListItem, Integer> dayColumn;
-    @FXML private TableColumn<InvoiceListItem, Double> totalColumn;
-    
-    // Labels
-    @FXML private Label statusLabel;
-    @FXML private Label totalInvoicesLabel;
-    @FXML private Label totalAmountLabel;
-    @FXML private Button monthlyStatsButton;
+    @FXML private Button statsButton;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        // ✅ Sử dụng Factory method từ InvoiceListControl
-        invoiceControl = InvoiceListControl.createInstance();
-        
-        // Initialize model with Observer pattern
-        invoiceListModel = new InvoiceListModel();
+    // Use Cases (Control)
+    private ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase();
+    private SearchInvoiceUseCase searchInvoiceUseCase = new SearchInvoiceUseCase();
+    private UpdateInvoiceUseCase updateInvoiceUseCase;
+    private business.AddInvoiceUseCase addInvoiceUseCase;
+    private DeleteInvoiceUseCase deleteInvoiceUseCase;
+    private ShowInvoiceTypeStatsUseCase showInvoiceTypeStatsUseCase;
+    private MonthlyAverageInvoiceUseCase monthlyAverageInvoiceUseCase;
 
-        // Initialize ComboBox
-        typeComboBox.setItems(FXCollections.observableArrayList("hourly", "daily"));
-        
-        // Initialize TableView columns
-        setupTableColumns();
-        
-        // Bind table to model
-        invoiceTable.itemsProperty().bind(invoiceListModel.invoicesProperty());
-        
-        // Set default status
-        statusLabel.setText("");
-        
-        // Add listener for typeComboBox to show/hide fields
-        typeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                if (newValue.equals("hourly")) {
-                    // Show hour field and label, hide day field and label
-                    hourLabel.setVisible(true);
-                    hourLabel.setManaged(true);
-                    hourField.setVisible(true);
-                    hourField.setManaged(true);
-                    
-                    dayLabel.setVisible(false);
-                    dayLabel.setManaged(false);
-                    dayField.setVisible(false);
-                    dayField.setManaged(false);
-                    dayField.clear();
-                } else if (newValue.equals("daily")) {
-                    // Show day field and label, hide hour field and label
-                    dayLabel.setVisible(true);
-                    dayLabel.setManaged(true);
-                    dayField.setVisible(true);
-                    dayField.setManaged(true);
-                    
-                    hourLabel.setVisible(false);
-                    hourLabel.setManaged(false);
-                    hourField.setVisible(false);
-                    hourField.setManaged(false);
-                    hourField.clear();
-                }
-                
-                // Set default values directly
-                if (newValue.equals("hourly")) {
-                    unitPriceField.setText("100.0");
+    public void initialize() {
+        setupColumns();
+        setupTypeComboBox();
+        setupTableSelectionListener();
+        loadData();
+        updateInvoiceUseCase = new UpdateInvoiceUseCase(new persistence.InvoiceDAO());
+        addInvoiceUseCase = new business.AddInvoiceUseCase(new persistence.InvoiceDAO());
+        deleteInvoiceUseCase = new DeleteInvoiceUseCase(new persistence.InvoiceDAO());
+        showInvoiceTypeStatsUseCase = new ShowInvoiceTypeStatsUseCase(new persistence.InvoiceDAO());
+        monthlyAverageInvoiceUseCase = new MonthlyAverageInvoiceUseCase(new persistence.InvoiceDAO());
+    }
+
+    private void setupColumns() {
+        if (idColumn != null) idColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getId()));
+        if (customerColumn != null) customerColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getCustomer()));
+        if (dateColumn != null) dateColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDate()));
+        if (roomColumn != null) roomColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getRoom()));
+        if (typeColumn != null) typeColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
+        if (unitPriceColumn != null) unitPriceColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getUnitPrice()));
+        if (hourColumn != null) hourColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getHour()));
+        if (dayColumn != null) dayColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDay()));
+        if (totalColumn != null) totalColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTotal()));
+    }
+
+    private void setupTypeComboBox() {
+        if (typeComboBox != null) {
+            typeComboBox.getItems().addAll("hourly", "daily");
+            typeComboBox.setValue("hourly"); // Mặc định chọn hourly
+            if (hourField != null) hourField.setVisible(true);
+            if (dayField != null) dayField.setVisible(false);
+            typeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null && (newVal.equals("daily"))) {
+                    if (hourField != null) hourField.setVisible(false);
+                    if (dayField != null) dayField.setVisible(true);
                 } else {
-                    unitPriceField.setText("500.0");
+                    if (hourField != null) hourField.setVisible(true);
+                    if (dayField != null) dayField.setVisible(false);
+                }
+            });
+        }
+    }
+
+    private void setupTableSelectionListener() {
+        if (invoiceTable != null) {
+            invoiceTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                if (newSelection != null) {
+                    loadInvoiceToEditFields(newSelection);
+                }
+            });
+        }
+    }
+
+    private void loadInvoiceToEditFields(InvoiceDisplayData invoice) {
+        if (customerField != null) customerField.setText(invoice.getCustomer());
+        if (roomField != null) roomField.setText(invoice.getRoom());
+        if (typeComboBox != null) typeComboBox.setValue(invoice.getType());
+        if (unitPriceField != null) unitPriceField.setText(invoice.getUnitPrice());
+        if (hourField != null) hourField.setText(invoice.getHour());
+        if (dayField != null) dayField.setText(invoice.getDay());
+        
+        // Update status to show which invoice is being edited
+        if (statusLabel != null) {
+            statusLabel.setText("Editing Invoice ID: " + invoice.getId() + " - " + invoice.getCustomer());
+        }
+    }
+
+    private void loadData() {
+        try {
+            List<InvoiceDisplayData> displayData = showInvoiceListUseCase.executeForUI();
+            displayDataInTable(displayData);
+            // Không cập nhật statusLabel ở đây để tránh ghi đè thông điệp hành động
+            // if (statusLabel != null) statusLabel.setText("Loaded " + displayData.size() + " invoices");
+        } catch (Exception e) {
+            if (statusLabel != null) statusLabel.setText("Error: " + e.getMessage());
+        }
+    }
+
+    private void searchData(String searchTerm) {
+        try {
+            List<InvoiceSearchResult> searchResults = searchInvoiceUseCase.executeForUI(searchTerm);
+            List<InvoiceDisplayData> displayData = convertSearchResultsToDisplayData(searchResults);
+            displayDataInTable(displayData);
+            
+            if (statusLabel != null) {
+                if (searchTerm == null || searchTerm.trim().isEmpty()) {
+                    statusLabel.setText("Showing all " + displayData.size() + " invoices");
+                } else {
+                    statusLabel.setText("Found " + displayData.size() + " invoices matching '" + searchTerm + "'");
                 }
             }
-        });
-        
-        // Set default selection to "hourly"
-        typeComboBox.setValue("hourly");
-        
-        // Load initial data
-        loadInvoiceData();
-    }
-    
-    /**
-     * Setup TableView columns with proper cell value factories
-     */
-    private void setupTableColumns() {
-        // Use getters instead of direct field access
-        idColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.getId());
-        });
-        
-        dateColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.getDate());
-        });
-        
-        customerColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.getCustomer());
-        });
-        
-        roomColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.getRoomId());
-        });
-        
-        typeColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(item.getType());
-        });
-        
-        unitPriceColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(Double.parseDouble(item.getUnitPrice()));
-        });
-        
-        hourColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(item.getHour() > 0 ? item.getHour() : null);
-        });
-        
-        dayColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(item.getDay() > 0 ? item.getDay() : null);
-        });
-        
-        totalColumn.setCellValueFactory(cellData -> {
-            InvoiceListItem item = cellData.getValue();
-            return new javafx.beans.property.SimpleObjectProperty<>(item.getTotalPrice());
-        });
-    }
-    
-    /**
-     * Load invoice data from business layer and display in table
-     */
-    private void loadInvoiceData() {
-        try {
-            List<InvoiceListItem> invoiceItems = invoiceControl.getAllInvoiceItems();
-            
-            // Update model (which will automatically notify table due to binding)
-            invoiceListModel.setInvoices(invoiceItems);
-            
-            // Update statistics
-            updateStatistics(invoiceItems);
-            
-            // Trigger statistics update notification
-            invoiceListModel.notifyStatisticsUpdate();
-            
-            statusLabel.setText("Đã tải " + invoiceItems.size() + " hóa đơn");
         } catch (Exception e) {
-            statusLabel.setText("Lỗi tải dữ liệu: " + e.getMessage());
+            if (statusLabel != null) statusLabel.setText("Search error: " + e.getMessage());
         }
     }
-    
-    /**
-     * Update statistics labels
-     */
-    private void updateStatistics(List<InvoiceListItem> invoiceItems) {
-        int totalCount = invoiceItems.size();
-        double totalRevenue = invoiceItems.stream()
-            .mapToDouble(item -> item.getTotalPrice())
-            .sum();
-        
-        totalInvoicesLabel.setText("Tổng số hóa đơn: " + totalCount);
-        totalAmountLabel.setText(String.format("Tổng doanh thu: %.2f VND", totalRevenue));
+
+    private void clearEditFields() {
+        if (customerField != null) customerField.clear();
+        if (roomField != null) roomField.clear();
+        if (typeComboBox != null) typeComboBox.setValue(null);
+        if (unitPriceField != null) unitPriceField.clear();
+        if (hourField != null) hourField.clear();
+        if (dayField != null) dayField.clear();
+        if (invoiceTable != null) {
+            invoiceTable.getSelectionModel().clearSelection();
+        }
     }
 
-    @FXML
-    private void addInvoice() {
-        statusLabel.setText("Thêm hóa đơn...");
-        // TODO: Implement add invoice logic
+    private void displayDataInTable(List<InvoiceDisplayData> displayData) {
+        if (invoiceTable != null) invoiceTable.setItems(FXCollections.observableArrayList(displayData));
+        if (totalInvoicesLabel != null) totalInvoicesLabel.setText("Total: " + displayData.size());
     }
 
-    @FXML
-    private void updateInvoice() {
-        statusLabel.setText("Cập nhật hóa đơn...");
-        // TODO: Implement update invoice logic
+    private List<InvoiceDisplayData> convertSearchResultsToDisplayData(List<InvoiceSearchResult> searchResults) {
+        List<InvoiceDisplayData> displayData = new ArrayList<>();
+        for (InvoiceSearchResult result : searchResults) {
+            displayData.add(new InvoiceDisplayData(
+                result.getId(), result.getCustomer(), result.getDate(), result.getRoom(),
+                result.getType(), result.getUnitPrice(), result.getHour(), result.getDay(), result.getTotal()
+            ));
+        }
+        return displayData;
     }
 
-    @FXML
-    private void deleteInvoice() {
-        statusLabel.setText("Xóa hóa đơn...");
-        // TODO: Implement delete invoice logic
+    // Event Handlers - buttons to trigger use cases
+    @FXML void addInvoice(ActionEvent e) {
+        try {
+            boolean success = addInvoiceUseCase.addInvoice(
+                customerField.getText(),
+                roomField.getText(),
+                typeComboBox.getValue(),
+                unitPriceField.getText(),
+                hourField.isVisible() ? hourField.getText() : "0",
+                dayField.isVisible() ? dayField.getText() : "0"
+            );
+            if (success) {
+                statusLabel.setText("Thêm hóa đơn thành công");
+                loadData();
+                clearEditFields();
+            } else {
+                statusLabel.setText("Vui lòng nhập đầy đủ thông tin");
+            }
+        } catch (IllegalArgumentException ex) {
+            statusLabel.setText(ex.getMessage());
+        }
     }
-
-    @FXML
-    private void clearForm() {
-        customerField.clear();
-        roomField.clear();
-        unitPriceField.clear();
-        // Keep typeComboBox selection as "hourly" instead of clearing
-        typeComboBox.setValue("hourly");
-        hourField.clear();
-        dayField.clear();
-        
-        // No need to hide/show fields since setValue("hourly") will trigger the listener
-        // which will automatically show hour field and hide day field
-        
-        statusLabel.setText("Đã làm mới form");
+    @FXML void clearEditFields(ActionEvent e) {
+        clearEditFields();
+        statusLabel.setText("Đã xóa dữ liệu nhập");
     }
-
-    @FXML
-    private void refreshTable() {
-        statusLabel.setText("Đang tải lại danh sách...");
-        loadInvoiceData();
+    @FXML void clearSearch(ActionEvent e) {
+        if(searchField != null) searchField.clear();
+        loadData();
+        statusLabel.setText("Đã xóa từ khóa tìm kiếm và làm mới danh sách");
     }
-    
-    @FXML
-    private void searchInvoices() {
-        String searchText = searchField.getText().trim();
-        if (searchText.isEmpty()) {
-            loadInvoiceData(); // Load all if empty
+    @FXML void deleteInvoice(ActionEvent e) {
+        InvoiceDisplayData selectedInvoice = invoiceTable.getSelectionModel().getSelectedItem();
+        if (selectedInvoice == null) {
+            statusLabel.setText("Vui lòng chọn hóa đơn để xóa");
             return;
         }
-        
-        statusLabel.setText("Đang tìm kiếm...");
-        List<InvoiceListItem> filteredInvoices = invoiceListModel.getInvoices().stream()
-            .filter(invoice -> 
-                invoice.getCustomer().toLowerCase().contains(searchText.toLowerCase()) ||
-                invoice.getRoomId().toLowerCase().contains(searchText.toLowerCase())
-            )
-            .collect(Collectors.toList());
-            
-        invoiceTable.setItems(FXCollections.observableArrayList(filteredInvoices));
-        statusLabel.setText("Tìm thấy " + filteredInvoices.size() + " hóa đơn");
-        updateStatistics(filteredInvoices);
+        boolean success = deleteInvoiceUseCase.deleteInvoice(selectedInvoice.getId());
+        if (success) {
+            statusLabel.setText("Xóa hóa đơn thành công");
+            loadData();
+            clearEditFields();
+        } else {
+            statusLabel.setText("Xóa hóa đơn thất bại");
+        }
     }
-    
-    @FXML
-    private void clearSearch() {
-        searchField.clear();
-        loadInvoiceData();
-        statusLabel.setText("Đã xóa bộ lọc");
+    @FXML void refreshTable(ActionEvent e) {
+        loadData();
+        statusLabel.setText("Đã làm mới danh sách hóa đơn");
     }
-    
-    @FXML
-    private void showMonthlyStats() {
+    @FXML void searchInvoices(ActionEvent e) {
+        String searchTerm = searchField != null ? searchField.getText() : "";
+        searchData(searchTerm);
+        statusLabel.setText("Đã tìm kiếm hóa đơn với từ khóa: '" + searchTerm + "'");
+    }
+
+    @FXML void updateInvoice(ActionEvent e) {
+        InvoiceDisplayData selectedInvoice = invoiceTable.getSelectionModel().getSelectedItem();
+        if (selectedInvoice == null) {
+            statusLabel.setText("Vui lòng chọn hóa đơn để cập nhật");
+            return;
+        }
         try {
-            List<Invoice> invoices = invoiceControl.getAllInvoices();
-            var monthlyStats = StatisticsService.calculateMonthlyAverageRevenue(invoices);
-            var roomTypeStats = StatisticsService.countByRoomType(invoices);
-            
-            StringBuilder message = new StringBuilder("=== THỐNG KÊ ===\n\n");
-            
-            message.append("📊 TRUNG BÌNH DOANH THU THEO THÁNG:\n");
-            monthlyStats.forEach((month, avg) -> 
-                message.append(String.format("• %s: %.2f VND\n", month, avg))
+            boolean success = updateInvoiceUseCase.updateInvoice(
+                selectedInvoice.getId(),
+                customerField.getText(),
+                roomField.getText(),
+                typeComboBox.getValue(),
+                unitPriceField.getText(),
+                hourField.isVisible() ? hourField.getText() : "0",
+                dayField.isVisible() ? dayField.getText() : "0"
             );
-            
-            message.append("\n🏨 SỐ LƯỢNG THEO LOẠI PHÒNG:\n");
-            roomTypeStats.forEach((type, count) ->
-                message.append(String.format("• %s: %d hóa đơn\n", type, count))
-            );
-            
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-            alert.setTitle("Thống kê hệ thống");
-            alert.setHeaderText("Báo cáo thống kê chi tiết");
-            alert.setContentText(message.toString());
+            if (success) {
+                statusLabel.setText("Cập nhật hóa đơn thành công");
+                loadData();
+            } else {
+                statusLabel.setText("Vui lòng nhập đầy đủ thông tin");
+            }
+        } catch (IllegalArgumentException ex) {
+            statusLabel.setText(ex.getMessage());
+        }
+    }
+    @FXML
+    private void handleStatsButton(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/presentation/stats.fxml"));
+            Parent root = loader.load();
+            StatsController statsController = loader.getController();
+            statsController.setUseCases(showInvoiceTypeStatsUseCase, monthlyAverageInvoiceUseCase);
+            Stage stage = new Stage();
+            stage.setTitle("Báo cáo thống kê hóa đơn");
+            stage.setScene(new Scene(root));
+            stage.initOwner(statsButton.getScene().getWindow());
+            stage.show();
+        } catch (Exception ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Không thể mở bảng thống kê: " + ex.getMessage());
             alert.showAndWait();
-            
-        } catch (Exception e) {
-            statusLabel.setText("Lỗi khi tạo thống kê: " + e.getMessage());
         }
     }
 }

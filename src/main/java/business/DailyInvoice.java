@@ -4,11 +4,6 @@ import java.util.Date;
 public class DailyInvoice extends Invoice {
     private int day;
 
-    public DailyInvoice(String id, Date date, String customer, String room_id, double unitPrice, int day) {
-        super(id, date, customer, room_id, unitPrice);
-        this.day = day;
-    }
-    
     // Getter for day - cần thiết cho UI binding
     public int getDay() {
         return day;
@@ -20,7 +15,7 @@ public class DailyInvoice extends Invoice {
     }
     
     @Override
-    public double calculateTotal() {
+    public double calculateTotal(double unitPrice, int day) {
         if (day <=0){
             return 0;
         } else if (day > 7) {

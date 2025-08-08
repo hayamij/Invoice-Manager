@@ -1,0 +1,10 @@
+Một khách sạn X cần quản lý các hóa đơn của khách hàng thuê phòng. Hóa đơn có 2 loại: hóa đơn theo giờ, hóa đơn theo ngày . Thông tin chung của chi tiết hóa đơn là: Mã hóa đơn, ngày hóa đơn (sử dụng kiểu dữ liệu ngày của Java), Tên khách hàng, mã phòng, đơn giá. Thông tin riêng của từng loại hóa đơn gồm:
+ Hóa đơn theo giờ còn có số giờ thuê. Tiền của hóa đơn được tính: số giờ thuê * đơn giá. Nếu trường hợp số giờ > 24 tiếng và < 30 tiếng thì cũng chỉ tính 24 giờ. Nếu trường hợp số giờ là > 30 tiếng thì không dùng loại hóa đơn theo giờ.
+ Hóa đơn theo ngày sẽ có số ngày thuê. Tiền của hóa đơn được tính: số ngày thuê * đơn giá. Nếu số ngày >7 thì giảm 20% đơn giá cho những ngày còn lại.
+Có các chức năng chính:
+ Thêm Hóa đơn
+ Xóa Hóa đơn, 
+ Sửa Hóa đơn
+ Tìm kiếm
+ Tính tổng số lượng cho từng loại thuê phòng.
+ Tính trung bình thành tiền của hóa đơn thuê phòng trong tháng nào đó.

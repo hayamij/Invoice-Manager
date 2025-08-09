@@ -13,21 +13,16 @@ import business.MonthlyAverageInvoiceUseCase;
 import business.ShowInvoiceTypeStatsUseCase;
 import business.ShowInvoiceListUseCase.InvoiceDisplayData;
 import business.SearchInvoiceUseCase.InvoiceSearchResult;
-import java.util.List;
-import java.sql.Date;
+
 import java.util.ArrayList;
-import presentation.App;
+import java.util.List;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 public class PrimaryController {
-
-    // UI Components
+    
     @FXML private TableView<InvoiceDisplayData> invoiceTable;
     @FXML private TableColumn<InvoiceDisplayData, String> idColumn, customerColumn, dateColumn, roomColumn, typeColumn, unitPriceColumn, hourColumn, dayColumn, totalColumn;
     @FXML private ListView<String> invoiceListView;

@@ -1,6 +1,6 @@
 package business;
 
-import persistence.InvoiceDAO;
+import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDTO;
 import java.util.List;
 import java.util.Set;
@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 public class MonthlyAverageInvoiceUseCase {
-    private final InvoiceDAO invoiceDAO;
+    private final InvoiceDAOGateway invoiceDAO;
 
-    public MonthlyAverageInvoiceUseCase(InvoiceDAO invoiceDAO) {
+    public MonthlyAverageInvoiceUseCase(InvoiceDAOGateway invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
 

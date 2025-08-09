@@ -1,12 +1,12 @@
 package business;
 
-import persistence.InvoiceDAO;
+import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDTO;
 
 public class AddInvoiceUseCase {
-    private final InvoiceDAO invoiceDAO;
+    private final InvoiceDAOGateway invoiceDAO;
 
-    public AddInvoiceUseCase(InvoiceDAO invoiceDAO) {
+    public AddInvoiceUseCase(InvoiceDAOGateway invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
 
@@ -21,19 +21,20 @@ public class AddInvoiceUseCase {
             double unitPrice = Double.parseDouble(unitPriceStr);
             int hour = Integer.parseInt(hourStr);
             int day = Integer.parseInt(dayStr);
-            
             double total = 0;
             if ("hourly".equals(type)) {
                 HourlyInvoice hi = new HourlyInvoice();
                 total = hi.calculateTotal(unitPrice, hour);
+                if (total == -1) {
+                    throw new IllegalArgumentException("Số giờ không được vượt quá 30");
+                }
             } else if ("daily".equals(type)) {
                 DailyInvoice di = new DailyInvoice();
                 total = di.calculateTotal(unitPrice, day);
+                if (total == -1) {
+                    throw new IllegalArgumentException("Số ngày phải lớn hơn 0");
+                }
             }
-            if (total == -1) {
-                throw new IllegalArgumentException("Không được dùng loại hóa đơn này");
-            }
-            
             InvoiceDTO invoiceDTO = new InvoiceDTO();
             invoiceDTO.setCustomer(customer);
             invoiceDTO.setRoom_id(room);

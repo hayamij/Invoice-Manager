@@ -2,24 +2,23 @@ package business;
 
 import java.util.List;
 import java.util.ArrayList;
-import persistence.InvoiceDAO;
-import persistence.InvoiceDTO;
 import persistence.InvoiceDAOGateway;
+import persistence.InvoiceDTO;
 
 public class ShowInvoiceListUseCase {
-    private InvoiceDAOGateway invoiceDAO = new InvoiceDAO();
+    private InvoiceDAOGateway invoiceDAO;
     
     public ShowInvoiceListUseCase() {}
     public ShowInvoiceListUseCase(InvoiceDAOGateway invoiceDAO) { this.invoiceDAO = invoiceDAO; }
     
     public List<InvoiceDisplayData> executeForUI() {
+        if (invoiceDAO == null) throw new IllegalStateException("InvoiceDAOGateway chưa được khởi tạo");
         List<InvoiceDisplayData> data = new ArrayList<>();
         for (InvoiceDTO dto : invoiceDAO.getAll()) {
             boolean isHourly = "h".equalsIgnoreCase(dto.getType()) || "hourly".equalsIgnoreCase(dto.getType());
             String hour = isHourly && dto.getHour() > 0 ? String.valueOf(dto.getHour()) : "";
             String day = !isHourly && dto.getDay() > 0 ? String.valueOf(dto.getDay()) : "";
             int quantity = dto.getHour() > 0 ? dto.getHour() : dto.getDay();
-            
             data.add(new InvoiceDisplayData(
                 String.valueOf(dto.getId()), dto.getCustomer(), String.valueOf(dto.getDate()),
                 dto.getRoom_id(), dto.getType(), String.valueOf(dto.getUnitPrice()),

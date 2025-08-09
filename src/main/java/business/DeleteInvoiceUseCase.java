@@ -1,11 +1,11 @@
 package business;
 
-import persistence.InvoiceDAO;
+import persistence.InvoiceDAOGateway;
 
 public class DeleteInvoiceUseCase {
-    private final InvoiceDAO invoiceDAO;
+    private final InvoiceDAOGateway invoiceDAO;
 
-    public DeleteInvoiceUseCase(InvoiceDAO invoiceDAO) {
+    public DeleteInvoiceUseCase(InvoiceDAOGateway invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
 

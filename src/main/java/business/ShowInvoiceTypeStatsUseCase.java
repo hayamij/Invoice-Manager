@@ -1,13 +1,13 @@
 package business;
 
-import persistence.InvoiceDAO;
+import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDTO;
 import java.util.List;
 
 public class ShowInvoiceTypeStatsUseCase {
-    private final InvoiceDAO invoiceDAO;
+    private final InvoiceDAOGateway invoiceDAO;
 
-    public ShowInvoiceTypeStatsUseCase(InvoiceDAO invoiceDAO) {
+    public ShowInvoiceTypeStatsUseCase(InvoiceDAOGateway invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
     }
 

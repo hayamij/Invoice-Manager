@@ -32,24 +32,30 @@ public class PrimaryController {
     @FXML private Button statsButton;
 
     // Use Cases (Control)
-    private ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase();
-    private SearchInvoiceUseCase searchInvoiceUseCase = new SearchInvoiceUseCase();
+    private ShowInvoiceListUseCase showInvoiceListUseCase;
+    private SearchInvoiceUseCase searchInvoiceUseCase;
     private UpdateInvoiceUseCase updateInvoiceUseCase;
     private business.AddInvoiceUseCase addInvoiceUseCase;
     private DeleteInvoiceUseCase deleteInvoiceUseCase;
     private ShowInvoiceTypeStatsUseCase showInvoiceTypeStatsUseCase;
     private MonthlyAverageInvoiceUseCase monthlyAverageInvoiceUseCase;
 
+    public void initUseCases(persistence.InvoiceDAOGateway gateway) {
+        showInvoiceListUseCase = new ShowInvoiceListUseCase(gateway);
+        searchInvoiceUseCase = new SearchInvoiceUseCase(gateway);
+        updateInvoiceUseCase = new UpdateInvoiceUseCase(gateway);
+        addInvoiceUseCase = new business.AddInvoiceUseCase(gateway);
+        deleteInvoiceUseCase = new DeleteInvoiceUseCase(gateway);
+        showInvoiceTypeStatsUseCase = new ShowInvoiceTypeStatsUseCase(gateway);
+        monthlyAverageInvoiceUseCase = new MonthlyAverageInvoiceUseCase(gateway);
+        loadData(); // Đảm bảo gọi sau khi khởi tạo các UseCase
+    }
+
     public void initialize() {
         setupColumns();
         setupTypeComboBox();
         setupTableSelectionListener();
-        loadData();
-        updateInvoiceUseCase = new UpdateInvoiceUseCase(new persistence.InvoiceDAO());
-        addInvoiceUseCase = new business.AddInvoiceUseCase(new persistence.InvoiceDAO());
-        deleteInvoiceUseCase = new DeleteInvoiceUseCase(new persistence.InvoiceDAO());
-        showInvoiceTypeStatsUseCase = new ShowInvoiceTypeStatsUseCase(new persistence.InvoiceDAO());
-        monthlyAverageInvoiceUseCase = new MonthlyAverageInvoiceUseCase(new persistence.InvoiceDAO());
+        // Không gọi loadData() ở đây nữa
     }
 
     private void setupColumns() {

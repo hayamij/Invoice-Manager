@@ -6,13 +6,13 @@ import persistence.InvoiceDAOGateway;
 import persistence.InvoiceDTO;
 
 public class ShowInvoiceListUseCase {
-    private InvoiceDAOGateway invoiceDAO;
+    private final InvoiceDAOGateway invoiceDAO;
     
-    public ShowInvoiceListUseCase() {}
-    public ShowInvoiceListUseCase(InvoiceDAOGateway invoiceDAO) { this.invoiceDAO = invoiceDAO; }
+    public ShowInvoiceListUseCase(InvoiceDAOGateway invoiceDAO) {
+        this.invoiceDAO = invoiceDAO;
+    }
     
     public List<InvoiceDisplayData> executeForUI() {
-        if (invoiceDAO == null) throw new IllegalStateException("InvoiceDAOGateway chưa được khởi tạo");
         List<InvoiceDisplayData> data = new ArrayList<>();
         for (InvoiceDTO dto : invoiceDAO.getAll()) {
             boolean isHourly = "h".equalsIgnoreCase(dto.getType()) || "hourly".equalsIgnoreCase(dto.getType());

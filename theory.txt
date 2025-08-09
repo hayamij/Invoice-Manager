@@ -1,0 +1,7 @@
+nghiệp vụ entity độc lập với phần mềm (critical business rule) -> trái tim của phần mềm
+nghiệp vụ usecase chỉ tồn tại trong phần mềm (usecase tồn tại thì nghiệp vụ mới tồn tại)
+viết usecase khôn ngoan:
+- không mô tả chi tiết UI, GUI
+- nhận input (không cần biết đến từ đâu)
+- xử lý (validation)
+- output

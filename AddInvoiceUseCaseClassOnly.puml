@@ -1,7 +1,0 @@
-@startuml AddInvoiceUseCaseClassOnly
-class AddInvoiceUseCase {
-    -invoiceDAO: InvoiceDAO
-    +AddInvoiceUseCase(invoiceDAO: InvoiceDAO)
-    +addInvoice(customer: String, room: String, type: String, unitPriceStr: String, hourStr: String, dayStr: String): boolean
-}
-@enduml

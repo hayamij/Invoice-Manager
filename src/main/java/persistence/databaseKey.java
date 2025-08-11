@@ -1,16 +1,23 @@
 package persistence;
 
-public class databaseKey implements databaseAuthGateway {
+public class DatabaseKey implements DatabaseAuthGateway {
+    private final String server;
+    private final String database;
+    private final String username;
+    private final String password;
 
-    
+    public DatabaseKey() {
+        this.server = "phuongtuan";
+        this.database = "invoice";
+        this.username = "fuongtuan";
+        this.password = "toilabanhmochi";
+    }
 
-    private String server = "phuongtuan";
-    private String database = "invoice";
-    private String username = "fuongtuan";
-    private String password = "toilabanhmochi";
-
-    public databaseKey() {
-
+    public DatabaseKey(String server, String database, String username, String password) {
+        this.server = server;
+        this.database = database;
+        this.username = username;
+        this.password = password;
     }
 
     @Override

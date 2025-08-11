@@ -1,24 +1,25 @@
 package business;
 
+import java.util.Date;
 
 public class HourlyInvoice extends Invoice {
-    private int hour;
+    private double hour;
+
+    public HourlyInvoice(String id, Date date, String customer, String room_id, double unitPrice, double hour) {
+        super(id, date, customer, room_id, unitPrice);
+        this.hour = hour;
+    }
 
     public HourlyInvoice() {
         
     }
-    // Getter for hour - cần thiết cho UI binding
-    public int getHour() {
-        return hour;
-    }
-    
     // Setter for hour
-    public void setHour(int hour) {
+    public void setHour(double hour) {
         this.hour = hour;
     }
     
     @Override
-    public double calculateTotal(double unitPrice, int hour) {
+    public double calculateTotal() {
         if (hour <= 0) {
             return 0;
         } else if (hour >= 24 && hour <= 30) {

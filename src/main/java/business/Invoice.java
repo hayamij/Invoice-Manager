@@ -22,7 +22,7 @@ public abstract class Invoice {
     }
     
     // Public methods để Presentation layer có thể truy cập
-    public abstract double calculateTotal(double unitPrice, int hour);
+    public abstract double calculateTotal();
     public abstract String type();
 
     // Getters and Setters
@@ -37,4 +37,5 @@ public abstract class Invoice {
     public void setCustomer(String customer) { this.customer = customer; }
     public void setRoomId(String room_id) { this.room_id = room_id; }
     public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
+
 }

@@ -1,6 +1,6 @@
 package persistence;
 
-public interface databaseAuthGateway {
+public interface DatabaseAuthGateway {
     String getServer();
     String getDatabase();
     String getUsername();

@@ -7,7 +7,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8.0.171"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="presentation.PrimaryController">
+            fx:controller="presentation.InvoiceController">
 
     <!-- Header -->
     <top>
@@ -70,7 +70,6 @@
                     <Button fx:id="updateButton" text="Cập nhật" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#updateInvoice" />
                     <Button fx:id="deleteButton" text="Xóa" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#deleteInvoice" />
                     <Button fx:id="refreshButton" text="Tải lại danh sách" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#refreshTable" />
-                    <Button fx:id="statsButton" text="Thống kê" onAction="#handleStatsButton" />
                 </HBox>
             </VBox>
             
@@ -80,14 +79,12 @@
                 
                 <TableView fx:id="invoiceTable" VBox.vgrow="ALWAYS">
                     <columns>
+                        <TableColumn fx:id="sttColumn" text="STT" prefWidth="50" />
                         <TableColumn fx:id="idColumn" text="ID" prefWidth="50" />
                         <TableColumn fx:id="dateColumn" text="Ngày tạo" prefWidth="120" />
                         <TableColumn fx:id="customerColumn" text="Khách hàng" prefWidth="150" />
                         <TableColumn fx:id="roomColumn" text="Phòng" prefWidth="80" />
                         <TableColumn fx:id="typeColumn" text="Loại" prefWidth="80" />
-                        <TableColumn fx:id="unitPriceColumn" text="Đơn giá" prefWidth="100" />
-                        <TableColumn fx:id="hourColumn" text="Giờ" prefWidth="60" />
-                        <TableColumn fx:id="dayColumn" text="Ngày" prefWidth="60" />
                         <TableColumn fx:id="totalColumn" text="Tổng tiền" prefWidth="120" />
                     </columns>
                 </TableView>

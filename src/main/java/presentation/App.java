@@ -5,9 +5,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.io.IOException;
 import persistence.InvoiceDAO;
-import persistence.InvoiceDAOGateway;
+
+import java.io.IOException;
+
+import business.ShowInvoiceList.ShowInvoiceListUseCase;
 
 /**
  * JavaFX App
@@ -17,15 +19,23 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/presentation/primary.fxml"));
-        Parent root = fxmlLoader.load();
-        scene = new Scene(root, 1280, 720);
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/presentation/InvoiceListUI.fxml"));
+        scene = new Scene(fxmlLoader.load(), 1280, 720);
         stage.setScene(scene);
         stage.show();
-        // Khởi tạo gateway và truyền vào controller
-        PrimaryController controller = fxmlLoader.getController();
-        InvoiceDAOGateway gateway = new InvoiceDAO();
-        controller.initUseCases(gateway);
+        stage.setTitle("Invoice Manager");
+
+        // Lấy controller thực tế từ FXMLLoader
+        InvoiceController invoiceController = fxmlLoader.getController();
+        InvoiceDAO DAO = new InvoiceDAO();
+        InvoiceViewModel model = new InvoiceViewModel();
+        ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(DAO);
+
+        // Truyền model và usecase vào controller thực tế
+        invoiceController.setViewModel(model);
+        invoiceController.setShowInvoiceListUseCase(showInvoiceListUseCase);
+        invoiceController.execute();
+        invoiceController.displayInvoices();
     }
 
     static void setRoot(String fxml) throws IOException {

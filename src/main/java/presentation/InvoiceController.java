@@ -125,7 +125,7 @@ public class InvoiceController {
     
     // ************************************************
     //
-    //                  SEARCH INVOICE
+    //                  UPDATE INVOICE
     //
     // ************************************************
 
@@ -151,7 +151,7 @@ public class InvoiceController {
 
     // ************************************************
     //
-    //                INVOICE STATISTIC
+    //                INVOICE STATISTICS
     //
     // ************************************************
 

@@ -13,13 +13,6 @@ public class DatabaseKey implements DatabaseAuthGateway {
         this.password = "toilabanhmochi";
     }
 
-    public DatabaseKey(String server, String database, String username, String password) {
-        this.server = server;
-        this.database = database;
-        this.username = username;
-        this.password = password;
-    }
-
     @Override
     public String getServer() { return server; }
     @Override

@@ -39,7 +39,6 @@ public class InvoiceDAO implements InvoiceDAOGateway {
 	public List<InvoiceDTO> getAll() {
         List<InvoiceDTO> invoices = new ArrayList<>();
         String sql = "SELECT * FROM invoices";
-        // ✅ Sử dụng try-with-resources để tự động đóng resources
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
@@ -58,7 +57,9 @@ public class InvoiceDAO implements InvoiceDAOGateway {
             System.err.println("Error retrieving invoices: " + e.getMessage());
             e.printStackTrace();
         }
+        System.out.println("retrieved " + invoices.size() + " invoices");
         return invoices;
+
     }
 
     // public boolean updateInvoice(InvoiceDTO invoiceDTO) {
@@ -81,24 +82,24 @@ public class InvoiceDAO implements InvoiceDAOGateway {
     //     }
     // }
 
-    // public boolean insertInvoice(InvoiceDTO invoiceDTO) {
-    //     String sql = "INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    //     try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-    //         stmt.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.getDate().getTime()));
-    //         stmt.setString(2, invoiceDTO.getCustomer());
-    //         stmt.setString(3, invoiceDTO.getRoom_id());
-    //         stmt.setDouble(4, invoiceDTO.getUnitPrice());
-    //         stmt.setInt(5, invoiceDTO.getHour());
-    //         stmt.setInt(6, invoiceDTO.getDay());
-    //         stmt.setString(7, invoiceDTO.getType());
-    //         int affectedRows = stmt.executeUpdate();
-    //         return affectedRows > 0;
-    //     } catch (SQLException e) {
-    //         System.err.println("Error inserting invoice: " + e.getMessage());
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
+    public boolean insertInvoice(InvoiceDTO invoiceDTO) {
+        String sql = "INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.date.getTime()));
+            stmt.setString(2, invoiceDTO.customer);
+            stmt.setString(3, invoiceDTO.room_id);
+            stmt.setDouble(4, invoiceDTO.unitPrice);
+            stmt.setInt(5, invoiceDTO.hour);
+            stmt.setInt(6, invoiceDTO.day);
+            stmt.setString(7, invoiceDTO.type);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error inserting invoice: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // public boolean deleteInvoice(String id) {
     //     String sql = "DELETE FROM invoices WHERE id = ?";

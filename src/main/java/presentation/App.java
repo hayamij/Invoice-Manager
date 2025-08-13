@@ -9,6 +9,7 @@ import persistence.InvoiceDAO;
 
 import java.io.IOException;
 
+import business.AddInvoice.InvoiceTypeListUseCase;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
 
 /**
@@ -30,12 +31,16 @@ public class App extends Application {
         InvoiceDAO DAO = new InvoiceDAO();
         InvoiceViewModel model = new InvoiceViewModel();
         ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(DAO);
+        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase(DAO);
 
         // Truyền model và usecase vào controller thực tế
         invoiceController.setViewModel(model);
         invoiceController.setShowInvoiceListUseCase(showInvoiceListUseCase);
+        invoiceController.setInvoiceTypeListUseCase(invoiceTypeListUseCase);
         invoiceController.execute();
         invoiceController.displayInvoices();
+        invoiceController.loadInvoiceTypes();
+        
     }
 
     static void setRoot(String fxml) throws IOException {

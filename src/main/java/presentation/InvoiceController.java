@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import business.AddInvoice.InvoiceTypeListUseCase;
+import business.AddInvoice.InvoiceTypeViewDTO;
+import business.AddInvoice.AddInvoiceUseCase;
 import business.ShowInvoiceList.InvoiceViewDTO;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.collections.FXCollections;
@@ -17,6 +20,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import persistence.InvoiceDTO;
 
 public class InvoiceController {
     
@@ -75,9 +79,20 @@ public class InvoiceController {
 
 	}
 
+    public void setViewModel(InvoiceViewModel model) {
+        this.viewModel = model;
+
+    }
+
+    public void setShowInvoiceListUseCase(ShowInvoiceListUseCase showInvoiceListUseCase) {
+        this.showInvoiceListUseCase = showInvoiceListUseCase;
+    }
+
     @FXML
     void refreshTable(ActionEvent event) {
-
+        showInvoiceListUseCase.execute();
+        statusLabel.setText("Đã làm mới danh sách hóa đơn.");
+        System.out.println("Refresh button clicked, invoice list refreshed.");
     }
 
     public void displayInvoices() {
@@ -92,16 +107,6 @@ public class InvoiceController {
         totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
         System.out.println("TableView items: " + items.size()); // Log kiểm tra dữ liệu
     }
-
-    public void setViewModel(InvoiceViewModel model) {
-        this.viewModel = model;
-
-    }
-
-    public void setShowInvoiceListUseCase(ShowInvoiceListUseCase showInvoiceListUseCase) {
-        this.showInvoiceListUseCase = showInvoiceListUseCase;
-    }
-
 
     // ************************************************
     //
@@ -118,9 +123,74 @@ public class InvoiceController {
     @FXML private TextField hourField;
     @FXML private TextField unitPriceField;    
     
+    private InvoiceTypeListUseCase invoiceTypeListUseCase;
+    private AddInvoiceUseCase addInvoiceUseCase = new AddInvoiceUseCase(new persistence.InvoiceDAO());
+
+
+    public void setInvoiceTypeListUseCase(InvoiceTypeListUseCase useCase) {
+        this.invoiceTypeListUseCase = useCase;
+    }
+
+    public void loadInvoiceTypes() {
+        if (invoiceTypeListUseCase != null) {
+            List<InvoiceTypeViewDTO> typeDTOs = invoiceTypeListUseCase.execute();
+            List<String> typeNames = new ArrayList<>();
+            for (InvoiceTypeViewDTO dto : typeDTOs) {
+                typeNames.add(dto.getTypeName());
+            }
+            typeComboBox.setItems(FXCollections.observableArrayList(typeNames));
+            // Set default value là loại đầu tiên
+            if (!typeNames.isEmpty()) {
+                typeComboBox.setValue(typeNames.get(0));
+                updateInputFields(typeNames.get(0));
+            }
+            // Thêm listener cho combobox
+            typeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+                updateInputFields(newVal);
+            });
+        }
+    }
+    
+    private String hourlyType = new business.HourlyInvoice().type();
+    private String dailyType = new business.DailyInvoice().type();
+
+    private void updateInputFields(String type) {
+        if (type.equals(hourlyType)) {
+            dayField.setVisible(false);
+            hourField.setVisible(true);
+        } else if (type.equals(dailyType)) {
+            hourField.setVisible(false);
+            dayField.setVisible(true);
+        } else {
+            dayField.setVisible(true);
+            hourField.setVisible(true);
+        }
+    }
+    
     @FXML
     void addInvoice(ActionEvent event) {
-
+        InvoiceDTO invoiceDTO = new InvoiceDTO();
+        int nextId = viewModel.invoiceItems == null ? 1 : viewModel.invoiceItems.size() + 1;
+        invoiceDTO.id = String.valueOf(nextId);
+        invoiceDTO.date = new java.sql.Timestamp(System.currentTimeMillis());
+        invoiceDTO.customer = customerField.getText();
+        invoiceDTO.room_id = roomField.getText();
+        invoiceDTO.unitPrice = Double.parseDouble(unitPriceField.getText());
+        invoiceDTO.hour = hourField.getText().isEmpty() ? 0 : Integer.parseInt(hourField.getText());
+        invoiceDTO.day = dayField.getText().isEmpty() ? 0 : Integer.parseInt(dayField.getText());
+        invoiceDTO.type = typeComboBox.getValue();
+        double total = invoiceDTO.unitPrice * (invoiceDTO.hour + invoiceDTO.day);
+        if (total < 0) {
+            statusLabel.setText("Thêm hóa đơn thất bại!");
+            return;
+        } else {
+            statusLabel.setText("Thêm hóa đơn thành công!");
+            addInvoiceUseCase.execute(invoiceDTO);
+            execute();
+            displayInvoices();
+        }
+        showInvoiceListUseCase.execute();
+        System.out.println("Add button clicked, invoice added: " + invoiceDTO.id);
     }
     
     // ************************************************

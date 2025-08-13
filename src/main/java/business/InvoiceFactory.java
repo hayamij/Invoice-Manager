@@ -4,7 +4,7 @@ import persistence.InvoiceDTO;
 
 public class InvoiceFactory {
     public static Invoice createInvoice(InvoiceDTO invoiceDTO) {
-        if ("hourly".equalsIgnoreCase(invoiceDTO.type)){
+        if ("hourly invoice".equalsIgnoreCase(invoiceDTO.type)){
             return new HourlyInvoice(
                 invoiceDTO.id,
                 invoiceDTO.date,
@@ -13,7 +13,7 @@ public class InvoiceFactory {
                 invoiceDTO.unitPrice,
                 invoiceDTO.hour
             );
-        } else if ("daily".equalsIgnoreCase(invoiceDTO.type)) {
+        } else if ("daily invoice".equalsIgnoreCase(invoiceDTO.type)) {
             return new DailyInvoice(
                 invoiceDTO.id,
                 invoiceDTO.date,

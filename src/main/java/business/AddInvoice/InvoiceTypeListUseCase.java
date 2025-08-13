@@ -3,14 +3,14 @@ package business.AddInvoice;
 import java.util.List;
 import java.util.Arrays;
 
-import persistence.InvoiceDAOGateway;
+import persistence.AddInvoiceDAOGateway;
 import business.HourlyInvoice;
 import business.DailyInvoice;
 
 public class InvoiceTypeListUseCase {
-    private final InvoiceDAOGateway DAO;
+    private final AddInvoiceDAOGateway DAO;
 
-    public InvoiceTypeListUseCase(InvoiceDAOGateway DAO) {
+    public InvoiceTypeListUseCase(AddInvoiceDAOGateway DAO) {
         this.DAO = DAO;
     }
 

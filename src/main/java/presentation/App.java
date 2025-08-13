@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import persistence.AddInvoiceDAO;
 import persistence.InvoiceDAO;
 
 import java.io.IOException;
@@ -28,10 +29,11 @@ public class App extends Application {
 
         // Lấy controller thực tế từ FXMLLoader
         InvoiceController invoiceController = fxmlLoader.getController();
-        InvoiceDAO DAO = new InvoiceDAO();
+        InvoiceDAO invoiceDAO = new InvoiceDAO();
+        AddInvoiceDAO addInvoiceDAO = new AddInvoiceDAO();
         InvoiceViewModel model = new InvoiceViewModel();
-        ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(DAO);
-        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase(DAO);
+        ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAO);
+        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase(addInvoiceDAO);
 
         // Truyền model và usecase vào controller thực tế
         invoiceController.setViewModel(model);

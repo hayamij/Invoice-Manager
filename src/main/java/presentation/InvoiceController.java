@@ -6,6 +6,7 @@ import java.util.List;
 
 import business.AddInvoice.InvoiceTypeListUseCase;
 import business.AddInvoice.InvoiceTypeViewDTO;
+import business.AddInvoice.AddInvoiceItem;
 import business.AddInvoice.AddInvoiceUseCase;
 import business.ShowInvoiceList.InvoiceViewDTO;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
@@ -124,7 +125,7 @@ public class InvoiceController {
     @FXML private TextField unitPriceField;    
     
     private InvoiceTypeListUseCase invoiceTypeListUseCase;
-    private AddInvoiceUseCase addInvoiceUseCase = new AddInvoiceUseCase(new persistence.InvoiceDAO());
+    private AddInvoiceUseCase addInvoiceUseCase = new AddInvoiceUseCase(new persistence.AddInvoiceDAO());
 
 
     public void setInvoiceTypeListUseCase(InvoiceTypeListUseCase useCase) {
@@ -169,28 +170,23 @@ public class InvoiceController {
     
     @FXML
     void addInvoice(ActionEvent event) {
-        InvoiceDTO invoiceDTO = new InvoiceDTO();
-        int nextId = viewModel.invoiceItems == null ? 1 : viewModel.invoiceItems.size() + 1;
-        invoiceDTO.id = String.valueOf(nextId);
-        invoiceDTO.date = new java.sql.Timestamp(System.currentTimeMillis());
-        invoiceDTO.customer = customerField.getText();
-        invoiceDTO.room_id = roomField.getText();
-        invoiceDTO.unitPrice = Double.parseDouble(unitPriceField.getText());
-        invoiceDTO.hour = hourField.getText().isEmpty() ? 0 : Integer.parseInt(hourField.getText());
-        invoiceDTO.day = dayField.getText().isEmpty() ? 0 : Integer.parseInt(dayField.getText());
-        invoiceDTO.type = typeComboBox.getValue();
-        double total = invoiceDTO.unitPrice * (invoiceDTO.hour + invoiceDTO.day);
-        if (total < 0) {
-            statusLabel.setText("Thêm hóa đơn thất bại!");
-            return;
-        } else {
+        AddInvoiceItem addItem = new AddInvoiceItem();
+        addItem.customer = customerField.getText();
+        addItem.room_id = roomField.getText();
+        addItem.date = new java.sql.Timestamp(System.currentTimeMillis());
+        addItem.unitPrice = Double.parseDouble(unitPriceField.getText());
+        addItem.hour = hourField.getText().isEmpty() ? 0 : Integer.parseInt(hourField.getText());
+        addItem.day = dayField.getText().isEmpty() ? 0 : Integer.parseInt(dayField.getText());
+        addItem.type = typeComboBox.getValue();
+        if (addInvoiceUseCase.execute(addItem)){
             statusLabel.setText("Thêm hóa đơn thành công!");
-            addInvoiceUseCase.execute(invoiceDTO);
-            execute();
-            displayInvoices();
+        } else {
+            statusLabel.setText("Thêm hóa đơn thất bại!");
         }
+        System.out.println("Add button clicked, invoice added");
+        execute();
+        displayInvoices();
         showInvoiceListUseCase.execute();
-        System.out.println("Add button clicked, invoice added: " + invoiceDTO.id);
     }
     
     // ************************************************
@@ -203,7 +199,9 @@ public class InvoiceController {
 
     @FXML
     void updateInvoice(ActionEvent event) {
-
+        execute();
+        displayInvoices();
+        showInvoiceListUseCase.execute();
     }    
 
     // ************************************************

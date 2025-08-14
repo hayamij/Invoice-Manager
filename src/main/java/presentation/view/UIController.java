@@ -1,4 +1,4 @@
-package presentation;
+package presentation.view;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -10,9 +10,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-
-import presentation.AddController;
-import presentation.ShowListController;
+import presentation.InvoiceViewItem;
+import presentation.InvoiceViewModel;
 
 public class UIController implements Initializable {
 

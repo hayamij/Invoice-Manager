@@ -1,4 +1,4 @@
-package presentation;
+package presentation.view;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,9 +60,10 @@ public class ShowListController {
 
     public void loadAndDisplay() {
         List<InvoiceViewDTO> dtoList = showInvoiceListUseCase.execute();
-        viewModel.invoiceItems = convert(dtoList);
+        viewModel.getInvoiceItems().clear();
+        viewModel.getInvoiceItems().addAll(convert(dtoList));
 
-        ObservableList<InvoiceViewItem> items = FXCollections.observableArrayList(viewModel.invoiceItems);
+        ObservableList<InvoiceViewItem> items = FXCollections.observableArrayList(viewModel.getInvoiceItems());
         invoiceTable.setItems(items);
         if (statusLabel != null) statusLabel.setText("Đã tải " + items.size() + " hóa đơn.");
     }

@@ -1,4 +1,4 @@
-package presentation;
+package presentation.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,6 @@ import presentation.InvoiceViewModel;
 
 public class AddController {
 
-    private InvoiceViewModel viewModel;
     private AddInvoiceUseCase addInvoiceUseCase;
     private InvoiceTypeListUseCase invoiceTypeListUseCase;
 
@@ -74,7 +73,6 @@ public class AddController {
             Label statusLabel,
             Runnable onAdded
     ) {
-        this.viewModel = viewModel;
         this.addInvoiceUseCase = addInvoiceUseCase;
         this.invoiceTypeListUseCase = invoiceTypeListUseCase;
 

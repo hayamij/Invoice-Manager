@@ -9,12 +9,12 @@ import business.AddInvoice.InvoiceTypeListUseCase;
 import business.AddInvoice.InvoiceTypeViewDTO;
 import business.DailyInvoice;
 import business.HourlyInvoice;
+import business.InvoiceViewModel;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import presentation.InvoiceViewModel;
 
-public class AddController {
+public class AddUI {
 
     private InvoiceViewModel viewModel;
     private AddInvoiceUseCase addInvoiceUseCase;

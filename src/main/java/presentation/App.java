@@ -1,5 +1,8 @@
 package presentation;
 
+import business.DeleteInvoice.DeleteInvoiceUseCase;
+import persistence.DeleteInvoiceDAO;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -37,12 +40,19 @@ public class App extends Application {
 
         ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAO);
         AddInvoiceUseCase addInvoiceUseCase = new AddInvoiceUseCase(addInvoiceDAO);
+
+        DeleteInvoiceDAO deleteDAO = new DeleteInvoiceDAO();                 
+        DeleteInvoiceUseCase deleteInvoiceUseCase = new DeleteInvoiceUseCase(deleteDAO);
+
+
         // Giữ nguyên theo code hiện tại của bạn: InvoiceTypeListUseCase dùng AddInvoiceDAO
         InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase(addInvoiceDAO);
 
         // 3) Inject dependencies vào UIController và bootstrap
-        UIController uiController = loader.getController();
+        MainUI uiController = loader.getController();
         uiController.setDependencies(showInvoiceListUseCase, addInvoiceUseCase, invoiceTypeListUseCase);
+        uiController.setDeleteInvoiceUseCase(deleteInvoiceUseCase);
+
         uiController.bootstrap();
     }
 

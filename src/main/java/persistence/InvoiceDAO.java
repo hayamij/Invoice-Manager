@@ -82,25 +82,6 @@ public class InvoiceDAO implements InvoiceDAOGateway {
     //     }
     // }
 
-    public boolean insertInvoice(InvoiceDTO invoiceDTO) {
-        String sql = "INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.date.getTime()));
-            stmt.setString(2, invoiceDTO.customer);
-            stmt.setString(3, invoiceDTO.room_id);
-            stmt.setDouble(4, invoiceDTO.unitPrice);
-            stmt.setInt(5, invoiceDTO.hour);
-            stmt.setInt(6, invoiceDTO.day);
-            stmt.setString(7, invoiceDTO.type);
-            int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0;
-        } catch (SQLException e) {
-            System.err.println("Error inserting invoice: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     // public boolean deleteInvoice(String id) {
     //     String sql = "DELETE FROM invoices WHERE id = ?";
     //     try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="presentation.MainController">
+
+    <!-- Header -->
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
+            <Label text="Invoice Manager System" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="statusLabel" text="Ready" style="-fx-text-fill: #ecf0f1; -fx-font-size: 12px;" />
+        </HBox>
+    </top>
+
+    <!-- Main Content -->
+    <center>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            
+            <!-- Search Section -->
+            <VBox fx:id="searchSection" />
+            
+            <!-- Add Invoice Section -->
+            <VBox fx:id="addInvoiceSection" />
+            
+            <!-- Invoice List Section -->
+            <VBox fx:id="invoiceListSection" VBox.vgrow="ALWAYS" />
+            
+        </VBox>
+    </center>
+
+</BorderPane>

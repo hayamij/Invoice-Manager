@@ -13,13 +13,19 @@ public class AddInvoiceUseCase {
     }
 
     public boolean execute(AddInvoiceItem addItem) {
-        InvoiceDTO list;
-        list = convertToDTO(addItem);
-        Invoice invoice = InvoiceFactory.createInvoice(list);
-        if (invoice.calculateTotal() < 0){
+        InvoiceDTO invoiceDTO = convertToDTO(addItem);
+        business.Invoice invoice = business.InvoiceFactory.createInvoice(invoiceDTO);
+        if (invoice == null) {
+            System.err.println("Thêm thất bại: Không nhận diện được loại hóa đơn (type = " + invoiceDTO.type + ")");
+            return false;
+        }
+        double total = invoice.calculateTotal();
+        if (total < 0){
+            System.err.println("Thêm thất bại: Tổng tiền không hợp lệ (total = " + total + ")");
             return false;
         } else {
-            return DAO.insertInvoice(list);
+            // Tiếp tục xử lý thêm hóa đơn
+            return DAO.insertInvoice(invoiceDTO);
         }
     }
     // convert AddInvoiceItem to InvoiceDTO

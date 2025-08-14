@@ -1,8 +1,13 @@
 package presentation;
 
+import presentation.DeleteUI;
+import business.DeleteInvoice.DeleteInvoiceUseCase;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import business.InvoiceViewItem;
+import business.InvoiceViewModel;
 import business.AddInvoice.AddInvoiceUseCase;
 import business.AddInvoice.InvoiceTypeListUseCase;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
@@ -11,10 +16,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
-import presentation.AddController;
-import presentation.ShowListController;
+import presentation.AddUI;
+import presentation.ShowListUI;
 
-public class UIController implements Initializable {
+public class MainUI implements Initializable {
 
     // ====== Table (Show list) ======
     @FXML private TableView<InvoiceViewItem> invoiceTable;
@@ -40,7 +45,10 @@ public class UIController implements Initializable {
     // ====== Controller con từ fx:include ======
     // LƯU Ý: trong UI.fxml, <fx:include source="AddButton.fxml" fx:id="addBtn"/>
     // => để lấy được controller con, đặt field tên addBtnController
-    @FXML private AddController addBtnController;
+    @FXML private AddUI addBtnController;
+    
+    @FXML private DeleteUI deleteBtnController;   // lấy controller con từ <fx:include fx:id="deleteBtn">
+
 
     // ====== ViewModel & Use Cases (được inject từ composition root) ======
     private final InvoiceViewModel viewModel = new InvoiceViewModel();
@@ -48,8 +56,12 @@ public class UIController implements Initializable {
     private AddInvoiceUseCase addInvoiceUseCase;
     private InvoiceTypeListUseCase invoiceTypeListUseCase;
 
+    private DeleteInvoiceUseCase deleteInvoiceUseCase;
+    public void setDeleteInvoiceUseCase(DeleteInvoiceUseCase uc) { this.deleteInvoiceUseCase = uc; }
+
+
     // ====== Controller con tự quản (không cần FXML) ======
-    private final ShowListController showListController = new ShowListController();
+    private final ShowListUI showListController = new ShowListUI();
 
     // --- Inject từ ngoài (composition root) ---
     public void setDependencies(
@@ -67,6 +79,9 @@ public class UIController implements Initializable {
         // Tuyệt đối KHÔNG tạo DAO/use case ở đây.
         // initialize chỉ nên rất nhẹ, ví dụ: set prompt/tooltip nếu muốn.
         // Việc wiring và load data lần đầu sẽ thực hiện trong bootstrap()
+        if (refreshButton != null) {
+            refreshButton.setOnAction(this::refreshTable);
+        }
     }
 
     /** Gọi sau khi đã setDependencies(...) (từ Application/Bootstrap) */
@@ -101,6 +116,25 @@ public class UIController implements Initializable {
             invoiceTable, sttColumn, idColumn, customerColumn, dateColumn, roomColumn, typeColumn, totalColumn,
             statusLabel
         );
+
+        // 2b) Khởi tạo controller con: DELETE
+        if (deleteBtnController == null) {
+            throw new IllegalStateException(
+                "Không lấy được DeleteController. Kiểm tra UI.fxml: <fx:include source=\"DeleteButton.fxml\" fx:id=\"deleteBtn\"/> và file con có fx:controller."
+            );
+        }
+        if (deleteInvoiceUseCase == null) {
+            throw new IllegalStateException(
+                "Chưa inject DeleteInvoiceUseCase. Hãy gọi uiController.setDeleteInvoiceUseCase(...) trong App.java trước bootstrap()."
+            );
+        }
+        deleteBtnController.init(
+            deleteInvoiceUseCase,
+            invoiceTable,          // để biết dòng nào đang chọn
+            statusLabel,           // hiển thị trạng thái
+            this::reloadInvoiceList// callback reload sau khi xóa thành công
+        );
+
 
         // 4) Lần đầu tải danh sách
         reloadInvoiceList();

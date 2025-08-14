@@ -7,10 +7,10 @@ public class DatabaseKey implements DatabaseAuthGateway {
     private final String password;
 
     public DatabaseKey() {
-        this.server = "phuongtuan";
+        this.server = "localhost:1433";
         this.database = "invoice";
-        this.username = "fuongtuan";
-        this.password = "toilabanhmochi";
+        this.username = "invoice_app";
+        this.password = "Vietnam@123";
     }
 
     @Override

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<HBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="presentation.StatisticsController"
+      spacing="20" alignment="CENTER_LEFT"
+      style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-background-radius: 5;">
+    <Label fx:id="totalInvoicesLabel" text="Tổng số hóa đơn: 0" style="-fx-font-weight: bold;" />
+    <Separator orientation="VERTICAL" />
+    <Label fx:id="totalAmountLabel" text="Tổng doanh thu: 0 VND" style="-fx-font-weight: bold; -fx-text-fill: #27ae60;" />
+    <Separator orientation="VERTICAL" />
+    <Button fx:id="monthlyStatsButton" text="Thống kê" style="-fx-background-color: #8e44ad; -fx-text-fill: white;" onAction="#openStats"/>
+</HBox>

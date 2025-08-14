@@ -4,13 +4,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
-public class DeleteInvoiceController {
+public class DeleteController {
 
     @FXML
     private Button deleteButton;
 
     @FXML
-    void deleteInvoice(ActionEvent event) {
+    void handleDelete(ActionEvent event) {
 
     }
 

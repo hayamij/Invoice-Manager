@@ -16,9 +16,6 @@ import business.ShowInvoiceList.ShowInvoiceListUseCase;
 // ===== persistence layer (composition root được phép đụng) =====
 import persistence.AddInvoiceDAO;
 import persistence.InvoiceDAO;
-import persistence.InvoiceDAOGateway;
-import presentation.view.UIController;
-import persistence.AddInvoiceDAOGateway;
 
 public class App extends Application {
     private static Scene scene;
@@ -34,11 +31,14 @@ public class App extends Application {
         stage.setTitle("Invoice Manager");
         stage.show();
 
-        InvoiceDAOGateway invoiceDAOGateway = new InvoiceDAO();
-        AddInvoiceDAOGateway addInvoiceDAOGateway = new AddInvoiceDAO();
-        ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAOGateway);
-        AddInvoiceUseCase addInvoiceUseCase = new AddInvoiceUseCase(addInvoiceDAOGateway);
-        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase();
+        // 2) Composition root: khởi tạo DAO & UseCase (App được phép chạm persistence)
+        InvoiceDAO invoiceDAO = new InvoiceDAO();
+        AddInvoiceDAO addInvoiceDAO = new AddInvoiceDAO();
+
+        ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAO);
+        AddInvoiceUseCase addInvoiceUseCase = new AddInvoiceUseCase(addInvoiceDAO);
+        // Giữ nguyên theo code hiện tại của bạn: InvoiceTypeListUseCase dùng AddInvoiceDAO
+        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase(addInvoiceDAO);
 
         // 3) Inject dependencies vào UIController và bootstrap
         UIController uiController = loader.getController();

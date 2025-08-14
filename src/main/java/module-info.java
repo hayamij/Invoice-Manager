@@ -5,12 +5,10 @@ module hotel {
     requires javafx.graphics;
 
     opens presentation to javafx.fxml;
-    opens presentation.view to javafx.fxml;
     opens business to javafx.base;
     opens persistence to javafx.base;
     
     exports presentation;
     exports business;
     exports persistence;
-    exports presentation.view;
 }

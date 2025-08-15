@@ -1,4 +1,4 @@
-package business;
+package presentation;
 
 public class InvoiceViewItem {
     public int stt;

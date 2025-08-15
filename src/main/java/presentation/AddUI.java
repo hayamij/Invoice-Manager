@@ -9,7 +9,6 @@ import business.AddInvoice.InvoiceTypeListUseCase;
 import business.AddInvoice.InvoiceTypeViewDTO;
 import business.DailyInvoice;
 import business.HourlyInvoice;
-import business.InvoiceViewModel;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -19,7 +18,7 @@ public class AddUI {
     private InvoiceViewModel viewModel;
     private AddInvoiceUseCase addInvoiceUseCase;
     private InvoiceTypeListUseCase invoiceTypeListUseCase;
-    private AppController appController;
+    private AddController appController;
 
     private ComboBox<String> typeComboBox;
     private TextField customerField;
@@ -65,7 +64,7 @@ public class AddUI {
         this.dayLabel = dayLabel;
         this.statusLabel = statusLabel;
         this.onAdded = onAdded;
-        this.appController = new AppController(addInvoiceUseCase, statusLabel, onAdded);
+        this.appController = new AddController(addInvoiceUseCase, statusLabel, onAdded);
     }
 
     @FXML

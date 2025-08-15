@@ -1,5 +1,7 @@
 package presentation;
 
+
+import business.DeleteInvoice.DeleteInvoiceUseCase;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -12,12 +14,16 @@ import business.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+
+import javafx.scene.control.*;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+
 
 public class MainUI implements Initializable {
     // Biến lưu lại ID của hóa đơn đang chọn để chỉnh sửa
@@ -81,7 +87,7 @@ public class MainUI implements Initializable {
 
 
     // ====== Controller con tự quản (không cần FXML) ======
-    private final ShowListUI showListController = new ShowListUI();
+    private final ShowListController showListController = new ShowListController();
 
     // --- Inject từ ngoài (composition root) ---
     public void setDependencies(

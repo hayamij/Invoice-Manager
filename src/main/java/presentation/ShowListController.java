@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import business.InvoiceViewItem;
-import business.InvoiceViewModel;
 import business.ShowInvoiceList.InvoiceViewDTO;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.collections.FXCollections;

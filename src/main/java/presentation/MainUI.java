@@ -1,19 +1,51 @@
 package presentation;
 
-import business.DeleteInvoice.DeleteInvoiceUseCase;
 
+import business.DeleteInvoice.DeleteInvoiceUseCase;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import business.AddInvoice.AddInvoiceUseCase;
 import business.AddInvoice.InvoiceTypeListUseCase;
+import business.DeleteInvoice.DeleteInvoiceUseCase;
+import business.InvoiceViewItem;
+import business.InvoiceViewModel;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+
 import javafx.scene.control.*;
 
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+
+
 public class MainUI implements Initializable {
+    // Biến lưu lại ID của hóa đơn đang chọn để chỉnh sửa
+    private String selectedInvoiceId = null;
+    @FXML
+    private void initializeTableSelection() {
+        invoiceTable.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, newItem) -> {
+            if (newItem != null) {
+                selectedInvoiceId = newItem.getId(); // Lưu lại ID
+                customerField.setText(newItem.getCustomer());
+                roomField.setText(newItem.getRoom_id());
+                unitPriceField.setText(String.valueOf(newItem.getTotal()));
+                typeComboBox.setValue(newItem.getType());
+                // Giả sử ngày, giờ, ngày cũng cần điền
+                // Nếu có trường date, hour, day thì điền tiếp
+                // hourField.setText(...); dayField.setText(...);
+            }
+        });
+    }
+
+    // Controller SearchBar từ fx:include
+    @FXML private SearchUI searchBarController;
 
     // ====== Table (Show list) ======
     @FXML private TableView<InvoiceViewItem> invoiceTable;
@@ -70,16 +102,20 @@ public class MainUI implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Tuyệt đối KHÔNG tạo DAO/use case ở đây.
-        // initialize chỉ nên rất nhẹ, ví dụ: set prompt/tooltip nếu muốn.
-        // Việc wiring và load data lần đầu sẽ thực hiện trong bootstrap()
         if (refreshButton != null) {
             refreshButton.setOnAction(this::refreshTable);
         }
+        initializeTableSelection();
     }
 
     /** Gọi sau khi đã setDependencies(...) (từ Application/Bootstrap) */
     public void bootstrap() {
+        // Truyền TableView cho SearchUI để enable chức năng tìm kiếm
+        if (searchBarController != null) {
+            searchBarController.setInvoiceTable(invoiceTable);
+        } else {
+            System.err.println("Không lấy được SearchUI từ fx:include. Kiểm tra SearchBar.fxml và UI.fxml.");
+        }
         // 1) Kiểm tra đã DI đủ chưa
         if (showInvoiceListUseCase == null || addInvoiceUseCase == null || invoiceTypeListUseCase == null) {
             throw new IllegalStateException(

@@ -1,3 +1,7 @@
+
+/*
+Toàn bộ nội dung gốc InvoiceDAO.java:
+--------------------------------------------------
 package persistence;
 
 import java.sql.Connection;
@@ -7,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class InvoiceDAO implements InvoiceDAOGateway {
     private Connection conn;
@@ -35,8 +38,8 @@ public class InvoiceDAO implements InvoiceDAOGateway {
             System.err.println("Database connection failed!" + e.getMessage());
         }
     }
-	
-	public List<InvoiceDTO> getAll() {
+    
+    public List<InvoiceDTO> getAll() {
         List<InvoiceDTO> invoices = new ArrayList<>();
         String sql = "SELECT * FROM invoices";
         try (Statement statement = conn.createStatement();
@@ -59,72 +62,57 @@ public class InvoiceDAO implements InvoiceDAOGateway {
         }
         System.out.println("retrieved " + invoices.size() + " invoices");
         return invoices;
-
     }
 
-    // public boolean updateInvoice(InvoiceDTO invoiceDTO) {
-    //     String sql = "UPDATE invoices SET date = ?, customer = ?, room_id = ?, unitPrice = ?, hour = ?, day = ?, type = ? WHERE id = ?";
-    //     try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-    //         stmt.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.getDate().getTime()));
-    //         stmt.setString(2, invoiceDTO.getCustomer());
-    //         stmt.setString(3, invoiceDTO.getRoom_id());
-    //         stmt.setDouble(4, invoiceDTO.getUnitPrice());
-    //         stmt.setInt(5, invoiceDTO.getHour());
-    //         stmt.setInt(6, invoiceDTO.getDay());
-    //         stmt.setString(7, invoiceDTO.getType());
-    //         stmt.setString(8, invoiceDTO.getId());
-    //         int affectedRows = stmt.executeUpdate();
-    //         return affectedRows > 0;
-    //     } catch (SQLException e) {
-    //         System.err.println("Error updating invoice: " + e.getMessage());
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
+    // public boolean updateInvoice(InvoiceDTO invoiceDTO) { ... }
+    // public boolean deleteInvoice(String id) { ... }
+    // public void closeConnection() { ... }
+    // public static void main(String[] args) { ... }
+}
+--------------------------------------------------
+*/
 
-    // public boolean deleteInvoice(String id) {
-    //     String sql = "DELETE FROM invoices WHERE id = ?";
-    //     try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-    //         stmt.setString(1, id);
-    //         int affectedRows = stmt.executeUpdate();
-    //         return affectedRows > 0;
-    //     } catch (SQLException e) {
-    //         System.err.println("Error deleting invoice: " + e.getMessage());
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
+package persistence;
 
-    // public void closeConnection() {
-    //     if (conn != null) {
-    //         try {
-    //             conn.close();
-    //             System.out.println("Database connection closed.");
-    //         } catch (SQLException e) {
-    //             System.err.println("Error closing connection: " + e.getMessage());
-    //         }
-    //     }
-    // }
+import java.util.ArrayList;
+import java.util.List;
 
-    // public static void main(String[] args) {
-    //     databaseAuthGateway auth = new databaseKey();
-    //     InvoiceDAO dao = new InvoiceDAO(auth);
-    //     System.out.println("InvoiceDAO initialized with database authentication gateway.");
-        
-    //     // Lấy danh sách invoice
-    //     List<InvoiceDTO> invoices = dao.getAll();
-    //     System.out.println("\n=== DANH SÁCH INVOICE ===");
-    //     System.out.println("Retrieved " + invoices.size() + " invoices from database:");
-        
-    //     for (InvoiceDTO invoice : invoices) {
-    //         System.out.println("ID: " + invoice.id + 
-    //                          " | Customer: " + invoice.customer + 
-    //                          " | Room: " + invoice.room_id + 
-    //                          " | Type: " + invoice.type + 
-    //                          " | Price: " + invoice.unitPrice);
-    //     }
-        
-    //     // Đóng connection
-    //     dao.closeConnection();
-    // }
+public class InvoiceDAO implements InvoiceDAOGateway {
+    public InvoiceDAO() {
+        // Không thực hiện kết nối database, mock constructor
+    }
+
+    public List<InvoiceDTO> getAll() {
+        List<InvoiceDTO> invoices = new ArrayList<>();
+        String filePath = "c:/Users/canhs/Downloads/no/database/invoices-mock.txt";
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            String line;
+            int idCounter = 1;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                String[] parts = line.split("\\|");
+                if (parts.length < 7) continue;
+                InvoiceDTO invoice = new InvoiceDTO();
+                invoice.id = "INV" + idCounter++;
+                invoice.date = java.sql.Timestamp.valueOf(parts[0].trim());
+                invoice.customer = parts[1].trim();
+                invoice.room_id = parts[2].trim();
+                invoice.unitPrice = Double.parseDouble(parts[3].trim());
+                invoice.hour = parts[4].trim().equalsIgnoreCase("NULL") ? 0 : Integer.parseInt(parts[4].trim());
+                invoice.day = parts[5].trim().equalsIgnoreCase("NULL") ? 0 : Integer.parseInt(parts[5].trim());
+                invoice.type = parts[6].trim();
+                invoices.add(invoice);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi đọc file invoices-mock.txt: " + e.getMessage());
+        }
+        System.out.println("Read " + invoices.size() + " invoices from file");
+        return invoices;
+    }
+
+    // Các phương thức dưới đây cũng có thể mock tương tự nếu cần
+    // public boolean updateInvoice(InvoiceDTO invoiceDTO) { return true; }
+    // public boolean deleteInvoice(String id) { return true; }
+    // public void closeConnection() {}
 }

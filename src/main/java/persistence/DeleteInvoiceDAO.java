@@ -1,3 +1,7 @@
+
+/*
+Toàn bộ nội dung gốc DeleteInvoiceDAO.java:
+--------------------------------------------------
 package persistence;
 
 import java.sql.Connection;
@@ -31,5 +35,22 @@ public class DeleteInvoiceDAO implements DeleteInvoiceDAOGateway {
             e.printStackTrace();
             return false;
         }
+    }
+}
+--------------------------------------------------
+*/
+
+package persistence;
+
+public class DeleteInvoiceDAO implements DeleteInvoiceDAOGateway {
+    public DeleteInvoiceDAO() {
+        // Không thực hiện kết nối database, mock constructor
+    }
+
+    @Override
+    public boolean deleteInvoice(int id) {
+        // Mock xóa hóa đơn, luôn trả về true
+        System.out.println("Mock: Đã xóa hóa đơn với id = " + id);
+        return true;
     }
 }

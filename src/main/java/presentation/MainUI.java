@@ -1,13 +1,10 @@
 package presentation;
 
-import presentation.DeleteUI;
 import business.DeleteInvoice.DeleteInvoiceUseCase;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import business.InvoiceViewItem;
-import business.InvoiceViewModel;
 import business.AddInvoice.AddInvoiceUseCase;
 import business.AddInvoice.InvoiceTypeListUseCase;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
@@ -15,9 +12,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-
-import presentation.AddUI;
-import presentation.ShowListUI;
 
 public class MainUI implements Initializable {
 
@@ -61,7 +55,7 @@ public class MainUI implements Initializable {
 
 
     // ====== Controller con tự quản (không cần FXML) ======
-    private final ShowListUI showListController = new ShowListUI();
+    private final ShowListController showListController = new ShowListController();
 
     // --- Inject từ ngoài (composition root) ---
     public void setDependencies(

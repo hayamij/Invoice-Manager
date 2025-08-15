@@ -4,12 +4,12 @@ import business.AddInvoice.AddInvoiceItem;
 import business.AddInvoice.AddInvoiceUseCase;
 import javafx.scene.control.Label;
 
-public class AppController {
+public class AddController {
     private final AddInvoiceUseCase addInvoiceUseCase;
     private final Label statusLabel;
     private final Runnable onAdded;
 
-    public AppController(AddInvoiceUseCase addInvoiceUseCase, Label statusLabel, Runnable onAdded) {
+    public AddController(AddInvoiceUseCase addInvoiceUseCase, Label statusLabel, Runnable onAdded) {
         this.addInvoiceUseCase = addInvoiceUseCase;
         this.statusLabel = statusLabel;
         this.onAdded = onAdded;

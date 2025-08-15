@@ -1,6 +1,5 @@
 package presentation;
 
-import business.InvoiceViewItem;
 import business.DeleteInvoice.DeleteInvoiceUseCase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

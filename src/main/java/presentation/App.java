@@ -46,7 +46,7 @@ public class App extends Application {
 
 
         // Giữ nguyên theo code hiện tại của bạn: InvoiceTypeListUseCase dùng AddInvoiceDAO
-        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase(addInvoiceDAO);
+        InvoiceTypeListUseCase invoiceTypeListUseCase = new InvoiceTypeListUseCase();
 
         // 3) Inject dependencies vào UIController và bootstrap
         MainUI uiController = loader.getController();

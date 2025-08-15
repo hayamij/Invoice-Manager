@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import business.InvoiceViewItem;
-import business.InvoiceViewModel;
 import business.ShowInvoiceList.InvoiceViewDTO;
 import business.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.collections.FXCollections;
@@ -13,7 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class ShowListUI {
+public class ShowListController {
 
     private InvoiceViewModel viewModel;
     private ShowInvoiceListUseCase showInvoiceListUseCase;

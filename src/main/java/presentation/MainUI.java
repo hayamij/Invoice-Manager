@@ -1,5 +1,7 @@
 package presentation;
 
+import business.ConfirmDelete.*;
+
 import presentation.DeleteUI;
 import business.DeleteInvoice.DeleteInvoiceUseCase;
 
@@ -58,6 +60,15 @@ public class MainUI implements Initializable {
 
     private DeleteInvoiceUseCase deleteInvoiceUseCase;
     public void setDeleteInvoiceUseCase(DeleteInvoiceUseCase uc) { this.deleteInvoiceUseCase = uc; }
+
+    // === Confirm Delete UseCase ===
+    private ConfirmDeleteUseCase confirmDeleteUseCase;
+    public void setConfirmDeleteUseCase(ConfirmDeleteUseCase uc) {
+        this.confirmDeleteUseCase = uc;
+        if (deleteBtnController != null) {
+            deleteBtnController.setConfirmDeleteUseCase(uc); // truyền xuống DeleteUI nếu đã sẵn sàng
+        }
+    }
 
 
     // ====== Controller con tự quản (không cần FXML) ======
@@ -128,6 +139,8 @@ public class MainUI implements Initializable {
                 "Chưa inject DeleteInvoiceUseCase. Hãy gọi uiController.setDeleteInvoiceUseCase(...) trong App.java trước bootstrap()."
             );
         }
+        deleteBtnController.setConfirmDeleteUseCase(confirmDeleteUseCase);
+
         deleteBtnController.init(
             deleteInvoiceUseCase,
             invoiceTable,          // để biết dòng nào đang chọn

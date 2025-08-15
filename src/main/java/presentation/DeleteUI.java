@@ -1,17 +1,20 @@
 package presentation;
 
+import business.ConfirmDelete.*;
+
 import business.InvoiceViewItem;
 import business.DeleteInvoice.DeleteInvoiceUseCase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.TableView;
 
 public class DeleteUI {
 
     @FXML private Button deleteButton;
 
     private DeleteInvoiceUseCase deleteInvoiceUseCase;
+    private ConfirmDeleteUseCase confirmDeleteUseCase;
+
     private TableView<InvoiceViewItem> invoiceTable;
     private Label statusLabel;
     private Runnable reloadCallback;
@@ -31,6 +34,11 @@ public class DeleteUI {
         }
     }
 
+    public void setConfirmDeleteUseCase(ConfirmDeleteUseCase uc) {
+        this.confirmDeleteUseCase = uc;
+    }
+
+
     @FXML
     private void handleDelete(ActionEvent e) {
         var selected = invoiceTable.getSelectionModel().getSelectedItem();
@@ -46,9 +54,10 @@ public class DeleteUI {
             return;
         }
 
-        var confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Xóa hóa đơn #" + id + "?", ButtonType.OK, ButtonType.CANCEL);
-        if (confirm.showAndWait().filter(ButtonType.OK::equals).isEmpty()) return;
+        ConfirmDeletePresenter presenter = new ConfirmDeletePresenter();
+        confirmDeleteUseCase.execute(new ConfirmDeleteRequest(id), presenter);
+        if (!presenter.isConfirmed()) return;
+
 
         boolean ok = deleteInvoiceUseCase != null && deleteInvoiceUseCase.execute(id);
         if (ok) {

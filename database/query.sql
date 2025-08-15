@@ -10,7 +10,5 @@
 
 
 
-delete from invoices where id <=46;
-
 select * from invoices;
 select * from users;

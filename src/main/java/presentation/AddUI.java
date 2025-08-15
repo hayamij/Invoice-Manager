@@ -19,6 +19,7 @@ public class AddUI {
     private InvoiceViewModel viewModel;
     private AddInvoiceUseCase addInvoiceUseCase;
     private InvoiceTypeListUseCase invoiceTypeListUseCase;
+    private AppController appController;
 
     private ComboBox<String> typeComboBox;
     private TextField customerField;
@@ -35,29 +36,6 @@ public class AddUI {
 
     private final String hourlyType = new HourlyInvoice().type();
     private final String dailyType  = new DailyInvoice().type();
-
-    @FXML
-    private void handleAdd() {
-        try {
-            AddInvoiceItem addItem = new AddInvoiceItem();
-            addItem.customer = customerField.getText();
-            addItem.room_id = roomField.getText();
-            addItem.date = new java.sql.Timestamp(System.currentTimeMillis());
-            addItem.unitPrice = Double.parseDouble(unitPriceField.getText());
-            addItem.hour = hourField.getText().isEmpty() ? 0 : Integer.parseInt(hourField.getText());
-            addItem.day  = dayField.getText().isEmpty() ? 0 : Integer.parseInt(dayField.getText());
-            addItem.type = typeComboBox.getValue();
-
-            boolean ok = addInvoiceUseCase.execute(addItem);
-            statusLabel.setText(ok ? "Thêm hóa đơn thành công!" : "Thêm hóa đơn thất bại!");
-            if (ok && onAdded != null) onAdded.run();
-
-        } catch (NumberFormatException ex) {
-            statusLabel.setText("Đơn giá/Giờ/Ngày phải là số hợp lệ.");
-        } catch (Exception ex) {
-            statusLabel.setText("Lỗi khi thêm hóa đơn: " + ex.getMessage());
-        }
-    }
 
     public void init(
             InvoiceViewModel viewModel,
@@ -77,19 +55,34 @@ public class AddUI {
         this.viewModel = viewModel;
         this.addInvoiceUseCase = addInvoiceUseCase;
         this.invoiceTypeListUseCase = invoiceTypeListUseCase;
-
         this.typeComboBox = typeComboBox;
         this.customerField = customerField;
         this.roomField = roomField;
         this.unitPriceField = unitPriceField;
         this.hourField = hourField;
         this.dayField = dayField;
-
         this.hourLabel = hourLabel;
         this.dayLabel = dayLabel;
         this.statusLabel = statusLabel;
-
         this.onAdded = onAdded;
+        this.appController = new AppController(addInvoiceUseCase, statusLabel, onAdded);
+    }
+
+    @FXML
+    private void handleAdd() {
+        try {
+            AddInvoiceItem addItem = new AddInvoiceItem();
+            addItem.customer = customerField.getText();
+            addItem.room_id = roomField.getText();
+            addItem.date = new java.sql.Timestamp(System.currentTimeMillis());
+            addItem.unitPrice = Double.parseDouble(unitPriceField.getText());
+            addItem.hour = hourField.getText().isEmpty() ? 0 : Integer.parseInt(hourField.getText());
+            addItem.day  = dayField.getText().isEmpty() ? 0 : Integer.parseInt(dayField.getText());
+            addItem.type = typeComboBox.getValue();
+            appController.handleAdd(addItem);
+        } catch (NumberFormatException ex) {
+            statusLabel.setText("Đơn giá/Giờ/Ngày phải là số hợp lệ.");
+        }
     }
 
     public void prepare() {

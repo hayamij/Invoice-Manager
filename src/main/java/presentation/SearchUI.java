@@ -57,6 +57,13 @@ public class SearchUI {
         List<InvoiceDTO> filtered = searchUseCase.filterInvoices(allInvoices, keyword);
         List<InvoiceViewItem> items = convertToViewItems(filtered);
         invoiceTable.setItems(FXCollections.observableArrayList(items));
+        if (items.isEmpty()) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Không tìm thấy thông tin được nhập");
+            alert.showAndWait();
+        }
     }
 
     private void showAllInvoices() {

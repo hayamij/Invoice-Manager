@@ -13,7 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class ShowListUI {
+public class ShowListController {
 
     private InvoiceViewModel viewModel;
     private ShowInvoiceListUseCase showInvoiceListUseCase;

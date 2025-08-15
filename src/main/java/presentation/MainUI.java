@@ -21,6 +21,9 @@ import presentation.ShowListUI;
 
 public class MainUI implements Initializable {
 
+    // Controller SearchBar từ fx:include
+    @FXML private SearchUI searchBarController;
+
     // ====== Table (Show list) ======
     @FXML private TableView<InvoiceViewItem> invoiceTable;
     @FXML private TableColumn<InvoiceViewItem, Integer> sttColumn;
@@ -86,6 +89,12 @@ public class MainUI implements Initializable {
 
     /** Gọi sau khi đã setDependencies(...) (từ Application/Bootstrap) */
     public void bootstrap() {
+        // Truyền TableView cho SearchUI để enable chức năng tìm kiếm
+        if (searchBarController != null) {
+            searchBarController.setInvoiceTable(invoiceTable);
+        } else {
+            System.err.println("Không lấy được SearchUI từ fx:include. Kiểm tra SearchBar.fxml và UI.fxml.");
+        }
         // 1) Kiểm tra đã DI đủ chưa
         if (showInvoiceListUseCase == null || addInvoiceUseCase == null || invoiceTypeListUseCase == null) {
             throw new IllegalStateException(

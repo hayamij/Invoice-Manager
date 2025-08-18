@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      spacing="10" 
+      alignment="CENTER_LEFT" 
+      style="-fx-padding: 10 0 0 0;"
+      fx:controller="presentation.CRUD.InvoiceActionsController">
+    
+    <Button fx:id="addButton" text="Thêm hóa đơn" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#addInvoice" />
+    <Button fx:id="updateButton" text="Cập nhật" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#updateInvoice" />
+    <Button fx:id="deleteButton" text="Xóa" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#deleteInvoice" />
+    <Button fx:id="refreshButton" text="Tải lại danh sách" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#refreshTable" />
+    
+</HBox>

@@ -1,16 +1,16 @@
 package business.Controls.SearchInvoice;
 
 import business.Entities.Invoice;
-import business.Models.InvoiceModel;
-import business.Models.SearchInvoiceModel;
+import business.DTO.InvoiceViewDTO;
+// ...existing code...
 import persistence.SearchInvoice.SearchInvoiceDAOGateway;
 import persistence.SearchInvoice.SearchInvoiceDTO;
 
 import java.util.List;
 import java.util.ArrayList;
 
-// input: SearchInvoiceModel
-// output: List<InvoiceModel>
+// input: String searchText
+// output: List<InvoiceViewDTO>
 
 public class SearchInvoiceUseCase {
     private final SearchInvoiceDAOGateway invoiceDAO;
@@ -20,23 +20,22 @@ public class SearchInvoiceUseCase {
     }
 
     // Đầu vào là chuỗi tìm kiếm, đầu ra là List<InvoiceModel>
-    public List<InvoiceModel> execute(SearchInvoiceModel SearchInvoiceModel) {
-		String searchText = SearchInvoiceModel.searchText;
+    public List<InvoiceViewDTO> execute(String searchText) {
         if (searchText == null || searchText.trim().isEmpty()) {
             return new ArrayList<>();
         }
         List<SearchInvoiceDTO> resultDTOs = invoiceDAO.searchInvoiceByText(searchText);
-        List<InvoiceModel> invoiceModels = new ArrayList<>();
+        List<InvoiceViewDTO> invoiceViews = new ArrayList<>();
         if (resultDTOs != null) {
             for (SearchInvoiceDTO dto : resultDTOs) {
                 Invoice invoice = convertToObject(dto);
-                InvoiceModel model = convertToModel(invoice);
-                if (model != null) {
-                    invoiceModels.add(model);
+                InvoiceViewDTO viewDTO = convertToViewDTO(invoice);
+                if (viewDTO != null) {
+                    invoiceViews.add(viewDTO);
                 }
             }
         }
-        return invoiceModels;
+        return invoiceViews;
     }
 
     // Chuyển đổi từ SearchInvoiceDTO sang Invoice
@@ -47,18 +46,18 @@ public class SearchInvoiceUseCase {
         return InvoiceSearchRequest.createSearchInvoice(invoiceDTO);
     }
 
-    // Chuyển đổi từ Invoice sang InvoiceModel
-    public InvoiceModel convertToModel(Invoice invoice) {
+    // Chuyển đổi từ Invoice sang InvoiceViewDTO
+    public InvoiceViewDTO convertToViewDTO(Invoice invoice) {
         if (invoice == null) {
             return null;
         }
-        InvoiceModel model = new InvoiceModel();
-        model.id = invoice.getId();
-        model.date = invoice.getDate();
-        model.customer = invoice.getCustomer();
-        model.room_id = invoice.getRoom_id();
-        model.type = invoice.type();
-        model.total = invoice.calculateTotal();
-        return model;
+        InvoiceViewDTO dto = new InvoiceViewDTO();
+        dto.id = invoice.getId();
+        dto.date = invoice.getDate();
+        dto.customer = invoice.getCustomer();
+        dto.room_id = invoice.getRoom_id();
+        dto.type = invoice.type();
+        dto.total = invoice.calculateTotal();
+        return dto;
     }
 }

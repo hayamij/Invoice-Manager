@@ -1,8 +1,8 @@
-package business.Models;
+package business.DTO;
 
 import java.util.Date;
 
-public class InvoiceModel {
+public class InvoiceViewDTO {
     public String id;
     public Date date;
     public String customer;

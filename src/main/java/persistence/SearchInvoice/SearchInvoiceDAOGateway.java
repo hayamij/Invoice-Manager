@@ -1,6 +1,7 @@
 package persistence.SearchInvoice;
 
+import java.util.List;
+
 public interface SearchInvoiceDAOGateway {
-    // search invoice by all fields
-    SearchInvoiceDTO searchInvoice(SearchInvoiceDTO invoiceDTO);
+    List<SearchInvoiceDTO> searchInvoiceByText(String searchText);
 }

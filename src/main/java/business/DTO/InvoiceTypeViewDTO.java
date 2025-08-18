@@ -1,5 +1,5 @@
-package business.Models;
+package business.DTO;
 
-public class InvoiceTypeModel {
+public class InvoiceTypeViewDTO {
     public String type; // "Hourly Invoice" or "Daily Invoice"
 }

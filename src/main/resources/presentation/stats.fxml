@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="presentation.StatsController" style="-fx-background-color: #f4f6fa; -fx-padding: 30;">
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="presentation.InvoiceStatistics.InvoiceStatisticFormController" style="-fx-background-color: #f4f6fa; -fx-padding: 30;">
     <VBox spacing="25" alignment="CENTER">
         <Label text="BÁO CÁO THỐNG KÊ HÓA ĐƠN" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2a3a5e;" />
         <HBox spacing="30" alignment="CENTER">

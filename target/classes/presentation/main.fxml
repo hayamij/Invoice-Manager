@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="presentation.MainController">
+
+    <!-- Header -->
+    <top>
+        <fx:include source="header.fxml" />
+    </top>
+
+    <!-- Nội dung chính -->
+    <center>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            
+            <!-- Search bar component -->
+            <fx:include source="searchbar.fxml" />
+            
+            <!-- Form and actions -->
+            <VBox spacing="10">
+                <fx:include source="invoiceform.fxml" />
+                <fx:include source="invoiceactions.fxml" />
+            </VBox>
+            
+            <!-- Invoice table component -->
+            <fx:include source="invoicetable.fxml" />
+            
+            <!-- Statistics component -->
+            <fx:include source="invoicestatistic.fxml" />
+            
+        </VBox>
+    </center>
+
+</BorderPane>

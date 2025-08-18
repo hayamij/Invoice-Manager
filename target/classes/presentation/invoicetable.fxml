@@ -7,7 +7,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       spacing="10" 
       VBox.vgrow="ALWAYS"
-      fx:controller="presentation.InvoiceList.InvoiceTableController">
+      fx:controller="presentation.View.InvoiceList.InvoiceTableView">
     
     <Label text="DANH SÁCH HÓA ĐƠN" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
     

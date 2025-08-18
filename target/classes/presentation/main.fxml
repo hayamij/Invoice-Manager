@@ -4,7 +4,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8.0.171"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="presentation.MainController">
+            fx:controller="presentation.View.MainView">
 
     <!-- Header -->
     <top>
@@ -21,7 +21,12 @@
             <!-- Form and actions -->
             <VBox spacing="10">
                 <fx:include source="invoiceform.fxml" />
-                <fx:include source="invoiceactions.fxml" />
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
+                    <fx:include source="addbutton.fxml" />
+                    <fx:include source="deletebutton.fxml" />
+                    <fx:include source="updatebutton.fxml" />
+                    <fx:include source="refreshbutton.fxml" />
+                </HBox>
             </VBox>
             
             <!-- Invoice table component -->

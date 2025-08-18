@@ -17,6 +17,8 @@ import javafx.fxml.Initializable;
 
 import javafx.scene.control.*;
 
+import javafx.scene.layout.VBox;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -26,6 +28,8 @@ import javafx.scene.control.TextField;
 
 
 public class MainUI implements Initializable {
+    @FXML private Button loadInvoiceButton;
+    @FXML private VBox invoiceListContainer;
     // Biến lưu lại ID của hóa đơn đang chọn để chỉnh sửa
     private String selectedInvoiceId = null;
     @FXML
@@ -105,6 +109,14 @@ public class MainUI implements Initializable {
         if (refreshButton != null) {
             refreshButton.setOnAction(this::refreshTable);
         }
+        if (loadInvoiceButton != null) {
+            loadInvoiceButton.setVisible(true);
+            loadInvoiceButton.setManaged(true);
+        }
+        if (invoiceListContainer != null) {
+            invoiceListContainer.setVisible(false);
+            invoiceListContainer.setManaged(false);
+        }
         initializeTableSelection();
     }
 
@@ -166,11 +178,22 @@ public class MainUI implements Initializable {
         );
 
 
-        // 4) Lần đầu tải danh sách
-        reloadInvoiceList();
+    // KHÔNG tự động tải danh sách khi khởi động
     }
 
     // ====== Event từ UI.fxml ======
+    @FXML
+    private void loadInvoiceList(ActionEvent e) {
+        if (loadInvoiceButton != null) {
+            loadInvoiceButton.setVisible(false);
+            loadInvoiceButton.setManaged(false);
+        }
+        if (invoiceListContainer != null) {
+            invoiceListContainer.setVisible(true);
+            invoiceListContainer.setManaged(true);
+        }
+        reloadInvoiceList();
+    }
     @FXML
     private void refreshTable(ActionEvent e) {
         reloadInvoiceList();

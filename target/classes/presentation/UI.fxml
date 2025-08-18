@@ -69,21 +69,28 @@
 
             <!-- Bảng + Statistics -->
             <VBox spacing="10" VBox.vgrow="ALWAYS">
-                <Label text="DANH SÁCH HÓA ĐƠN" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                <TableView fx:id="invoiceTable" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="sttColumn" text="STT" prefWidth="50" />
-                        <TableColumn fx:id="idColumn" text="ID" prefWidth="50" />
-                        <TableColumn fx:id="dateColumn" text="Ngày tạo" prefWidth="120" />
-                        <TableColumn fx:id="customerColumn" text="Khách hàng" prefWidth="150" />
-                        <TableColumn fx:id="roomColumn" text="Phòng" prefWidth="80" />
-                        <TableColumn fx:id="typeColumn" text="Loại" prefWidth="80" />
-                        <TableColumn fx:id="totalColumn" text="Tổng tiền" prefWidth="120" />
-                    </columns>
-                </TableView>
-
-                <!-- Statistics (con: StatisticsBar.fxml) -->
-                <fx:include source="StatisticsBar.fxml" fx:id="statsBar"/>
+                <HBox alignment="CENTER" spacing="0" VBox.vgrow="ALWAYS">
+                    <Button fx:id="loadInvoiceButton" text="Tải hóa đơn"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;"
+                            onAction="#loadInvoiceList"
+                            />
+                </HBox>
+                <VBox fx:id="invoiceListContainer" spacing="10" VBox.vgrow="ALWAYS" visible="false" managed="false">
+                    <Label text="DANH SÁCH HÓA ĐƠN" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                    <TableView fx:id="invoiceTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="sttColumn" text="STT" prefWidth="50" />
+                            <TableColumn fx:id="idColumn" text="ID" prefWidth="50" />
+                            <TableColumn fx:id="dateColumn" text="Ngày tạo" prefWidth="120" />
+                            <TableColumn fx:id="customerColumn" text="Khách hàng" prefWidth="150" />
+                            <TableColumn fx:id="roomColumn" text="Phòng" prefWidth="80" />
+                            <TableColumn fx:id="typeColumn" text="Loại" prefWidth="80" />
+                            <TableColumn fx:id="totalColumn" text="Tổng tiền" prefWidth="120" />
+                        </columns>
+                    </TableView>
+                    <!-- Statistics (con: StatisticsBar.fxml) -->
+                    <fx:include source="StatisticsBar.fxml" fx:id="statsBar"/>
+                </VBox>
             </VBox>
 
         </VBox>

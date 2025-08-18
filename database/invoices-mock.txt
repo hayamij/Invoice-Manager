@@ -5,6 +5,5 @@
 2023-01-02 11:00:00 | Jane Smith | 102 | 200.00 | NULL | 3 | Daily Invoice
 2023-01-03 12:00:00 | Alice Johnson | 103 | 150.00 | 8 | NULL | Hourly Invoice
 2023-01-04 13:00:00 | Bob Brown | 104 | 250.00 | NULL | 10 | Daily Invoice
-
 2023-01-05 14:00:00 | Charlie Lee | 105 | 300.00 | 6 | NULL | Hourly Invoice
 2023-01-06 15:00:00 | Diana Prince | 106 | 350.00 | NULL | 5 | Daily Invoice

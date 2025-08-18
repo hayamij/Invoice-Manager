@@ -3,7 +3,7 @@ package business.Controls.UpdateInvoice;
 // import business.Controls.AddInvoice.InvoiceAddRequest;
 import business.Entities.Invoice;
 import business.Models.UpdateInvoiceModel;
-import persistence.UpdateInvoice.UpdateInvoiceDAO;
+import persistence.UpdateInvoice.UpdateInvoiceDAOGateway;
 import persistence.UpdateInvoice.UpdateInvoiceDTO;
 
 
@@ -13,13 +13,13 @@ import persistence.UpdateInvoice.UpdateInvoiceDTO;
 
 
 public class UpdateInvoiceUseCase {
-	private final UpdateInvoiceDAO invoiceDAO;
+	private final UpdateInvoiceDAOGateway invoiceDAO;
 
-	public UpdateInvoiceUseCase(UpdateInvoiceDAO invoiceDAO) {
+	public UpdateInvoiceUseCase(UpdateInvoiceDAOGateway invoiceDAO) {
 		this.invoiceDAO = invoiceDAO;
 	}
 
-	public boolean updateInvoice(UpdateInvoiceModel model) {
+	public boolean execute(UpdateInvoiceModel model) {
 		// Validate the invoice data
 		if (model == null || 
 			model.id == null || model.id.isEmpty() || 

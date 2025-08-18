@@ -18,7 +18,7 @@ public class AddInvoiceUseCase {
         this.invoiceDAO = invoiceDAO;
     }
     
-    public boolean addInvoice(AddInvoiceModel invoiceModel) {
+    public boolean execute(AddInvoiceModel invoiceModel) {
         // Validate the invoice data
         if (invoiceModel == null || 
             invoiceModel.customer == null || invoiceModel.customer.isEmpty() || 

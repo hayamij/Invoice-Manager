@@ -5,13 +5,14 @@ import java.util.List;
 
 import business.Entities.Invoice;
 import business.Entities.InvoiceFactory;
-import business.Models.InvoiceModel;
+import business.DTO.InvoiceViewDTO;
 import persistence.InvoiceList.InvoiceDAOGateway;
 import persistence.InvoiceList.InvoiceDTO;
 
 
+// input: InvoiceDAOGateway
 // dto -> object -> model
-// output: List<InvoiceModel> (list of invoices)
+// output: List<InvoiceViewDTO> (list of invoices)
 
 
 public class ShowInvoiceListUseCase {
@@ -21,11 +22,9 @@ public class ShowInvoiceListUseCase {
         this.InvoiceDAOGateway = DAO;
     }
     
-    public List<InvoiceModel> execute(){
-        List<Invoice> List = null;
-        List<InvoiceDTO> ListDTO = null;
-        ListDTO = InvoiceDAOGateway.getAll();
-        List = this.convertToObject(ListDTO);
+    public List<InvoiceViewDTO> execute(){
+        List<InvoiceDTO> ListDTO = InvoiceDAOGateway.getAll();
+        List<Invoice> List = this.convertToObject(ListDTO);
         return this.convertToViewDTO(List);
     }
 
@@ -40,18 +39,18 @@ public class ShowInvoiceListUseCase {
         return invoices;
     }
 
-    private List<InvoiceModel> convertToViewDTO(List<Invoice> invoices) {
-        List<InvoiceModel> model = new ArrayList<>();
+    private List<InvoiceViewDTO> convertToViewDTO(List<Invoice> invoices) {
+        List<InvoiceViewDTO> viewDTOs = new ArrayList<>();
         for (Invoice invoice : invoices) {
-            InvoiceModel invoiceModel = new InvoiceModel();
-            invoiceModel.id = invoice.getId();
-            invoiceModel.date = invoice.getDate();
-            invoiceModel.customer = invoice.getCustomer();
-            invoiceModel.room_id = invoice.getRoom_id();
-            invoiceModel.type = invoice.type();
-            invoiceModel.total = invoice.calculateTotal();
-            model.add(invoiceModel);
+            InvoiceViewDTO dto = new InvoiceViewDTO();
+            dto.id = invoice.getId();
+            dto.date = invoice.getDate();
+            dto.customer = invoice.getCustomer();
+            dto.room_id = invoice.getRoom_id();
+            dto.type = invoice.type();
+            dto.total = invoice.calculateTotal();
+            viewDTOs.add(dto);
         }
-        return model;
+        return viewDTOs;
     }
 }

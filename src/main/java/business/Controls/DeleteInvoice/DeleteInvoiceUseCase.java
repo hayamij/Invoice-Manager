@@ -1,11 +1,11 @@
 package business.Controls.DeleteInvoice;
 
-import business.Models.DeleteInvoiceModel;
+// ...existing code...
 import persistence.DeleteInvoice.DeleteInvoiceDAOGateway;
 import persistence.DeleteInvoice.DeleteInvoiceDTO;
 
 
-// input: DeleteInvoiceModel
+// input: DeleteInvoiceDTO
 // output: boolean (true if deleted successfully, false otherwise)
 
 
@@ -16,17 +16,11 @@ public class DeleteInvoiceUseCase {
 		this.invoiceDAO = invoiceDAO;
 	}
 
-	public boolean execute(DeleteInvoiceModel model) {
+	public boolean execute(DeleteInvoiceDTO invoiceDTO) {
 		// Validate the invoice data
-		if (model == null || model.id == null || model.id.isEmpty()) {
+		if (invoiceDTO == null || invoiceDTO.id == null || invoiceDTO.id.isEmpty()) {
 			return false; // Invalid data
 		}
-		DeleteInvoiceDTO invoiceDTO = convertToDTO(model);
 		return invoiceDAO.deleteInvoice(invoiceDTO);
-	}
-	public DeleteInvoiceDTO convertToDTO (DeleteInvoiceModel model) {
-		DeleteInvoiceDTO invoiceDTO = new DeleteInvoiceDTO();
-		invoiceDTO.id = model.id;
-		return invoiceDTO;
 	}
 }

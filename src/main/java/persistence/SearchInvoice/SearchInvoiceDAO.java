@@ -3,6 +3,8 @@ package persistence.SearchInvoice;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
 
 import persistence.DatabaseAuthGateway;
 import persistence.DatabaseKey;
@@ -33,31 +35,36 @@ public class SearchInvoiceDAO implements SearchInvoiceDAOGateway {
             System.err.println("Database connection failed!" + e.getMessage());
         }
     }
-    @Override
-    public SearchInvoiceDTO searchInvoice(SearchInvoiceDTO invoiceDTO) {
-        String sql = "SELECT * FROM invoices WHERE id = ? OR customer = ? OR room_id = ? OR type = ?";
-        try (var preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setString(1, invoiceDTO.getId());
-            preparedStatement.setString(2, invoiceDTO.getCustomer());
-            preparedStatement.setString(3, invoiceDTO.getRoom_id());
-            preparedStatement.setString(4, invoiceDTO.getType());
 
-            var resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                SearchInvoiceDTO result = new SearchInvoiceDTO();
-                result.setId(resultSet.getString("id"));
-                result.setDate(resultSet.getTimestamp("date"));
-                result.setCustomer(resultSet.getString("customer"));
-                result.setRoom_id(resultSet.getString("room_id"));
-                result.setUnitPrice(resultSet.getDouble("unitPrice"));
-                result.setHour(resultSet.getInt("hour"));
-                result.setDay(resultSet.getInt("day"));
-                result.setType(resultSet.getString("type"));
-                return result;
+    @Override
+    public List<SearchInvoiceDTO> searchInvoiceByText(String searchText) {
+        List<SearchInvoiceDTO> result = new ArrayList<>();
+        if (conn == null) {
+            System.err.println("Connection is not established.");
+            return result;
+        }
+
+        String query = "SELECT * FROM Invoices WHERE id LIKE ? OR customer LIKE ? OR room_id LIKE ?";
+        try (var stmt = conn.prepareStatement(query)) {
+            String searchPattern = "%" + searchText + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+
+            try (var rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    SearchInvoiceDTO dto = new SearchInvoiceDTO();
+                    dto.setId(rs.getString("id"));
+                    dto.setDate(rs.getDate("date"));
+                    dto.setCustomer(rs.getString("customer"));
+                    dto.setRoom_id(rs.getString("room_id"));
+                    dto.setUnitPrice(rs.getDouble("unitPrice"));
+                    result.add(dto);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Error searching invoice: " + e.getMessage());
+            System.err.println("Error executing search query: " + e.getMessage());
         }
-        return null; // No matching invoice found
+        return result;
     }
 }

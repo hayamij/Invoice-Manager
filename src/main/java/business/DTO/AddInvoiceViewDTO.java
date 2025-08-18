@@ -1,8 +1,8 @@
-package business.Models;
+package business.DTO;
 
 import java.util.Date;
 
-public class UpdateInvoiceModel {
+public class AddInvoiceViewDTO {
     public String id;
     public String customer;
     public String room_id;

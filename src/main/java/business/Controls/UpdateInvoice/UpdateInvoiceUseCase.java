@@ -2,12 +2,12 @@ package business.Controls.UpdateInvoice;
 
 // import business.Controls.AddInvoice.InvoiceAddRequest;
 import business.Entities.Invoice;
-import business.Models.UpdateInvoiceModel;
+import business.DTO.UpdateInvoiceViewDTO;
 import persistence.UpdateInvoice.UpdateInvoiceDAOGateway;
 import persistence.UpdateInvoice.UpdateInvoiceDTO;
 
 
-// input: UpdateInvoiceModel
+// input: UpdateInvoiceViewDTO
 // model -> object -> dto
 // output: boolean (true if updated successfully, false otherwise)
 
@@ -19,52 +19,52 @@ public class UpdateInvoiceUseCase {
 		this.invoiceDAO = invoiceDAO;
 	}
 
-	public boolean execute(UpdateInvoiceModel model) {
+	public boolean execute(UpdateInvoiceViewDTO dto) {
 		// Validate the invoice data
-		if (model == null || 
-			model.id == null || model.id.isEmpty() || 
-			model.customer == null || model.customer.isEmpty() || 
-			model.room_id == null || model.room_id.isEmpty() || 
-			model.unitPrice <= 0 || 
-			model.date == null || 
-			model.hour < 0 || 
-			model.day < 0 || 
-			model.type == null || model.type.isEmpty()) {
+		if (dto == null || 
+			dto.id == null || dto.id.isEmpty() || 
+			dto.customer == null || dto.customer.isEmpty() || 
+			dto.room_id == null || dto.room_id.isEmpty() || 
+			dto.unitPrice <= 0 || 
+			dto.date == null || 
+			dto.hour < 0 || 
+			dto.day < 0 || 
+			dto.type == null || dto.type.isEmpty()) {
 			return false; // Invalid data
 		}
 
 		// Convert model to object
-		Invoice invoice = convertToObject(model);
+		Invoice invoice = convertToObject(dto);
 		if (invoice == null) {
 			return false; // Invalid type
 		}
 
 		// Convert object to DTO
-		UpdateInvoiceDTO invoiceDTO = convertToDTO(model);
+		UpdateInvoiceDTO invoiceDTO = convertToDTO(dto);
 
 		// Update the invoice in the database
 		return invoiceDAO.updateInvoice(invoiceDTO);
 	}
 
-	public Invoice convertToObject(UpdateInvoiceModel model) {
-		Invoice invoice = InvoiceUpdateRequest.createUpdateRequest(model);
+	public Invoice convertToObject(UpdateInvoiceViewDTO dto) {
+		Invoice invoice = InvoiceUpdateRequest.createUpdateRequest(dto);
 		if (invoice == null) {
 			return null; // or throw an exception if type is invalid
 		} else {
-			invoice.setId(model.id); // Set the ID if needed
+			invoice.setId(dto.id); // Set the ID if needed
 			return invoice; // Return the created invoice object
 		}
 	}
-	public UpdateInvoiceDTO convertToDTO(UpdateInvoiceModel model) {
+	public UpdateInvoiceDTO convertToDTO(UpdateInvoiceViewDTO dto) {
 		UpdateInvoiceDTO invoiceDTO = new UpdateInvoiceDTO();
-		invoiceDTO.id = model.id;
-		invoiceDTO.date = model.date;
-		invoiceDTO.customer = model.customer;
-		invoiceDTO.room_id = model.room_id;
-		invoiceDTO.unitPrice = model.unitPrice;
-		invoiceDTO.hour = model.hour;
-		invoiceDTO.day = model.day;
-		invoiceDTO.type = model.type;
+		invoiceDTO.id = dto.id;
+		invoiceDTO.date = dto.date;
+		invoiceDTO.customer = dto.customer;
+		invoiceDTO.room_id = dto.room_id;
+		invoiceDTO.unitPrice = dto.unitPrice;
+		invoiceDTO.hour = dto.hour;
+		invoiceDTO.day = dto.day;
+		invoiceDTO.type = dto.type;
 		return invoiceDTO;
 	}
 }

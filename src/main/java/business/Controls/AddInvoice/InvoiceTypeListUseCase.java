@@ -6,19 +6,19 @@ import java.util.ArrayList;
 
 import business.Entities.DailyInvoice;
 import business.Entities.HourlyInvoice;
-import business.Models.InvoiceTypeModel;
+import business.DTO.InvoiceTypeViewDTO;
 
 
-// output: List<InvoiceTypeModel> (list of invoice types)
+// output: List<InvoiceTypeViewDTO> (list of invoice types)
 
 
 public class InvoiceTypeListUseCase {
-    private InvoiceTypeModel model;
+    private InvoiceTypeViewDTO model;
     private HourlyInvoice hourly;
     private DailyInvoice daily;
 
-    public List<InvoiceTypeModel> execute() {
-        List <InvoiceTypeModel> invoiceTypes = new ArrayList<>();
+    public List<InvoiceTypeViewDTO> execute() {
+        List <InvoiceTypeViewDTO> invoiceTypes = new ArrayList<>();
         model.type = hourly.type();
         model.type = daily.type();
         // extend the model below if needed

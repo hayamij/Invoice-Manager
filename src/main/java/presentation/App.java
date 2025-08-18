@@ -5,11 +5,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import persistence.InvoiceDAO;
+import persistence.InvoiceList.InvoiceDAO;
 
 import java.io.IOException;
 
-import business.ShowInvoiceList.ShowInvoiceListUseCase;
+import business.Controls.ShowInvoiceList.ShowInvoiceListUseCase;
 
 /**
  * JavaFX App

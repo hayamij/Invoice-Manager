@@ -4,8 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import business.ShowInvoiceList.InvoiceViewDTO;
-import business.ShowInvoiceList.ShowInvoiceListUseCase;
+import business.Models.InvoiceModel;
+import business.Controls.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -48,17 +48,17 @@ public class InvoiceController {
     }
 
     public void execute(){
-        List<InvoiceViewDTO> invoiceList = showInvoiceListUseCase.execute();
+        List<InvoiceModel> invoiceList = showInvoiceListUseCase.execute();
         List<InvoiceViewItem> invoicePresentation = this.convertToPresentation(invoiceList);
 
         viewModel.invoiceItems = invoicePresentation;
     }
 
-    private List<InvoiceViewItem> convertToPresentation(List<InvoiceViewDTO> listDTO) {
+    private List<InvoiceViewItem> convertToPresentation(List<InvoiceModel> listDTO) {
 		List<InvoiceViewItem> list = new ArrayList<InvoiceViewItem>();
 		SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 		int stt = 1;
-		for (InvoiceViewDTO dto : listDTO) {
+		for (InvoiceModel dto : listDTO) {
 			InvoiceViewItem item = new InvoiceViewItem();
             item.stt = stt++;
             item.id = dto.id;

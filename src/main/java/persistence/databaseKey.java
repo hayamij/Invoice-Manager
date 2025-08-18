@@ -7,9 +7,9 @@ public class DatabaseKey implements DatabaseAuthGateway {
     private final String password;
 
     public DatabaseKey() {
-        this.server = "phuongtuan";
+        this.server = "fuongtwan";
         this.database = "invoice";
-        this.username = "fuongtuan";
+        this.username = "phuongtuan";
         this.password = "toilabanhmochi";
     }
 

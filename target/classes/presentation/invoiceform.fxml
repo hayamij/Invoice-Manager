@@ -7,7 +7,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       spacing="10" 
       style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 5;"
-      fx:controller="presentation.CRUD.InvoiceFormController">
+      fx:controller="presentation.View.CRUD.InvoiceFormView">
     
     <Label text="THÔNG TIN HÓA ĐƠN" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
     

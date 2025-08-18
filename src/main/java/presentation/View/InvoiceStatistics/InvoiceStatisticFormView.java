@@ -1,11 +1,11 @@
-package presentation.InvoiceStatistics;
+package presentation.View.InvoiceStatistics;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public class InvoiceStatisticFormController {
+public class InvoiceStatisticFormView {
 
     @FXML
     private TableColumn<?, ?> averageColumn;

@@ -8,7 +8,7 @@
       spacing="10" 
       alignment="CENTER_LEFT" 
       style="-fx-background-color: #ecf0f1; -fx-padding: 10; -fx-background-radius: 5;"
-      fx:controller="presentation.SearchInvoice.SearchBarController">
+      fx:controller="presentation.View.SearchInvoice.SearchBarView">
     
     <Label text="Tìm kiếm:" style="-fx-font-weight: bold;" />
     <TextField fx:id="searchField" promptText="Nhập tên khách hàng hoặc mã phòng..." prefWidth="300" />

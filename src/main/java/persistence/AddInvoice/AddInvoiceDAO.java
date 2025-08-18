@@ -35,11 +35,10 @@ public class AddInvoiceDAO implements AddInvoiceDAOGateway {
     }
 
     public boolean addInvoice(AddInvoiceDTO invoiceDTO) {
-        String sql = "INSERT INTO invoices (id, date, customer, room_id, unitPrice, hour, day, type) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (var preparedStatement = conn.prepareStatement(sql)) {
             AddInvoiceDTO dto = invoiceDTO;
-            preparedStatement.setString(1, dto.getId());
             preparedStatement.setTimestamp(2, new java.sql.Timestamp(dto.getDate().getTime()));
             preparedStatement.setString(3, dto.getCustomer());
             preparedStatement.setString(4, dto.getRoom_id());

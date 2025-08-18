@@ -7,6 +7,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Calendar;
 
+// input: InvoiceDAOGateway (data access object for invoices)
+// output: Map<String, Integer> (count of invoices by type)
+// output: double (average total of invoices for a specific month and year)
+
+
+
 public class InvoiceStatisticsUseCase {
 	private final InvoiceDAOGateway invoiceDAOGateway;
 

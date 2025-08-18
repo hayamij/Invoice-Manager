@@ -1,7 +1,6 @@
 package business.Controls.AddInvoice;
 
 import business.Entities.Invoice;
-import business.Entities.InvoiceRequest;
 import business.Models.AddInvoiceModel;
 import persistence.AddInvoice.AddInvoiceDAOGateway;
 import persistence.AddInvoice.AddInvoiceDTO;
@@ -21,7 +20,14 @@ public class AddInvoiceUseCase {
     
     public boolean addInvoice(AddInvoiceModel invoiceModel) {
         // Validate the invoice data
-        if (invoiceModel == null || invoiceModel.customer == null || invoiceModel.customer.isEmpty()) {
+        if (invoiceModel == null || 
+            invoiceModel.customer == null || invoiceModel.customer.isEmpty() || 
+            invoiceModel.room_id == null || invoiceModel.room_id.isEmpty() || 
+            invoiceModel.unitPrice <= 0 || 
+            invoiceModel.date == null || 
+            invoiceModel.hour < 0 || 
+            invoiceModel.day < 0 || 
+            invoiceModel.type == null || invoiceModel.type.isEmpty()) {
             return false; // Invalid data
         }
 
@@ -41,7 +47,7 @@ public class AddInvoiceUseCase {
     // convert model to object using reverse factory method (request)
     private Invoice convertToObject(AddInvoiceModel model){
         Invoice invoice;
-        invoice = InvoiceRequest.createRequest(model);
+        invoice = InvoiceAddRequest.createAddRequest(model);
         if (invoice == null) {
             return null; // or throw an exception if type is invalid
         } else {

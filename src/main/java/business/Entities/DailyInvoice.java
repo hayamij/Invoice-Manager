@@ -9,6 +9,11 @@ public class DailyInvoice extends Invoice {
 
     }
 
+    public DailyInvoice(String id, Date date, String customer, String room_id, double unitPrice, double day) {
+        super(id, date, customer, room_id, unitPrice);
+        this.day = day;
+    }
+
     // Getter for day - cần thiết cho UI binding
     public double getDay() {
         return day;

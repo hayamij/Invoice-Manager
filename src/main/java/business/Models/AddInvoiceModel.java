@@ -3,6 +3,7 @@ package business.Models;
 import java.util.Date;
 
 public class AddInvoiceModel {
+    public String id;
     public String customer;
     public String room_id;
     public double unitPrice;

@@ -16,7 +16,7 @@ public class DeleteInvoiceUseCase {
 		this.invoiceDAO = invoiceDAO;
 	}
 
-	public boolean deleteInvoice(DeleteInvoiceModel model) {
+	public boolean execute(DeleteInvoiceModel model) {
 		// Validate the invoice data
 		if (model == null || model.id == null || model.id.isEmpty()) {
 			return false; // Invalid data

@@ -5,6 +5,11 @@ import java.util.Date;
 public class HourlyInvoice extends Invoice {
     private double hour;
 
+    public HourlyInvoice(String id, Date date, String customer, String room_id, double unitPrice, double hour) {
+        super(id, date, customer, room_id, unitPrice);
+        this.hour = hour;
+    }
+
     public HourlyInvoice() {
         
     }

@@ -10,6 +10,7 @@ import persistence.InvoiceList.InvoiceDAOGateway;
 import persistence.InvoiceList.InvoiceDTO;
 
 
+// dto -> object -> model
 // output: List<InvoiceModel> (list of invoices)
 
 
@@ -46,7 +47,7 @@ public class ShowInvoiceListUseCase {
             invoiceModel.id = invoice.getId();
             invoiceModel.date = invoice.getDate();
             invoiceModel.customer = invoice.getCustomer();
-            invoiceModel.room_id = invoice.getRoomId();
+            invoiceModel.room_id = invoice.getRoom_id();
             invoiceModel.type = invoice.type();
             invoiceModel.total = invoice.calculateTotal();
             model.add(invoiceModel);

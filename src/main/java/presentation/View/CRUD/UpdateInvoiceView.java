@@ -18,12 +18,17 @@ public class UpdateInvoiceView {
     private Button updateButton;
     private InvoiceFormView invoiceFormView;
     private InvoiceTableView invoiceTableView;
+    private Runnable onSuccessCallback; // Callback để refresh statistics
 
     public void setInvoiceFormView(InvoiceFormView invoiceFormView) {
         this.invoiceFormView = invoiceFormView;
     }
     public void setInvoiceTableView(InvoiceTableView invoiceTableView) {
         this.invoiceTableView = invoiceTableView;
+    }
+    
+    public void setOnSuccessCallback(Runnable callback) {
+        this.onSuccessCallback = callback;
     }
     
     @FXML
@@ -69,6 +74,10 @@ public class UpdateInvoiceView {
                 if(success) {
                     showSuccessAlert("Cập nhật hóa đơn thành công!");
                     System.out.println("Invoice updated successfully!");
+                    // Refresh statistics nếu có callback
+                    if (onSuccessCallback != null) {
+                        onSuccessCallback.run();
+                    }
                 } else {
                     showErrorAlert("Cập nhật thất bại!", "Không thể cập nhật hóa đơn. Vui lòng thử lại.");
                     System.out.println("Failed to update invoice.");

@@ -9,6 +9,7 @@ import persistence.SearchInvoice.SearchInvoiceDAO;
 import presentation.Controller.ShowInvoiceListController;
 import presentation.Controller.DeleteInvoiceController;
 import presentation.Controller.SearchInvoiceController;
+import presentation.Controller.InvoiceStatisticController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
 import presentation.View.CRUD.InvoiceFormView;
@@ -16,6 +17,7 @@ import presentation.View.CRUD.RefreshInvoiceView;
 import presentation.View.CRUD.UpdateInvoiceView;
 import presentation.View.CRUD.DeleteInvoiceView;
 import presentation.View.SearchInvoice.SearchBarView;
+import presentation.View.InvoiceStatistics.InvoiceStatisticView;
 import persistence.InvoiceList.InvoiceDAOGateway;
 import persistence.DeleteInvoice.DeleteInvoiceDAOGateway;
 import persistence.SearchInvoice.SearchInvoiceDAOGateway;
@@ -44,11 +46,15 @@ public class MainView {
     
     @FXML
     private SearchBarView searchbarController; // fx:id="searchbar" trong main.fxml
+
+    @FXML
+    private InvoiceStatisticView invoicestatisticController; // fx:id="invoicestatistic" trong main.fxml
     
     private InvoiceDAOGateway invoiceDAOGateway;
     private ShowInvoiceListController showInvoiceListController;
     private DeleteInvoiceController deleteInvoiceController;
     private SearchInvoiceController searchInvoiceController;
+    private InvoiceStatisticController invoiceStatisticController;
     private DeleteInvoiceViewDTO invoiceDTO; // Hóa đơn cần xóa
     
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
@@ -60,6 +66,9 @@ public class MainView {
         // Search functionality
         SearchInvoiceDAOGateway searchInvoiceDAO = new SearchInvoiceDAO();
         searchInvoiceController = new SearchInvoiceController(invoiceViewModel, searchInvoiceDAO);
+
+        // Statistics functionality
+        invoiceStatisticController = new InvoiceStatisticController(invoiceDAOGateway);
 
         invoiceDTO = new DeleteInvoiceViewDTO();
         DeleteInvoiceDAOGateway deleteInvoiceDAO = new DeleteInvoiceDAO();
@@ -88,12 +97,19 @@ public class MainView {
         if (deletebuttonController != null) {
             deletebuttonController.setCurrentInvoice(invoiceDTO);
             deletebuttonController.setDeleteInvoiceController(deleteInvoiceController);
+            // Thiết lập callback để refresh statistics sau khi delete
+            deletebuttonController.setOnSuccessCallback(() -> refreshStatistics());
             System.out.println("MainView: DeleteInvoiceView connected to controllers.");
         } else {
             System.out.println("MainView: WARNING - deletebuttonController is null!");
         }
         
         if (updateInvoiceViewController != null) {
+            updateInvoiceViewController.setInvoiceFormView(invoiceformController);
+            updateInvoiceViewController.setInvoiceTableView(invoiceTableViewController);
+            // Thiết lập callback để refresh statistics sau khi update
+            updateInvoiceViewController.setOnSuccessCallback(() -> refreshStatistics());
+        } else if(updateInvoiceViewController != null) {
             updateInvoiceViewController.setInvoiceFormView(invoiceformController);
             updateInvoiceViewController.setInvoiceTableView(invoiceTableViewController);
         }
@@ -106,9 +122,24 @@ public class MainView {
         } else {
             System.out.println("MainView: WARNING - searchbarController is null!");
         }
+
+        // QUAN TRỌNG: Kết nối InvoiceStatisticView với controller
+        if (invoicestatisticController != null) {
+            invoicestatisticController.setStatisticController(invoiceStatisticController);
+            System.out.println("MainView: InvoiceStatisticView connected to InvoiceStatisticController.");
+        } else {
+            System.out.println("MainView: WARNING - invoicestatisticController is null!");
+        }
         
         // Load initial data
         System.out.println("MainView: InvoiceViewModel set and ShowInvoiceListController executed.");
         showInvoiceListController.execute(); 
+    }
+
+    // Method để refresh statistics sau khi thêm/sửa/xóa hóa đơn
+    public void refreshStatistics() {
+        if (invoicestatisticController != null) {
+            invoicestatisticController.updateBasicStatistics();
+        }
     }
 }

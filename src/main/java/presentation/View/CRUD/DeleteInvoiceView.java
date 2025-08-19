@@ -14,6 +14,7 @@ public class DeleteInvoiceView {
 
     private DeleteInvoiceController deleteInvoiceController;
     private DeleteInvoiceViewDTO currentInvoice; // Hóa đơn đang chọn
+    private Runnable onSuccessCallback; // Callback để refresh statistics
 
     public void setDeleteInvoiceController(DeleteInvoiceController controller) {
         this.deleteInvoiceController = controller;
@@ -21,6 +22,10 @@ public class DeleteInvoiceView {
 
     public void setCurrentInvoice(DeleteInvoiceViewDTO invoice) {
         this.currentInvoice = invoice;
+    }
+
+    public void setOnSuccessCallback(Runnable callback) {
+        this.onSuccessCallback = callback;
     }
 
     @FXML
@@ -36,6 +41,10 @@ public class DeleteInvoiceView {
             if (success) {
                 showSuccessAlert("Xóa hóa đơn thành công!");
                 System.out.println("Invoice deleted and UI refreshed.");
+                // Refresh statistics nếu có callback
+                if (onSuccessCallback != null) {
+                    onSuccessCallback.run();
+                }
             } else {
                 showErrorAlert("Xóa thất bại!", "Không thể xóa hóa đơn. Vui lòng thử lại.");
                 System.out.println("Delete failed.");

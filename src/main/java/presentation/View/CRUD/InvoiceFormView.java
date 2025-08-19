@@ -7,8 +7,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.collections.FXCollections;
-
-import business.Controls.AddInvoice.AddInvoiceUseCase;
 import business.DTO.AddInvoiceViewDTO;
 import persistence.AddInvoice.AddInvoiceDAO;
 import persistence.AddInvoice.AddInvoiceDAOGateway;

@@ -37,7 +37,7 @@ public class InvoiceTableView implements Subscriber {
         ObservableList<InvoiceViewItem> observableItems = FXCollections.observableArrayList(items);
         invoiceTable.setItems(observableItems);
         invoiceTable.refresh(); // Cập nhật lại 
-        System.out.println("InvoiceTableView: View updated with new data.");
+        System.out.println("InvoiceTableView: Model updated, table refreshed.");
     }
     @FXML
     public void initialize() {

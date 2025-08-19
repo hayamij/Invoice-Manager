@@ -4,10 +4,12 @@ import business.Controls.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import persistence.InvoiceList.InvoiceDAO;
+// import presentation.Controller.RefreshInvoiceController;
 import presentation.Controller.ShowInvoiceListController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
 import presentation.View.CRUD.InvoiceFormView;
+// import presentation.View.CRUD.RefreshInvoiceView;
 import persistence.InvoiceList.InvoiceDAOGateway;
 
 
@@ -22,6 +24,8 @@ public class MainView {
     private static InvoiceDAOGateway invoiceDAOGateway;
     private ShowInvoiceListController showInvoiceListController;
     private InvoiceFormView invoiceformview;
+    // private RefreshInvoiceController refreshInvoiceController;
+
     
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
         // usecases
@@ -46,7 +50,6 @@ public class MainView {
         } else {
             System.out.println("MainView: WARNING - invoiceformController is null!");
         }
-        
         // Load initial data
         System.out.println("MainView: InvoiceViewModel set and ShowInvoiceListController executed.");
         showInvoiceListController.execute(); 

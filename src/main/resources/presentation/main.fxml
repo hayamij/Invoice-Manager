@@ -32,7 +32,7 @@
             <fx:include source="invoicetable.fxml" fx:id="invoiceTableView" />
             
             <!-- Statistics component -->
-            <fx:include source="invoicestatistic.fxml" />
+            <fx:include source="invoicestatistic.fxml" fx:id="invoicestatistic" />
             
         </VBox>
     </center>

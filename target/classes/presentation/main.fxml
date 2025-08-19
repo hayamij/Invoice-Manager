@@ -24,7 +24,7 @@
                 <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
                     <fx:include source="deletebutton.fxml" />
                     <fx:include source="updatebutton.fxml" />
-                    <fx:include source="refreshbutton.fxml" />
+                    <fx:include source="refreshbutton.fxml" fx:id="refreshbutton" />
                 </HBox>
             </VBox>
             

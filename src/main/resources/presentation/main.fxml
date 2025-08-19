@@ -30,7 +30,7 @@
             </VBox>
             
             <!-- Invoice table component -->
-            <fx:include source="invoicetable.fxml" />
+            <fx:include source="invoicetable.fxml" fx:id="invoiceTableView" />
             
             <!-- Statistics component -->
             <fx:include source="invoicestatistic.fxml" />

@@ -11,6 +11,7 @@ module hotel {
     opens presentation.View.InvoiceList to javafx.fxml, javafx.base;
     opens presentation.View.InvoiceStatistics to javafx.fxml, javafx.base;
     opens presentation.View.SearchInvoice to javafx.fxml, javafx.base;
+    opens presentation.Controller to javafx.fxml, javafx.base;
     opens persistence to javafx.base;
 
     exports presentation;

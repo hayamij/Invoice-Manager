@@ -7,27 +7,36 @@ import persistence.InvoiceList.InvoiceDAO;
 import presentation.Controller.ShowInvoiceListController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
-
-// import java.util.ArrayList;
-// import persistence.InvoiceList.InvoiceDAO;
 import persistence.InvoiceList.InvoiceDAOGateway;
-// import presentation.Controller.ShowInvoiceListController;
-// import presentation.Model.InvoiceViewModel;
-// import business.Controls.ShowInvoiceList.ShowInvoiceListUseCase;
 
 public class MainView {
     @FXML
     private VBox invoiceTableView; // Đúng kiểu với invoicetable.fxml
+    
+    // Thêm reference đến InvoiceTableView controller
+    @FXML
+    private InvoiceTableView invoiceTableViewController; // Tên này phải khớp với fx:id trong FXML
+    
     private static InvoiceDAOGateway invoiceDAOGateway;
+    
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
         // usecases
-        invoiceDAOGateway = new InvoiceDAO(); // Assuming you have a constructor that initializes the DAO
+        invoiceDAOGateway = new InvoiceDAO(); 
         ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAOGateway);
+        
         // controllers
         ShowInvoiceListController showInvoiceListController = new ShowInvoiceListController(invoiceViewModel, showInvoiceListUseCase);
-        // Truyền model cho bảng qua MainView
-        // mainView.setInvoiceViewModel(invoiceViewModel);
-        showInvoiceListController.execute(); // Load initial data
+        
+        // QUAN TRỌNG: Kết nối InvoiceTableView với model
+        if (invoiceTableViewController != null) {
+            invoiceTableViewController.setModel(invoiceViewModel);
+            System.out.println("MainView: InvoiceTableView connected to model.");
+        } else {
+            System.out.println("MainView: WARNING - invoiceTableViewController is null!");
+        }
+        
+        // Load initial data
         System.out.println("MainView: InvoiceViewModel set and ShowInvoiceListController executed.");
+        showInvoiceListController.execute(); 
     }
 }

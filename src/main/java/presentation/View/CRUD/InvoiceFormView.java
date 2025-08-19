@@ -11,6 +11,8 @@ import javafx.collections.FXCollections;
 import business.Controls.AddInvoice.AddInvoiceUseCase;
 import business.DTO.AddInvoiceViewDTO;
 import persistence.AddInvoice.AddInvoiceDAO;
+import persistence.AddInvoice.AddInvoiceDAOGateway;
+import presentation.Controller.AddInvoiceController;
 import presentation.Controller.ShowInvoiceListController;
 
 import java.util.Date;
@@ -25,26 +27,22 @@ public class InvoiceFormView {
     @FXML private TextField hourField;
     @FXML private TextField dayField;
 
-    private AddInvoiceUseCase addInvoiceUseCase;
     private ShowInvoiceListController showInvoiceListController;
+    private AddInvoiceController addInvoiceController;
 
     @FXML
     public void initialize() {
-        // Khởi tạo ComboBox với các loại hóa đơn
         typeComboBox.setItems(FXCollections.observableArrayList(
             "Hourly Invoice", 
             "Daily Invoice"
         ));
-        
-        // Khởi tạo UseCase
-        addInvoiceUseCase = new AddInvoiceUseCase(new AddInvoiceDAO());
-        
-        // Lắng nghe thay đổi loại hóa đơn để ẩn/hiện field
         typeComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             toggleFieldsBasedOnType(newVal);
         });
+        // Initialize AddInvoiceController with DAO
+        AddInvoiceDAOGateway addInvoiceDAO = new AddInvoiceDAO();
+        addInvoiceController = new AddInvoiceController(addInvoiceDAO);
     }
-    
     public void setShowInvoiceListController(ShowInvoiceListController controller) {
         this.showInvoiceListController = controller;
     }
@@ -56,17 +54,12 @@ public class InvoiceFormView {
             if (!validateInput()) {
                 return;
             }
-
-            // Tạo DTO từ form data
             AddInvoiceViewDTO dto = createDTOFromForm();
-            
             // Gọi UseCase để thêm hóa đơn
-            boolean success = addInvoiceUseCase.addInvoice(dto);
-            
+            boolean success = addInvoiceController.execute(dto);
             if (success) {
                 showSuccessAlert("Thêm hóa đơn thành côngg!");
                 clearForm();
-                
                 // Refresh danh sách hóa đơn
                 if (showInvoiceListController != null) {
                     showInvoiceListController.execute();
@@ -74,7 +67,6 @@ public class InvoiceFormView {
             } else {
                 showErrorAlert("Thêm hóa đơn thất bại!", "Vui lòng kiểm tra lại thông tin.");
             }
-            
         } catch (Exception e) {
             showErrorAlert("Lỗi hệ thống!", "Đã xảy ra lỗi: " + e.getMessage());
             e.printStackTrace();
@@ -83,15 +75,12 @@ public class InvoiceFormView {
 
     private boolean validateInput() {
         StringBuilder errors = new StringBuilder();
-        
         if (customerField.getText().trim().isEmpty()) {
             errors.append("- Tên khách hàng không được để trống\n");
         }
-        
         if (roomField.getText().trim().isEmpty()) {
             errors.append("- Số phòng không được để trống\n");
         }
-        
         if (unitPriceField.getText().trim().isEmpty()) {
             errors.append("- Đơn giá không được để trống\n");
         } else {
@@ -104,7 +93,6 @@ public class InvoiceFormView {
                 errors.append("- Đơn giá phải là số hợp lệ\n");
             }
         }
-        
         if (typeComboBox.getSelectionModel().getSelectedItem() == null) {
             errors.append("- Vui lòng chọn loại hóa đơn\n");
         } else {
@@ -137,25 +125,20 @@ public class InvoiceFormView {
                 }
             }
         }
-        
         if (errors.length() > 0) {
             showErrorAlert("Dữ liệu không hợp lệ!", errors.toString());
             return false;
         }
-        
         return true;
     }
 
     private AddInvoiceViewDTO createDTOFromForm() {
         AddInvoiceViewDTO dto = new AddInvoiceViewDTO();
-        
         dto.customer = customerField.getText().trim();
         dto.room_id = roomField.getText().trim();
         dto.unitPrice = Double.parseDouble(unitPriceField.getText().trim());
         dto.type = typeComboBox.getSelectionModel().getSelectedItem();
         dto.date = new Date(); // Sử dụng thời gian hiện tại
-        
-        // Set hour hoặc day dựa trên loại hóa đơn
         if ("Hourly Invoice".equals(dto.type)) {
             dto.hour = Integer.parseInt(hourField.getText().trim());
             dto.day = 0; // Set default value
@@ -163,7 +146,6 @@ public class InvoiceFormView {
             dto.day = Integer.parseInt(dayField.getText().trim());
             dto.hour = 0; // Set default value
         }
-        
         return dto;
     }
 
@@ -177,8 +159,10 @@ public class InvoiceFormView {
             dayField.setDisable(false);
             hourField.clear();
         } else {
-            hourField.setDisable(false);
-            dayField.setDisable(false);
+            hourField.setDisable(true);
+            dayField.setDisable(true);
+            hourField.clear();
+            dayField.clear();
         }
     }
 

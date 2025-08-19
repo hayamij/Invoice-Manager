@@ -9,8 +9,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 // import java.util.ArrayList;
 import java.util.List;
 
+import business.DTO.DeleteInvoiceViewDTO;
 // import business.DTO.InvoiceViewDTO;
 import presentation.Model.InvoiceViewModel;
+import presentation.View.CRUD.DeleteInvoiceView;
 import presentation.Subscriber;
 import presentation.Controller.InvoiceViewItem;
 import javafx.collections.FXCollections;
@@ -23,7 +25,10 @@ public class InvoiceTableView implements Subscriber {
     @FXML private TableColumn<InvoiceViewItem, String> idColumn, customerColumn, dateColumn, roomColumn, typeColumn;
     @FXML private TableColumn<InvoiceViewItem, Double> totalColumn;
 
+    private DeleteInvoiceView deleteInvoiceView;
+
     private InvoiceViewModel model;
+    // TableView<DeleteInvoiceViewDTO> deleteTableView = convertToDeleteViewDTO(invoiceTable);
 
     public void setModel(InvoiceViewModel model) {
         this.model = model;
@@ -49,23 +54,17 @@ public class InvoiceTableView implements Subscriber {
         this.roomColumn.setCellValueFactory(new PropertyValueFactory<>("room_id"));
         this.typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
         this.totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
+
+        invoiceTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null && deleteInvoiceView != null) {
+                DeleteInvoiceViewDTO dto = new DeleteInvoiceViewDTO();
+                dto.id = newSelection.id;
+                deleteInvoiceView.setCurrentInvoice(dto);
+                System.out.println("Đã chọn hóa đơn để xóa: " + dto.id);
+            }
+        });
     }
-    // private List<InvoiceViewItem> convert(List<InvoiceViewDTO> listDTO) {
-    //     List<InvoiceViewItem> list = new ArrayList<>();
-    //     SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
-    //     int stt = 1;
-    //     for (InvoiceViewDTO dto : listDTO) {
-    //         InvoiceViewItem item = new InvoiceViewItem();
-    //         item.stt = stt++;
-    //         item.id = dto.id;
-    //         item.date = fmt.format(dto.date);
-    //         item.customer = dto.customer;
-    //         item.room_id = dto.room_id;
-    //         item.type = dto.type;
-    //         item.total = dto.total;
-    //         list.add(item);
-    //     }
-    //     return list;
-    // }
-    
+    public void setSelectedInvoice(DeleteInvoiceView deleteInvoiceView) {
+        this.deleteInvoiceView = deleteInvoiceView;
+    }
 }

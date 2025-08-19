@@ -4,12 +4,17 @@ import business.Controls.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import persistence.InvoiceList.InvoiceDAO;
+import persistence.DeleteInvoice.DeleteInvoiceDAO;
 import presentation.Controller.ShowInvoiceListController;
+import presentation.Controller.DeleteInvoiceController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
 import presentation.View.CRUD.InvoiceFormView;
 import presentation.View.CRUD.RefreshInvoiceView;
+import presentation.View.CRUD.DeleteInvoiceView;
 import persistence.InvoiceList.InvoiceDAOGateway;
+import persistence.DeleteInvoice.DeleteInvoiceDAOGateway;
+import business.DTO.DeleteInvoiceViewDTO;
 
 public class MainView {
     @FXML
@@ -26,20 +31,29 @@ public class MainView {
     @FXML 
     private RefreshInvoiceView refreshbuttonController; // Cần thêm fx:id cho refreshbutton.fxml
     
-    private static InvoiceDAOGateway invoiceDAOGateway;
+    @FXML
+    private DeleteInvoiceView deletebuttonController; // fx:id="deletebutton" trong main.fxml
+    
+    private InvoiceDAOGateway invoiceDAOGateway;
     private ShowInvoiceListController showInvoiceListController;
+    private DeleteInvoiceController deleteInvoiceController;
+    private DeleteInvoiceViewDTO invoiceDTO; // Hóa đơn cần xóa
     
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
         // usecases
         invoiceDAOGateway = new InvoiceDAO(); 
         ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAOGateway);
-        
-        // controllers
         showInvoiceListController = new ShowInvoiceListController(invoiceViewModel, showInvoiceListUseCase);
+
+        invoiceDTO = new DeleteInvoiceViewDTO();
+        DeleteInvoiceDAOGateway deleteInvoiceDAO = new DeleteInvoiceDAO();
+        deleteInvoiceController = new DeleteInvoiceController(deleteInvoiceDAO);
+        deleteInvoiceController.setShowInvoiceListController(showInvoiceListController);
         
         // QUAN TRỌNG: Kết nối InvoiceTableView với model
         if (invoiceTableViewController != null) {
             invoiceTableViewController.setModel(invoiceViewModel);
+            invoiceTableViewController.setSelectedInvoice(deletebuttonController);
             System.out.println("MainView: InvoiceTableView connected to model.");
         } else {
             System.out.println("MainView: WARNING - invoiceTableViewController is null!");
@@ -59,6 +73,15 @@ public class MainView {
             System.out.println("MainView: RefreshInvoiceView connected to ShowInvoiceListController.");
         } else {
             System.out.println("MainView: WARNING - refreshbuttonController is null!");
+        }
+        
+        // QUAN TRỌNG: Kết nối DeleteInvoiceView với controller và table view
+        if (deletebuttonController != null) {
+            deletebuttonController.setCurrentInvoice(invoiceDTO);
+            deletebuttonController.setDeleteInvoiceController(deleteInvoiceController);
+            System.out.println("MainView: DeleteInvoiceView connected to controllers.");
+        } else {
+            System.out.println("MainView: WARNING - deletebuttonController is null!");
         }
         
         // Load initial data

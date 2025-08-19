@@ -29,7 +29,7 @@ public class App extends Application {
         MainView mainView = fxmlLoader.getController();
         mainView.setInvoiceViewModel(invoiceViewModel);    
     }
-
+    
     static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }

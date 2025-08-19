@@ -8,10 +8,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.collections.FXCollections;
 import business.DTO.AddInvoiceViewDTO;
+import business.DTO.UpdateInvoiceViewDTO;
 import persistence.AddInvoice.AddInvoiceDAO;
 import persistence.AddInvoice.AddInvoiceDAOGateway;
 import presentation.Controller.AddInvoiceController;
-import presentation.Controller.ShowInvoiceListController;
 
 import java.util.Date;
 
@@ -25,8 +25,24 @@ public class InvoiceFormView {
     @FXML private TextField hourField;
     @FXML private TextField dayField;
 
-    private ShowInvoiceListController showInvoiceListController;
     private AddInvoiceController addInvoiceController;
+
+    public String getId() { return ""; } // Placeholder for ID, can be set later if needed
+    public String getCustomer() { return customerField.getText().trim(); }
+    public String getRoomId() { return roomField.getText().trim(); }
+    public Date getDate() { return null; } // placeholder for date, can be set to current date or passed from controller
+    public String getUnitPrice() { return unitPriceField.getText().trim(); }
+    public String getType() { return typeComboBox.getSelectionModel().getSelectedItem(); }
+    public int getHour() {
+    String text = hourField.getText().trim();
+        if (text.isEmpty()) return 0;
+        return Integer.parseInt(text);
+    }
+    public int getDay() {
+        String text = dayField.getText().trim();
+        if (text.isEmpty()) return 0;
+        return Integer.parseInt(text);
+    }
 
     @FXML
     public void initialize() {
@@ -40,9 +56,6 @@ public class InvoiceFormView {
         // Initialize AddInvoiceController with DAO
         AddInvoiceDAOGateway addInvoiceDAO = new AddInvoiceDAO();
         addInvoiceController = new AddInvoiceController(addInvoiceDAO);
-    }
-    public void setShowInvoiceListController(ShowInvoiceListController controller) {
-        this.showInvoiceListController = controller;
     }
 
     @FXML
@@ -58,10 +71,6 @@ public class InvoiceFormView {
             if (success) {
                 showSuccessAlert("Thêm hóa đơn thành côngg!");
                 clearForm();
-                // Refresh danh sách hóa đơn
-                if (showInvoiceListController != null) {
-                    showInvoiceListController.execute();
-                }
             } else {
                 showErrorAlert("Thêm hóa đơn thất bại!", "Vui lòng kiểm tra lại thông tin.");
             }
@@ -148,6 +157,8 @@ public class InvoiceFormView {
     }
 
     private void toggleFieldsBasedOnType(String selectedType) {
+        hourField.setDisable(true);
+        dayField.setDisable(true);
         if ("Hourly Invoice".equals(selectedType)) {
             hourField.setDisable(false);
             dayField.setDisable(true);
@@ -157,8 +168,8 @@ public class InvoiceFormView {
             dayField.setDisable(false);
             hourField.clear();
         } else {
-            hourField.setDisable(true);
-            dayField.setDisable(true);
+            hourField.setDisable(false);
+            dayField.setDisable(false);
             hourField.clear();
             dayField.clear();
         }
@@ -170,11 +181,6 @@ public class InvoiceFormView {
         unitPriceField.clear();
         hourField.clear();
         dayField.clear();
-        typeComboBox.getSelectionModel().clearSelection();
-        
-        // Reset field states
-        hourField.setDisable(false);
-        dayField.setDisable(false);
     }
 
     private void showSuccessAlert(String message) {
@@ -191,5 +197,19 @@ public class InvoiceFormView {
         alert.setHeaderText(title);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    public void setCurrentInvoiceForEdit(UpdateInvoiceViewDTO dto) {
+        customerField.setText(dto.customer);
+        roomField.setText(dto.room_id);
+        unitPriceField.setText(String.valueOf(dto.unitPrice));
+        typeComboBox.getSelectionModel().select(dto.type);
+        if ("Hourly Invoice".equals(dto.type)) {
+            hourField.setText(String.valueOf(dto.hour));
+            dayField.clear();
+        } else if ("Daily Invoice".equals(dto.type)) {
+            dayField.setText(String.valueOf(dto.day));
+            hourField.clear();
+        }
+        toggleFieldsBasedOnType(dto.type);
     }
 }

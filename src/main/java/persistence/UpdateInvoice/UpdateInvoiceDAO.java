@@ -54,4 +54,27 @@ public class UpdateInvoiceDAO implements UpdateInvoiceDAOGateway {
             return false;
         }
     }
+    @Override
+    public UpdateInvoiceDTO getInvoiceById(String invoiceId) {
+        String sql = "SELECT * FROM invoices WHERE id = ?";
+        try (var preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setString(1, invoiceId);
+            var resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                UpdateInvoiceDTO dto = new UpdateInvoiceDTO();
+                dto.id = resultSet.getString("id");
+                dto.customer = resultSet.getString("customer");
+                dto.room_id = resultSet.getString("room_id");
+                dto.unitPrice = resultSet.getDouble("unitPrice");
+                dto.date = resultSet.getTimestamp("date");
+                dto.hour = resultSet.getInt("hour");
+                dto.day = resultSet.getInt("day");
+                dto.type = resultSet.getString("type");
+                return dto;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving invoice: " + e.getMessage());
+        }
+        return null;
+    }
 }

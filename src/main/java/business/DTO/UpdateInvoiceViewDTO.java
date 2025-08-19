@@ -6,7 +6,7 @@ public class UpdateInvoiceViewDTO {
     public String id;
     public String customer;
     public String room_id;
-    public double unitPrice;
+    public Double unitPrice;
     public Date date;
     public int hour; // For hourly invoices
     public int day; // For daily invoices

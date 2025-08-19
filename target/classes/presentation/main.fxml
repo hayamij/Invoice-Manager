@@ -20,9 +20,8 @@
             
             <!-- Form and actions -->
             <VBox spacing="10">
-                <fx:include source="invoiceform.fxml" />
+                <fx:include source="invoiceform.fxml" fx:id="invoiceform" />
                 <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
-                    <fx:include source="addbutton.fxml" />
                     <fx:include source="deletebutton.fxml" />
                     <fx:include source="updatebutton.fxml" />
                     <fx:include source="refreshbutton.fxml" />

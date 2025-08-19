@@ -41,4 +41,11 @@
         <TextField fx:id="dayField" promptText="Nhập số ngày" GridPane.columnIndex="3" GridPane.rowIndex="2" />
     </GridPane>
     
+    <!-- Add Button -->
+    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10 0 0 0;">
+        <Button fx:id="addButton" text="Thêm hóa đơn" 
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16;" 
+                onAction="#addInvoice" />
+    </HBox>
+    
 </VBox>

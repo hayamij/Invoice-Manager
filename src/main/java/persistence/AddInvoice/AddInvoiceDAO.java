@@ -38,19 +38,20 @@ public class AddInvoiceDAO implements AddInvoiceDAOGateway {
         String sql = "INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (var preparedStatement = conn.prepareStatement(sql)) {
-            AddInvoiceDTO dto = invoiceDTO;
-            preparedStatement.setTimestamp(2, new java.sql.Timestamp(dto.getDate().getTime()));
-            preparedStatement.setString(3, dto.getCustomer());
-            preparedStatement.setString(4, dto.getRoom_id());
-            preparedStatement.setDouble(5, dto.getUnitPrice());
-            preparedStatement.setInt(6, dto.getHour());
-            preparedStatement.setInt(7, dto.getDay());
-            preparedStatement.setString(8, dto.getType());
+            preparedStatement.setTimestamp(1, new java.sql.Timestamp(invoiceDTO.getDate().getTime()));
+            preparedStatement.setString(2, invoiceDTO.getCustomer());
+            preparedStatement.setString(3, invoiceDTO.getRoom_id());
+            preparedStatement.setDouble(4, invoiceDTO.getUnitPrice());
+            preparedStatement.setInt(5, invoiceDTO.getHour());
+            preparedStatement.setInt(6, invoiceDTO.getDay());
+            preparedStatement.setString(7, invoiceDTO.getType());
 
             int rowsAffected = preparedStatement.executeUpdate();
+            System.out.println("Invoice added successfully. Rows affected: " + rowsAffected);
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.err.println("Error adding invoice: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

@@ -7,7 +7,9 @@ import persistence.InvoiceList.InvoiceDAO;
 import presentation.Controller.ShowInvoiceListController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
+import presentation.View.CRUD.InvoiceFormView;
 import persistence.InvoiceList.InvoiceDAOGateway;
+
 
 public class MainView {
     @FXML
@@ -18,6 +20,8 @@ public class MainView {
     private InvoiceTableView invoiceTableViewController; // Tên này phải khớp với fx:id trong FXML
     
     private static InvoiceDAOGateway invoiceDAOGateway;
+    private ShowInvoiceListController showInvoiceListController;
+    private InvoiceFormView invoiceformview;
     
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
         // usecases
@@ -25,7 +29,7 @@ public class MainView {
         ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAOGateway);
         
         // controllers
-        ShowInvoiceListController showInvoiceListController = new ShowInvoiceListController(invoiceViewModel, showInvoiceListUseCase);
+        showInvoiceListController = new ShowInvoiceListController(invoiceViewModel, showInvoiceListUseCase);
         
         // QUAN TRỌNG: Kết nối InvoiceTableView với model
         if (invoiceTableViewController != null) {
@@ -33,6 +37,14 @@ public class MainView {
             System.out.println("MainView: InvoiceTableView connected to model.");
         } else {
             System.out.println("MainView: WARNING - invoiceTableViewController is null!");
+        }
+        
+        // QUAN TRỌNG: Kết nối InvoiceFormView với controller để refresh danh sách
+        if (invoiceformview != null) {
+            invoiceformview.setShowInvoiceListController(showInvoiceListController);
+            System.out.println("MainView: InvoiceFormView connected to ShowInvoiceListController.");
+        } else {
+            System.out.println("MainView: WARNING - invoiceformController is null!");
         }
         
         // Load initial data

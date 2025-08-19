@@ -13,17 +13,21 @@ import business.DTO.InvoiceTypeViewDTO;
 
 
 public class InvoiceTypeListUseCase {
-    private InvoiceTypeViewDTO model;
-    private HourlyInvoice hourly;
-    private DailyInvoice daily;
-
     public List<InvoiceTypeViewDTO> execute() {
-        List <InvoiceTypeViewDTO> invoiceTypes = new ArrayList<>();
-        model.type = hourly.type();
-        model.type = daily.type();
-        // extend the model below if needed
+        List<InvoiceTypeViewDTO> invoiceTypes = new ArrayList<>();
 
-        invoiceTypes.add(model);
+        HourlyInvoice hourly = new HourlyInvoice();
+        DailyInvoice daily = new DailyInvoice();
+
+        InvoiceTypeViewDTO hourlyDTO = new InvoiceTypeViewDTO();
+        hourlyDTO.type = hourly.type();
+
+        InvoiceTypeViewDTO dailyDTO = new InvoiceTypeViewDTO();
+        dailyDTO.type = daily.type();
+
+        invoiceTypes.add(hourlyDTO);
+        invoiceTypes.add(dailyDTO);
+
         return invoiceTypes;
     }
 }

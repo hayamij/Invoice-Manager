@@ -27,7 +27,7 @@ public class UpdateInvoiceUseCase {
 			dto.room_id == null || dto.room_id.isEmpty() || 
 			dto.unitPrice <= 0 || 
 			dto.date == null || 
-			dto.hour < 0 || 
+			dto.hour < 0 || dto.hour > 30 ||
 			dto.day < 0 || 
 			dto.type == null || dto.type.isEmpty()) {
 			return false; // Invalid data

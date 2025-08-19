@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import presentation.Model.InvoiceViewModel;
+import presentation.View.MainView;
 
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public class App extends Application {
         stage.show();
         stage.setTitle("Invoice Manager");
         InvoiceViewModel invoiceViewModel = new InvoiceViewModel();
-        presentation.View.MainView mainView = fxmlLoader.getController();
+        MainView mainView = fxmlLoader.getController();
         mainView.setInvoiceViewModel(invoiceViewModel);    
     }
 

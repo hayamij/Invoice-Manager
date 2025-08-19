@@ -5,16 +5,20 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import persistence.InvoiceList.InvoiceDAO;
 import persistence.DeleteInvoice.DeleteInvoiceDAO;
+import persistence.SearchInvoice.SearchInvoiceDAO;
 import presentation.Controller.ShowInvoiceListController;
 import presentation.Controller.DeleteInvoiceController;
+import presentation.Controller.SearchInvoiceController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
 import presentation.View.CRUD.InvoiceFormView;
 import presentation.View.CRUD.RefreshInvoiceView;
 import presentation.View.CRUD.UpdateInvoiceView;
 import presentation.View.CRUD.DeleteInvoiceView;
+import presentation.View.SearchInvoice.SearchBarView;
 import persistence.InvoiceList.InvoiceDAOGateway;
 import persistence.DeleteInvoice.DeleteInvoiceDAOGateway;
+import persistence.SearchInvoice.SearchInvoiceDAOGateway;
 import business.DTO.DeleteInvoiceViewDTO;
 
 public class MainView {
@@ -34,12 +38,17 @@ public class MainView {
     
     @FXML
     private DeleteInvoiceView deletebuttonController; // fx:id="deletebutton" trong main.fxml
+    
     @FXML
     private UpdateInvoiceView updateInvoiceViewController;
+    
+    @FXML
+    private SearchBarView searchbarController; // fx:id="searchbar" trong main.fxml
     
     private InvoiceDAOGateway invoiceDAOGateway;
     private ShowInvoiceListController showInvoiceListController;
     private DeleteInvoiceController deleteInvoiceController;
+    private SearchInvoiceController searchInvoiceController;
     private DeleteInvoiceViewDTO invoiceDTO; // Hóa đơn cần xóa
     
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
@@ -47,6 +56,10 @@ public class MainView {
         invoiceDAOGateway = new InvoiceDAO(); 
         ShowInvoiceListUseCase showInvoiceListUseCase = new ShowInvoiceListUseCase(invoiceDAOGateway);
         showInvoiceListController = new ShowInvoiceListController(invoiceViewModel, showInvoiceListUseCase);
+
+        // Search functionality
+        SearchInvoiceDAOGateway searchInvoiceDAO = new SearchInvoiceDAO();
+        searchInvoiceController = new SearchInvoiceController(invoiceViewModel, searchInvoiceDAO);
 
         invoiceDTO = new DeleteInvoiceViewDTO();
         DeleteInvoiceDAOGateway deleteInvoiceDAO = new DeleteInvoiceDAO();
@@ -84,6 +97,16 @@ public class MainView {
             updateInvoiceViewController.setInvoiceFormView(invoiceformController);
             updateInvoiceViewController.setInvoiceTableView(invoiceTableViewController);
         }
+
+        // QUAN TRỌNG: Kết nối SearchBarView với controller
+        if (searchbarController != null) {
+            searchbarController.setSearchInvoiceController(searchInvoiceController);
+            searchbarController.setShowInvoiceListController(showInvoiceListController);
+            System.out.println("MainView: SearchBarView connected to SearchInvoiceController.");
+        } else {
+            System.out.println("MainView: WARNING - searchbarController is null!");
+        }
+        
         // Load initial data
         System.out.println("MainView: InvoiceViewModel set and ShowInvoiceListController executed.");
         showInvoiceListController.execute(); 

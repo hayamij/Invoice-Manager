@@ -4,14 +4,12 @@ import business.Controls.ShowInvoiceList.ShowInvoiceListUseCase;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import persistence.InvoiceList.InvoiceDAO;
-// import presentation.Controller.RefreshInvoiceController;
 import presentation.Controller.ShowInvoiceListController;
 import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
 import presentation.View.CRUD.InvoiceFormView;
-// import presentation.View.CRUD.RefreshInvoiceView;
+import presentation.View.CRUD.RefreshInvoiceView;
 import persistence.InvoiceList.InvoiceDAOGateway;
-
 
 public class MainView {
     @FXML
@@ -21,11 +19,15 @@ public class MainView {
     @FXML
     private InvoiceTableView invoiceTableViewController; // Tên này phải khớp với fx:id trong FXML
     
+    // QUAN TRỌNG: Thêm reference đến các controller khác
+    @FXML
+    private InvoiceFormView invoiceformController; // fx:id="invoiceform" trong main.fxml
+    
+    @FXML 
+    private RefreshInvoiceView refreshbuttonController; // Cần thêm fx:id cho refreshbutton.fxml
+    
     private static InvoiceDAOGateway invoiceDAOGateway;
     private ShowInvoiceListController showInvoiceListController;
-    private InvoiceFormView invoiceformview;
-    // private RefreshInvoiceController refreshInvoiceController;
-
     
     public void setInvoiceViewModel(InvoiceViewModel invoiceViewModel) {
         // usecases
@@ -44,12 +46,21 @@ public class MainView {
         }
         
         // QUAN TRỌNG: Kết nối InvoiceFormView với controller để refresh danh sách
-        if (invoiceformview != null) {
-            invoiceformview.setShowInvoiceListController(showInvoiceListController);
+        if (invoiceformController != null) {
+            invoiceformController.setShowInvoiceListController(showInvoiceListController);
             System.out.println("MainView: InvoiceFormView connected to ShowInvoiceListController.");
         } else {
             System.out.println("MainView: WARNING - invoiceformController is null!");
         }
+        
+        // QUAN TRỌNG: Kết nối RefreshInvoiceView với controller
+        if (refreshbuttonController != null) {
+            refreshbuttonController.setShowInvoiceListController(showInvoiceListController);
+            System.out.println("MainView: RefreshInvoiceView connected to ShowInvoiceListController.");
+        } else {
+            System.out.println("MainView: WARNING - refreshbuttonController is null!");
+        }
+        
         // Load initial data
         System.out.println("MainView: InvoiceViewModel set and ShowInvoiceListController executed.");
         showInvoiceListController.execute(); 

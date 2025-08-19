@@ -16,7 +16,7 @@
         <VBox spacing="15" style="-fx-padding: 20;">
             
             <!-- Search bar component -->
-            <fx:include source="searchbar.fxml" />
+            <fx:include source="searchbar.fxml" fx:id="searchbar" />
             
             <!-- Form and actions -->
             <VBox spacing="10">

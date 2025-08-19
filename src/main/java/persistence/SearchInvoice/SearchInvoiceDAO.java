@@ -44,12 +44,24 @@ public class SearchInvoiceDAO implements SearchInvoiceDAOGateway {
             return result;
         }
 
-        String query = "SELECT * FROM Invoices WHERE id LIKE ? OR customer LIKE ? OR room_id LIKE ?";
+        // Tìm kiếm theo tất cả các cột: id, customer, room_id, type
+        // Cũng có thể tìm theo unitPrice (chuyển đổi sang string để so sánh)
+        String query = "SELECT * FROM Invoices WHERE " +
+                      "id LIKE ? OR " +
+                      "customer LIKE ? OR " +
+                      "room_id LIKE ? OR " +
+                      "type LIKE ? OR " +
+                      "CAST(unitPrice AS VARCHAR) LIKE ? OR " +
+                      "CAST(hour AS VARCHAR) LIKE ? OR " +
+                      "CAST(day AS VARCHAR) LIKE ? OR " +
+                      "FORMAT(date, 'dd/MM/yyyy') LIKE ?";
+        
         try (var stmt = conn.prepareStatement(query)) {
             String searchPattern = "%" + searchText + "%";
-            stmt.setString(1, searchPattern);
-            stmt.setString(2, searchPattern);
-            stmt.setString(3, searchPattern);
+            // Set tất cả các tham số với cùng searchPattern
+            for (int i = 1; i <= 8; i++) {
+                stmt.setString(i, searchPattern);
+            }
 
             try (var rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -59,11 +71,16 @@ public class SearchInvoiceDAO implements SearchInvoiceDAOGateway {
                     dto.setCustomer(rs.getString("customer"));
                     dto.setRoom_id(rs.getString("room_id"));
                     dto.setUnitPrice(rs.getDouble("unitPrice"));
+                    dto.setHour(rs.getInt("hour"));
+                    dto.setDay(rs.getInt("day"));
+                    dto.setType(rs.getString("type"));
                     result.add(dto);
                 }
             }
+            System.out.println("SearchInvoiceDAO: Found " + result.size() + " invoices matching '" + searchText + "'");
         } catch (SQLException e) {
             System.err.println("Error executing search query: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }

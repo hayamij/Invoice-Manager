@@ -23,7 +23,7 @@
                 <fx:include source="invoiceform.fxml" fx:id="invoiceform" />
                 <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
                     <fx:include source="deletebutton.fxml" fx:id="deletebutton" />
-                    <fx:include source="updatebutton.fxml" />
+                    <fx:include source="updatebutton.fxml" fx:id="updateInvoiceView"/>
                     <fx:include source="refreshbutton.fxml" fx:id="refreshbutton" />
                 </HBox>
             </VBox>

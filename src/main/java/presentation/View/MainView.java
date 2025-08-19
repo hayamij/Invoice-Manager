@@ -11,6 +11,7 @@ import presentation.Model.InvoiceViewModel;
 import presentation.View.InvoiceList.InvoiceTableView;
 import presentation.View.CRUD.InvoiceFormView;
 import presentation.View.CRUD.RefreshInvoiceView;
+import presentation.View.CRUD.UpdateInvoiceView;
 import presentation.View.CRUD.DeleteInvoiceView;
 import persistence.InvoiceList.InvoiceDAOGateway;
 import persistence.DeleteInvoice.DeleteInvoiceDAOGateway;
@@ -33,6 +34,8 @@ public class MainView {
     
     @FXML
     private DeleteInvoiceView deletebuttonController; // fx:id="deletebutton" trong main.fxml
+    @FXML
+    private UpdateInvoiceView updateInvoiceViewController;
     
     private InvoiceDAOGateway invoiceDAOGateway;
     private ShowInvoiceListController showInvoiceListController;
@@ -48,23 +51,16 @@ public class MainView {
         invoiceDTO = new DeleteInvoiceViewDTO();
         DeleteInvoiceDAOGateway deleteInvoiceDAO = new DeleteInvoiceDAO();
         deleteInvoiceController = new DeleteInvoiceController(deleteInvoiceDAO);
-        deleteInvoiceController.setShowInvoiceListController(showInvoiceListController);
+        
         
         // QUAN TRỌNG: Kết nối InvoiceTableView với model
         if (invoiceTableViewController != null) {
             invoiceTableViewController.setModel(invoiceViewModel);
             invoiceTableViewController.setSelectedInvoice(deletebuttonController);
+            invoiceTableViewController.setInvoiceFormView(invoiceformController);
             System.out.println("MainView: InvoiceTableView connected to model.");
         } else {
             System.out.println("MainView: WARNING - invoiceTableViewController is null!");
-        }
-        
-        // QUAN TRỌNG: Kết nối InvoiceFormView với controller để refresh danh sách
-        if (invoiceformController != null) {
-            invoiceformController.setShowInvoiceListController(showInvoiceListController);
-            System.out.println("MainView: InvoiceFormView connected to ShowInvoiceListController.");
-        } else {
-            System.out.println("MainView: WARNING - invoiceformController is null!");
         }
         
         // QUAN TRỌNG: Kết nối RefreshInvoiceView với controller
@@ -84,6 +80,10 @@ public class MainView {
             System.out.println("MainView: WARNING - deletebuttonController is null!");
         }
         
+        if (updateInvoiceViewController != null) {
+            updateInvoiceViewController.setInvoiceFormView(invoiceformController);
+            updateInvoiceViewController.setInvoiceTableView(invoiceTableViewController);
+        }
         // Load initial data
         System.out.println("MainView: InvoiceViewModel set and ShowInvoiceListController executed.");
         showInvoiceListController.execute(); 

@@ -7,14 +7,9 @@ import persistence.DeleteInvoice.DeleteInvoiceDTO;
 
 public class DeleteInvoiceController {
     private DeleteInvoiceUseCase deleteInvoiceUseCase;
-    private ShowInvoiceListController showInvoiceListController;
 
     public DeleteInvoiceController(DeleteInvoiceDAOGateway deleteInvoiceDAO) {
         this.deleteInvoiceUseCase = new DeleteInvoiceUseCase(deleteInvoiceDAO);
-    }
-
-    public void setShowInvoiceListController(ShowInvoiceListController controller) {
-        this.showInvoiceListController = controller;
     }
 
     public boolean execute(DeleteInvoiceViewDTO viewDTO) {
@@ -25,11 +20,6 @@ public class DeleteInvoiceController {
         
         if (success) {
             System.out.println("Invoice deleted successfully.");
-            // Refresh table after successful deletion
-            if (showInvoiceListController != null) {
-                showInvoiceListController.execute();
-                System.out.println("ShowInvoiceListController executed after deleting invoice.");
-            }
             return true;
         } else {
             System.out.println("Failed to delete invoice.");

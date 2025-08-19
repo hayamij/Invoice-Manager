@@ -7,13 +7,17 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.collections.FXCollections;
+import business.Controls.AddInvoice.InvoiceTypeListUseCase;
 import business.DTO.AddInvoiceViewDTO;
+import business.DTO.InvoiceTypeViewDTO;
 import business.DTO.UpdateInvoiceViewDTO;
 import persistence.AddInvoice.AddInvoiceDAO;
 import persistence.AddInvoice.AddInvoiceDAOGateway;
 import presentation.Controller.AddInvoiceController;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class InvoiceFormView {
 
@@ -45,17 +49,24 @@ public class InvoiceFormView {
     }
 
     @FXML
-    public void initialize() {
-        typeComboBox.setItems(FXCollections.observableArrayList(
-            "Hourly Invoice", 
-            "Daily Invoice"
-        ));
-        typeComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            toggleFieldsBasedOnType(newVal);
-        });
-        // Initialize AddInvoiceController with DAO
+        public void initialize() {
         AddInvoiceDAOGateway addInvoiceDAO = new AddInvoiceDAO();
         addInvoiceController = new AddInvoiceController(addInvoiceDAO);
+        InvoiceTypeListUseCase useCase = new InvoiceTypeListUseCase();
+        List<InvoiceTypeViewDTO> types = useCase.execute();
+        List<String> typeNames = new ArrayList<>();
+        for (InvoiceTypeViewDTO dto : types) {
+            typeNames.add(dto.type);
+        }
+        typeComboBox.setItems(FXCollections.observableArrayList(typeNames));
+        if (!typeNames.isEmpty()) {
+            typeComboBox.getSelectionModel().select(0); // chọn mặc định loại đầu tiên
+            toggleFieldsBasedOnType(typeNames.get(0));   // gọi toggle cho loại đầu tiên
+        }
+        typeComboBox.setOnAction(event -> {
+            String selectedType = typeComboBox.getSelectionModel().getSelectedItem();
+            toggleFieldsBasedOnType(selectedType);
+        });
     }
 
     @FXML

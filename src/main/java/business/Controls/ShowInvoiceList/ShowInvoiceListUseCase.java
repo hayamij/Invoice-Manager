@@ -36,6 +36,7 @@ public class ShowInvoiceListUseCase {
                 invoices.add(invoice);
             }
         }
+        System.out.println("Converted " + invoices.size() + " invoices from DTO to object.");
         return invoices;
     }
 
@@ -51,6 +52,7 @@ public class ShowInvoiceListUseCase {
             dto.total = invoice.calculateTotal();
             viewDTOs.add(dto);
         }
+        System.out.println("Converted " + viewDTOs.size() + " invoices to view DTO.");
         return viewDTOs;
     }
 }

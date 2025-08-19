@@ -61,6 +61,7 @@ public class InvoiceDAO implements InvoiceDAOGateway {
             System.err.println("Error retrieving invoices: " + e.getMessage());
             e.printStackTrace();
         }
+        System.out.println("Retrieved " + invoices.size() + " invoices from database.");
         return invoices;
     }
 }

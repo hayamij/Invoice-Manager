@@ -1,4 +1,4 @@
-package presentation;
+package presentation.Controller;
 
 public class InvoiceViewItem {
     public int stt;

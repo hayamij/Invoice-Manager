@@ -1,0 +1,154 @@
+Bạn đúng rồi! Các Use Case core business phải tận dụng các Use Case hệ thống như là include/extend relationships. Dưới đây là danh sách Use Case được cấu trúc lại:
+
+## Use Cases hệ thống (System Level) - Base Services
+
+1. **Use Case: Kết nối cơ sở dữ liệu**
+   - Actor: System
+   - Precondition: Ứng dụng được khởi động
+   - Main Flow: Load driver → Thiết lập connection → Verify kết nối
+   - Postcondition: Database connection được thiết lập thành công
+
+2. **Use Case: Chuyển đổi dữ liệu DTO**
+   - Actor: System (được gọi bởi các use case khác)
+   - Precondition: Có dữ liệu cần chuyển đổi
+   - Main Flow: ViewDTO → BusinessObject → PersistenceDTO (hoặc ngược lại)
+   - Postcondition: Dữ liệu được chuyển đổi đúng format
+
+3. **Use Case: Validate dữ liệu**
+   - Actor: System (được gọi bởi các use case khác)  
+   - Precondition: Có dữ liệu cần validate
+   - Main Flow: Kiểm tra null/empty → Kiểm tra format → Kiểm tra business rules
+   - Postcondition: Dữ liệu hợp lệ hoặc có danh sách lỗi
+
+4. **Use Case: Cập nhật giao diện**
+   - Actor: System (Observer pattern)
+   - Precondition: Có thay đổi dữ liệu
+   - Main Flow: Notify subscribers → Update TableView → Refresh statistics
+   - Postcondition: Giao diện được cập nhật theo dữ liệu mới
+
+## Use Cases chính (Core Business Logic)
+
+5. **Use Case: Hiển thị danh sách hóa đôn**
+   - Actor: Người dùng
+   - Precondition: Form main đã được mở, database connection có sẵn
+   - Main Flow: 
+     - Lấy tất cả InvoiceDTO từ database
+     - **Include: Chuyển đổi dữ liệu DTO** (DTO → BusinessObject → ViewDTO)
+     - **Include: Cập nhật giao diện** (populate TableView)
+   - Postcondition: Danh sách hóa đơn hiển thị đầy đủ trong bảng
+   - Exception Flow: Nếu DB error → Hiển thị danh sách rỗng
+
+6. **Use Case: Thêm hóa đơn mới**
+   - Actor: Người dùng
+   - Precondition: Form main đã mở, form thêm hóa đơn hiển thị
+   - Main Flow:
+     - Nhập thông tin vào form
+     - **Include: Validate dữ liệu**
+     - **Include: Chuyển đổi dữ liệu DTO** (ViewDTO → BusinessObject → PersistenceDTO)
+     - Lưu vào database
+     - **Include: Cập nhật giao diện**
+   - Postcondition: Hóa đơn mới được thêm vào DB và hiển thị trong danh sách
+   - Exception Flow: Validation fail → Hiển thị lỗi, không lưu
+
+7. **Use Case: Cập nhật hóa đơn**
+   - Actor: Người dùng
+   - Precondition: Danh sách đã hiển thị, một hóa đơn được chọn
+   - Main Flow:
+     - Load thông tin hóa đơn được chọn vào form
+     - **Include: Chuyển đổi dữ liệu DTO** (PersistenceDTO → ViewDTO)
+     - Sửa đổi thông tin
+     - **Include: Validate dữ liệu**
+     - **Include: Chuyển đổi dữ liệu DTO** (ViewDTO → BusinessObject → PersistenceDTO)
+     - Cập nhật trong database
+     - **Include: Cập nhật giao diện**
+   - Postcondition: Hóa đơn được cập nhật trong DB và giao diện
+   - Exception Flow: Không chọn hóa đơn → Hiển thị lỗi
+
+8. **Use Case: Xóa hóa đơn**
+   - Actor: Người dùng
+   - Precondition: Danh sách đã hiển thị, một hóa đơn được chọn
+   - Main Flow:
+     - Xác nhận xóa
+     - **Include: Chuyển đổi dữ liệu DTO** (ViewDTO → PersistenceDTO)
+     - Xóa khỏi database
+     - **Include: Cập nhật giao diện**
+   - Postcondition: Hóa đơn bị xóa khỏi DB và không còn hiển thị
+   - Exception Flow: Không chọn hóa đơn → Hiển thị lỗi
+
+9. **Use Case: Tìm kiếm hóa đơn**
+   - Actor: Người dùng
+   - Precondition: Form main đã mở
+   - Main Flow:
+     - Nhập từ khóa tìm kiếm
+     - **Include: Validate dữ liệu** (kiểm tra từ khóa không rỗng)
+     - Tìm kiếm trong database
+     - **Include: Chuyển đổi dữ liệu DTO** (SearchDTO → ViewDTO)
+     - **Include: Cập nhật giao diện** (hiển thị kết quả)
+   - Postcondition: Danh sách hóa đơn được lọc theo từ khóa
+   - Exception Flow: Từ khóa rỗng → Hiển thị lỗi
+
+10. **Use Case: Xóa bộ lọc tìm kiếm**
+    - Actor: Người dùng
+    - Precondition: Đã thực hiện tìm kiếm
+    - Main Flow:
+      - Xóa từ khóa tìm kiếm
+      - **Include: Hiển thị danh sách hóa đơn** (load lại toàn bộ)
+    - Postcondition: Hiển thị lại toàn bộ danh sách hóa đơn
+    - Exception Flow: Không có
+
+11. **Use Case: Làm mới danh sách**
+    - Actor: Người dùng
+    - Precondition: Form main đã mở
+    - Main Flow:
+      - **Include: Hiển thị danh sách hóa đơn** (reload từ DB)
+    - Postcondition: Danh sách được cập nhật với dữ liệu mới nhất
+    - Exception Flow: DB error → Giữ nguyên danh sách cũ
+
+12. **Use Case: Hiển thị thống kê cơ bản**
+    - Actor: Người dùng/System (auto-trigger)
+    - Precondition: Form main đã mở, có dữ liệu hóa đơn
+    - Main Flow:
+      - Lấy tất cả hóa đơn từ DB
+      - **Include: Chuyển đổi dữ liệu DTO** (PersistenceDTO → BusinessObject)
+      - Tính toán statistics (tổng hóa đơn, doanh thu, phân loại)
+      - **Include: Cập nhật giao diện** (update labels)
+    - Postcondition: Thống kê cơ bản được hiển thị
+    - Exception Flow: Không có dữ liệu → Hiển thị 0
+
+13. **Use Case: Xem thống kê chi tiết**
+    - Actor: Người dùng
+    - Precondition: Form main đã mở
+    - Main Flow:
+      - **Include: Hiển thị thống kê cơ bản** (tính toán dữ liệu)
+      - **Include: Chuyển đổi dữ liệu DTO** (tạo MonthlyStatItem)
+      - Mở cửa sổ modal statistics
+      - **Include: Cập nhật giao diện** (populate table)
+    - Postcondition: Cửa sổ thống kê chi tiết được hiển thị
+    - Exception Flow: Error → Hiển thị alert lỗi
+
+## Use Cases giao diện (UI Support)
+
+14. **Use Case: Chọn hóa đơn trong bảng**
+    - Actor: Người dùng
+    - Precondition: Danh sách hóa đơn đã hiển thị
+    - Main Flow:
+      - Click vào hàng trong bảng
+      - **Include: Chuyển đổi dữ liệu DTO** (tạo DeleteInvoiceViewDTO và UpdateInvoiceViewDTO)
+      - Cập nhật form sửa với thông tin hóa đơn
+      - Prepare data cho chức năng xóa
+    - Postcondition: Hóa đơn được chọn, form sẵn sàng cho sửa/xóa
+    - Exception Flow: Không có
+
+15. **Use Case: Khởi tạo ứng dụng**
+    - Actor: System
+    - Precondition: Application được start
+    - Main Flow:
+      - Load main.fxml
+      - **Include: Kết nối cơ sở dữ liệu**
+      - Khởi tạo tất cả controllers
+      - Setup Observer pattern
+      - **Include: Hiển thị danh sách hóa đơn** (load initial data)
+    - Postcondition: Ứng dụng sẵn sàng sử dụng
+    - Exception Flow: DB connection fail → Hiển thị error, exit
+
+**Tổng cộng: 15 Use Cases** với mối quan hệ include/extend rõ ràng, mỗi core business use case đều tận dụng các system use cases.

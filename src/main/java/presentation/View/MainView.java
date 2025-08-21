@@ -123,10 +123,13 @@ public class MainView {
             System.out.println("MainView: WARNING - searchbarController is null!");
         }
 
-        // QUAN TRỌNG: Kết nối InvoiceStatisticView với controller
+        // QUAN TRỌNG: Kết nối InvoiceStatisticView với model
         if (invoicestatisticController != null) {
-            invoicestatisticController.setStatisticController(invoiceStatisticController);
-            System.out.println("MainView: InvoiceStatisticView connected to InvoiceStatisticController.");
+            presentation.Model.InvoiceStatisticModel statisticModel = new presentation.Model.InvoiceStatisticModel();
+            // Controller cập nhật dữ liệu cho model
+            statisticModel.updateStatistics(invoiceStatisticController.getBasicStatistics());
+            invoicestatisticController.setStatisticModel(statisticModel);
+            System.out.println("MainView: InvoiceStatisticView connected to InvoiceStatisticModel.");
         } else {
             System.out.println("MainView: WARNING - invoicestatisticController is null!");
         }

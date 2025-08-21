@@ -1,0 +1,72 @@
+
+## Luồng khởi động phần mềm
+
+**1. Khởi động ứng dụng JavaFX**
+- Khi debug App.java, phương thức `main()` được gọi và chạy `launch()` để khởi động JavaFX application
+- JavaFX framework tự động gọi phương thức `start()` với một Stage (cửa sổ chính)
+
+**2. Tải giao diện chính**
+- App tạo một FXMLLoader để load file `/presentation/main.fxml`
+- FXML loader tạo ra cây đối tượng giao diện từ file XML và tự động inject các controller tương ứng
+- Một Scene được tạo với kích thước 1280x720 và gắn vào Stage
+- Cửa sổ được hiển thị với title "Invoice Manager"
+
+**3. Khởi tạo Model và Controller chính**
+- App tạo một đối tượng InvoiceViewModel - đây là model chính để quản lý dữ liệu hóa đơn
+- MainView controller được lấy từ FXML loader và gọi `setInvoiceViewModel()`
+
+**4. Thiết lập kết nối cơ sở dữ liệu**
+- MainView tạo một InvoiceDAO object
+- InvoiceDAO trong constructor tự động:
+  - Tạo DatabaseKey để lấy thông tin kết nối
+  - Load SQL Server JDBC driver
+  - Thiết lập connection string với server, database name và trust certificate
+  - Kết nối đến SQL Server database bằng username/password
+  - In ra console các thông báo về trạng thái kết nối
+
+**5. Khởi tạo các Use Case và Controller**
+- MainView tạo ShowInvoiceListUseCase với InvoiceDAO vừa tạo
+- ShowInvoiceListController được khởi tạo với InvoiceViewModel và ShowInvoiceListUseCase
+- Tương tự cho SearchInvoiceController với SearchInvoiceDAO
+- InvoiceStatisticController được tạo với InvoiceDAOGateway
+- DeleteInvoiceController được tạo với DeleteInvoiceDAO
+
+**6. Kết nối Observer Pattern**
+- MainView kết nối InvoiceTableView với InvoiceViewModel thông qua `setModel()`
+- InvoiceTableView tự động đăng ký làm subscriber của model bằng `registerSubscriber()`
+- Các controller khác cũng được kết nối: RefreshInvoiceView, SearchBarView, DeleteInvoiceView, etc.
+
+**7. Load dữ liệu ban đầu**
+- MainView gọi `showInvoiceListController.execute()`
+- ShowInvoiceListController gọi `showInvoiceListUseCase.execute()`
+- ShowInvoiceListUseCase gọi `invoiceDAOGateway.getAll()`
+- InvoiceDAO thực hiện truy vấn `SELECT * FROM invoices` đến database
+- Database trả về ResultSet chứa tất cả records
+
+**8. Chuyển đổi dữ liệu**
+- InvoiceDAO chuyển đổi ResultSet thành danh sách InvoiceDTO objects
+- ShowInvoiceListUseCase gọi `convertToObject()` để chuyển từng InvoiceDTO thành Invoice entity
+- Việc chuyển đổi sử dụng InvoiceFactory.createInvoice() để tạo đúng loại Invoice (Hourly hoặc Daily)
+- Sau đó chuyển tiếp thành InvoiceViewDTO để hiển thị
+
+**9. Cập nhật giao diện**
+- ShowInvoiceListController gọi `convert()` để tạo InvoiceViewItem từ InvoiceViewDTO
+- Model được cập nhật: `model.listitem = listItem`
+- Model gọi `notifySubscribers()` để thông báo cho tất cả subscribers
+- InvoiceTableView nhận notification qua `update()` method
+- TableView được populate với dữ liệu và `refresh()` để hiển thị
+
+**10. Khởi tạo thống kê**
+- InvoiceStatisticView được kết nối với InvoiceStatisticController
+- Statistics được tính toán tự động và hiển thị số liệu cơ bản (tổng hóa đơn, doanh thu)
+
+**Kết quả cuối cùng:**
+- Cửa sổ chính hiển thị với đầy đủ giao diện
+- Bảng danh sách hóa đơn được populate với dữ liệu từ database  
+- Form thêm/sửa hóa đơn sẵn sàng
+- Thanh tìm kiếm hoạt động
+- Thống kê cơ bản được hiển thị
+- Tất cả nút chức năng (Thêm, Sửa, Xóa, Làm mới) đã sẵn sàng để người dùng tương tác
+
+Console sẽ in ra các thông báo như "Driver loaded successfully!", "Connected successfully to database!", "Converted X invoices from DTO to object", v.v. để theo dõi quá trình khởi động.
+

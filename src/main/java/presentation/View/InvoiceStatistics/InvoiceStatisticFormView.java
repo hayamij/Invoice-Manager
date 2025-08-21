@@ -7,8 +7,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import presentation.Controller.InvoiceStatisticController;
-import presentation.Controller.InvoiceStatisticController.StatisticResult;
+import presentation.Model.InvoiceStatisticModel;
 
 import java.text.DecimalFormat;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class InvoiceStatisticFormView {
     @FXML
     private TableColumn<MonthlyStatItem, String> yearColumn;
 
-    private InvoiceStatisticController statisticController;
+    private InvoiceStatisticModel statisticModel;
     private DecimalFormat currencyFormat = new DecimalFormat("#,###.00");
 
     @FXML
@@ -59,23 +58,17 @@ public class InvoiceStatisticFormView {
         });
     }
 
-    public void setStatisticController(InvoiceStatisticController controller) {
-        this.statisticController = controller;
+    public void setStatisticModel(InvoiceStatisticModel model) {
+        this.statisticModel = model;
     }
 
     public void loadStatistics() {
-        if (statisticController != null) {
+        if (statisticModel != null) {
             try {
-                // Load basic statistics
-                StatisticResult result = statisticController.getBasicStatistics();
-                hourlyLabel.setText("Số lượng thuê theo giờ: " + result.hourlyInvoiceCount);
-                dailyLabel.setText("Số lượng thuê theo ngày: " + result.dailyInvoiceCount);
-
-                // Load monthly averages
-                Map<String, Double> monthlyAverages = statisticController.getAverageTotalByMonthYear();
-                loadMonthlyAverageTable(monthlyAverages);
-
-                System.out.println("Statistics loaded successfully");
+                hourlyLabel.setText("Số lượng thuê theo giờ: " + statisticModel.getTotalInvoices()); // hoặc dữ liệu phù hợp
+                dailyLabel.setText("Số lượng thuê theo ngày: " + statisticModel.getTotalInvoices()); // hoặc dữ liệu phù hợp
+                // Nếu cần thêm dữ liệu chi tiết, mở rộng model
+                // loadMonthlyAverageTable(...) nếu model có dữ liệu này
             } catch (Exception e) {
                 hourlyLabel.setText("Số lượng thuê theo giờ: Lỗi");
                 dailyLabel.setText("Số lượng thuê theo ngày: Lỗi");

@@ -9,12 +9,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
-import presentation.Controller.InvoiceStatisticController;
-import presentation.Controller.InvoiceStatisticController.StatisticResult;
+import presentation.Model.InvoiceStatisticModel;
+import presentation.Subscriber;
 
 import java.text.DecimalFormat;
 
-public class InvoiceStatisticView {
+public class InvoiceStatisticView implements Subscriber {
 
     @FXML
     private Button monthlyStatsButton;
@@ -25,20 +25,22 @@ public class InvoiceStatisticView {
     @FXML
     private Label totalInvoicesLabel;
 
-    private InvoiceStatisticController statisticController;
+    private InvoiceStatisticModel statisticModel;
     private DecimalFormat currencyFormat = new DecimalFormat("#,###.00");
 
-    public void setStatisticController(InvoiceStatisticController controller) {
-        this.statisticController = controller;
-        updateBasicStatistics();
+    public void setStatisticModel(InvoiceStatisticModel model) {
+        this.statisticModel = model;
+        if (statisticModel != null) {
+            statisticModel.subscribe(this);
+            updateBasicStatistics();
+        }
     }
 
     public void updateBasicStatistics() {
-        if (statisticController != null) {
+        if (statisticModel != null) {
             try {
-                StatisticResult result = statisticController.getBasicStatistics();
-                totalInvoicesLabel.setText("Tổng số hóa đơn: " + result.totalInvoices);
-                totalAmountLabel.setText("Tổng doanh thu: " + currencyFormat.format(result.totalRevenue) + " VND");
+                totalInvoicesLabel.setText("Tổng số hóa đơn: " + statisticModel.getTotalInvoices());
+                totalAmountLabel.setText("Tổng doanh thu: " + currencyFormat.format(statisticModel.getTotalRevenue()) + " VND");
             } catch (Exception e) {
                 totalInvoicesLabel.setText("Tổng số hóa đơn: Lỗi");
                 totalAmountLabel.setText("Tổng doanh thu: Lỗi");
@@ -49,24 +51,19 @@ public class InvoiceStatisticView {
 
     public void showMonthlyStatistics() {
         try {
-            // Tạo cửa sổ mới để hiển thị thống kê chi tiết
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/presentation/stats.fxml"));
             Scene scene = new Scene(loader.load());
-            
-            // Lấy controller của stats form
             InvoiceStatisticFormView statsFormController = loader.getController();
-            if (statsFormController != null && statisticController != null) {
-                statsFormController.setStatisticController(statisticController);
+            if (statsFormController != null && statisticModel != null) {
+                statsFormController.setStatisticModel(statisticModel);
                 statsFormController.loadStatistics();
             }
-            
             Stage stage = new Stage();
             stage.setTitle("Báo cáo thống kê chi tiết");
             stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL); // Modal window
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.showAndWait();
-            
         } catch (Exception e) {
             showErrorAlert("Lỗi hệ thống!", "Không thể mở cửa sổ thống kê: " + e.getMessage());
             e.printStackTrace();
@@ -75,11 +72,10 @@ public class InvoiceStatisticView {
 
     @FXML
     public void statsInvoice(ActionEvent event) {
-        if (statisticController != null) {
-            // Call the method to show detailed statistics
+        if (statisticModel != null) {
             showMonthlyStatistics();
         } else {
-            showErrorAlert("Lỗi hệ thống!", "Controller thống kê không khả dụng.");
+            showErrorAlert("Lỗi hệ thống!", "Model thống kê không khả dụng.");
         }
     }
 
@@ -89,5 +85,10 @@ public class InvoiceStatisticView {
         alert.setHeaderText(title);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @Override
+    public void update() {
+        updateBasicStatistics();
     }
 }

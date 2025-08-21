@@ -1,0 +1,64 @@
+## Luồng hoạt động khi bấm nút "Tải lại danh sách"
+
+**1. Xử lý sự kiện click**
+- JavaFX Framework phát hiện người dùng click nút "Refresh"
+- Gọi method `refreshInvoice(ActionEvent event)` trong RefreshInvoiceView
+
+**2. Kiểm tra Controller**
+- RefreshInvoiceView kiểm tra `refreshInvoiceController != null`
+- Nếu controller có sẵn: gọi `refreshInvoiceController.refreshInvoice()`
+- Nếu null: fallback gọi trực tiếp `showInvoiceListController.execute()`
+
+**3. Delegate đến ShowInvoiceListController**
+- RefreshInvoiceController gọi `showInvoiceListController.execute()`
+- Thực chất là gọi lại chức năng hiển thị danh sách hóa đơn
+
+**4. Thực hiện Use Case**
+- ShowInvoiceListController gọi `showInvoiceListUseCase.execute()`
+- ShowInvoiceListUseCase bắt đầu quá trình lấy dữ liệu mới từ database
+
+**5. Truy vấn database mới nhất**
+- ShowInvoiceListUseCase gọi `invoiceDAOGateway.getAll()`
+- InvoiceDAO thực hiện truy vấn `"SELECT * FROM invoices"`
+- SQL Server database trả về ResultSet với **tất cả records hiện tại**
+- Bao gồm cả những hóa đơn vừa thêm/sửa/xóa từ session khác hoặc user khác
+
+**6. Chuyển đổi dữ liệu mới**
+- InvoiceDAO convert ResultSet thành `List<InvoiceDTO>`
+- ShowInvoiceListUseCase gọi `convertToObject()` cho từng DTO
+- Sử dụng `InvoiceFactory.createInvoice()` tạo Invoice entities
+- Convert tiếp thành `List<InvoiceViewDTO>` để hiển thị
+
+**7. Cập nhật Model**
+- ShowInvoiceListController gọi `convert()` tạo `List<InvoiceViewItem>`
+- Set vào model: `model.listitem = listItem`
+- Model gọi `notifySubscribers()` để thông báo cho tất cả observers
+
+**8. Refresh giao diện**
+- InvoiceTableView nhận notification qua `update()` method
+- TableView được populate với dữ liệu mới: `invoiceTable.setItems(observableItems)`
+- Gọi `invoiceTable.refresh()` để cập nhật hiển thị
+- Bảng danh sách hiển thị dữ liệu **mới nhất** từ database
+
+**9. Log và thông báo**
+- Console in: "RefreshInvoiceController: Executed refresh successfully."
+- "Retrieved X invoices from database."
+- "Converted X invoices from DTO to object."
+- "InvoiceTableView: Model updated, table refreshed."
+
+**Trường hợp có lỗi database:**
+- Nếu database không khả dụng hoặc connection lỗi
+- InvoiceDAO return empty list
+- TableView sẽ hiển thị danh sách rỗng
+- Console in: "Error retrieving invoices: [error message]"
+
+**Lợi ích của chức năng này:**
+- Đồng bộ dữ liệu với database (nếu có nhiều user cùng dùng)
+- Cập nhật sau khi thêm/sửa/xóa hóa đơn
+- Khôi phục danh sách đầy đủ sau khi tìm kiếm
+- Refresh khi có nghi ngờ dữ liệu không đồng bộ
+
+**Kết quả cuối cùng:**
+- Danh sách hóa đơn hiển thị chính xác theo database hiện tại
+- Mọi thay đổi từ session khác được cập nhật
+- Giao diện được refresh hoàn toàn với dữ liệu mới nhất

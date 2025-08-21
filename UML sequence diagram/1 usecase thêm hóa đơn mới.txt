@@ -1,0 +1,77 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+
+actor "user" as user
+participant "InvoiceFormView" as boundary
+participant "AddInvoiceController" as control1 
+participant "AddInvoiceUseCase" as control2 
+participant "InvoiceAddRequest" as control3 
+participant "Invoice" as entity 
+participant "InvoiceViewModel" as control4 
+participant "InvoiceTableView" as boundary2
+participant "AddInvoiceDAO" as dao 
+database "Database" as db 
+
+user -> boundary : nhập thông tin hóa đơn và nhấn thêm
+boundary -> boundary : validate dữ liệu nhập vào
+activate boundary
+
+alt dữ liệu hợp lệ
+    boundary -> control1 : gọi execute với AddInvoiceViewDTO
+    activate control1
+    
+    control1 -> control2 : gọi addInvoice()
+    activate control2
+    
+    control2 -> control2 : validate nghiệp vụ
+    
+    control2 -> control3 : chuyển đổi DTO thành Entity
+    activate control3
+    
+    control3 -> entity : tạo đối tượng Invoice theo loại
+    activate entity
+    entity --> control3 : Invoice object
+    deactivate entity
+    
+    control3 --> control2 : Invoice object
+    deactivate control3
+    
+    control2 -> control2 : chuyển đổi thành AddInvoiceDTO
+    
+    control2 -> dao : lưu hóa đơn vào DB
+    activate dao
+    
+    dao -> db : INSERT INTO invoices VALUES(...)
+    activate db
+    db --> dao : trả về rows affected
+    deactivate db
+    
+    dao --> control2 : kết quả true/false
+    deactivate dao
+    
+    control2 --> control1 : kết quả thành công
+    deactivate control2
+    
+    control1 --> boundary : thông báo thêm thành công
+    deactivate control1
+    
+    boundary -> boundary : hiển thị alert thành công và clear form
+    boundary -> control4 : trigger refresh danh sách
+    activate control4
+    
+    control4 -> boundary2 : cập nhật giao diện
+    activate boundary2
+    boundary2 -> boundary2 : refresh TableView
+    boundary2 --> control4 : hoàn thành cập nhật
+    deactivate boundary2
+    deactivate control4
+
+else dữ liệu không hợp lệ
+    boundary -> boundary : hiển thị thông báo lỗi
+end
+
+deactivate boundary
+
+@enduml

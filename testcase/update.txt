@@ -1,0 +1,82 @@
+## Luồng hoạt động khi bấm nút "Cập nhật" hóa đơn
+
+**1. Xử lý sự kiện click**
+- JavaFX Framework phát hiện người dùng click nút "Cập nhật"
+- Gọi method `updateInvoice(ActionEvent event)` trong UpdateInvoiceView
+
+**2. Lấy thông tin từ form và table**
+- UpdateInvoiceView gọi `invoiceTableView.getSelectedInvoiceId()` để lấy ID hóa đơn được chọn
+- Gọi `invoiceTableView.getDateFromSelectedInvoice()` để lấy ngày gốc
+- Kiểm tra ID không null/rỗng, nếu chưa chọn hóa đơn: hiển thị lỗi và return
+
+**3. Validation dữ liệu form**
+- UpdateInvoiceView gọi `validateFormData()` kiểm tra:
+  - `invoiceFormView.getCustomer()` không rỗng
+  - `invoiceFormView.getRoomId()` không rỗng  
+  - `invoiceFormView.getUnitPrice()` là số hợp lệ > 0
+  - `invoiceFormView.getType()` đã được chọn
+  - Với "Hourly Invoice": `getHour() >= 0`
+  - Với "Daily Invoice": `getDay() >= 0`
+- Nếu validation fail: hiển thị Alert với danh sách lỗi và return
+
+**4. Tạo DTO từ dữ liệu**
+- Tạo `UpdateInvoiceViewDTO` với:
+  - `dto.id` = ID từ table đã chọn
+  - `dto.date` = ngày gốc từ database
+  - Các field khác từ form: customer, room_id, unitPrice, type, hour, day
+
+**5. Gọi Controller xử lý**
+- UpdateInvoiceView tạo `UpdateInvoiceController` mới với `UpdateInvoiceDAO`
+- Gọi `updateInvoiceController.updateInvoice(dto)`
+- UpdateInvoiceController chuyển cho UpdateInvoiceUseCase
+
+**6. Business logic validation**
+- UpdateInvoiceUseCase gọi `execute(UpdateInvoiceViewDTO)`
+- Validate lại tất cả dữ liệu: null check, format check, business rules
+- Nếu validation fail, return false
+
+**7. Chuyển đổi dữ liệu Model → Entity**
+- UpdateInvoiceUseCase gọi `convertToObject(dto)`
+- `InvoiceUpdateRequest.createUpdateRequest(dto)` tạo Invoice object:
+  - Nếu "Hourly Invoice": tạo HourlyInvoice với hour
+  - Nếu "Daily Invoice": tạo DailyInvoice với day
+- Set ID từ DTO vào Invoice entity
+
+**8. Chuyển đổi Entity → Persistence DTO**
+- UpdateInvoiceUseCase gọi `convertToDTO(dto)` 
+- Tạo `UpdateInvoiceDTO` và map tất cả field từ ViewDTO
+- Bao gồm: id, date, customer, room_id, unitPrice, hour, day, type
+
+**9. Cập nhật trong cơ sở dữ liệu**
+- UpdateInvoiceUseCase gọi `invoiceDAO.updateInvoice(UpdateInvoiceDTO)`
+- UpdateInvoiceDAO chuẩn bị SQL: `"UPDATE invoices SET date=?, customer=?, room_id=?, unitPrice=?, hour=?, day=?, type=? WHERE id=?"`
+- Set tất cả tham số vào PreparedStatement
+- Thực hiện `executeUpdate()` đến SQL Server
+- Database cập nhật record và trả về số dòng bị ảnh hưởng
+
+**10. Xử lý kết quả**
+- UpdateInvoiceDAO kiểm tra `rowsAffected > 0`
+- Return true nếu cập nhật thành công
+- Kết quả được trả về qua UseCase → Controller → UpdateInvoiceView
+
+**11. Cập nhật giao diện khi thành công**
+- UpdateInvoiceView nhận kết quả true
+- Hiển thị `showSuccessAlert("Cập nhật hóa đơn thành công!")`
+- Gọi `onSuccessCallback.run()` để refresh statistics
+- InvoiceStatisticView cập nhật số liệu thống kê mới
+
+**12. Refresh danh sách**
+- InvoiceViewModel được notify về thay đổi
+- InvoiceTableView tự động reload từ database
+- Hóa đơn vừa sửa hiển thị với thông tin mới
+- Statistics được tính lại với dữ liệu cập nhật
+
+**Trường hợp lỗi:**
+- Validation fail: hiển thị lỗi validation, giữ nguyên form
+- Database error: hiển thị `showErrorAlert("Không thể cập nhật hóa đơn")`
+- Không tìm thấy record: cập nhật thất bại
+
+**Console output:**
+- "Invoice updated successfully!" nếu thành công
+- "Failed to update invoice." nếu thất bại  
+- "Error updating invoice: [error message]" nếu có lỗi database

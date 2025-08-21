@@ -1,0 +1,73 @@
+## Luồng hoạt động của ComboBox chọn loại hóa đơn
+
+**1. Khởi tạo ComboBox khi load form**
+- JavaFX gọi method `initialize()` trong InvoiceFormView khi load FXML
+- Tạo `InvoiceTypeListUseCase` để lấy danh sách loại hóa đơn có sẵn
+- Gọi `useCase.execute()` để lấy các loại hóa đơn
+
+**2. Lấy danh sách loại hóa đơn từ Business Logic**
+- InvoiceTypeListUseCase tạo 2 đối tượng entity:
+  - `HourlyInvoice hourly = new HourlyInvoice()` (constructor rỗng)  
+  - `DailyInvoice daily = new DailyInvoice()` (constructor rỗng)
+- Gọi method `hourly.type()` → trả về "Hourly Invoice"
+- Gọi method `daily.type()` → trả về "Daily Invoice"
+- Tạo các `InvoiceTypeViewDTO` tương ứng và return danh sách
+
+**3. Populate ComboBox với dữ liệu**
+- InvoiceFormView nhận `List<InvoiceTypeViewDTO>`
+- Tạo `List<String> typeNames` và extract `dto.type` từ mỗi DTO
+- Set vào ComboBox: `typeComboBox.setItems(FXCollections.observableArrayList(typeNames))`
+- Chọn mặc định item đầu tiên: `typeComboBox.getSelectionModel().select(0)`
+
+**4. Thiết lập ban đầu cho form**
+- Gọi `toggleFieldsBasedOnType(typeNames.get(0))` với loại đầu tiên (thường là "Hourly Invoice")
+- Method này disable/enable các trường tương ứng:
+  - Nếu "Hourly Invoice": enable `hourField`, disable `dayField` và clear `dayField`
+  - Nếu "Daily Invoice": enable `dayField`, disable `hourField` và clear `hourField`
+
+**5. Thiết lập Event Listener**
+- Đăng ký listener: `typeComboBox.setOnAction(event -> {...})`
+- Khi người dùng thay đổi lựa chọn, listener sẽ được trigger
+
+**6. Xử lý khi người dùng thay đổi lựa chọn**
+- JavaFX phát hiện user click và chọn item khác
+- Event listener được gọi
+- Lấy lựa chọn mới: `String selectedType = typeComboBox.getSelectionModel().getSelectedItem()`
+- Gọi `toggleFieldsBasedOnType(selectedType)`
+
+**7. Toggle fields theo loại được chọn**
+- `toggleFieldsBasedOnType()` thực hiện logic:
+  - Đầu tiên disable cả 2 trường: `hourField.setDisable(true)` và `dayField.setDisable(true)`
+  - **Nếu chọn "Hourly Invoice":**
+    - `hourField.setDisable(false)` - cho phép nhập giờ
+    - `dayField.setDisable(true)` - không cho nhập ngày  
+    - `dayField.clear()` - xóa dữ liệu cũ trong trường ngày
+  - **Nếu chọn "Daily Invoice":**
+    - `dayField.setDisable(false)` - cho phép nhập ngày
+    - `hourField.setDisable(true)` - không cho nhập giờ
+    - `hourField.clear()` - xóa dữ liệu cũ trong trường giờ
+
+**8. Validation theo loại hóa đơn**
+- Khi submit form, `validateInput()` kiểm tra theo loại:
+  - **"Hourly Invoice"**: `hourField` không được rỗng và hour >= 0
+  - **"Daily Invoice"**: `dayField` không được rỗng và day >= 0
+- Trường bị disable sẽ không được validate
+
+**9. Tạo DTO theo loại được chọn**
+- Trong `createDTOFromForm()`:
+  - `dto.type = typeComboBox.getSelectionModel().getSelectedItem()`
+  - **Nếu "Hourly Invoice":** `dto.hour = Integer.parseInt(hourField)`, `dto.day = 0`
+  - **Nếu "Daily Invoice":** `dto.day = Integer.parseInt(dayField)`, `dto.hour = 0`
+
+**Kết quả cuối cùng:**
+- ComboBox hiển thị 2 lựa chọn: "Hourly Invoice" và "Daily Invoice"
+- Form tự động thay đổi theo lựa chọn:
+  - Chỉ hiển thị trường cần thiết (hour hoặc day)
+  - Trường không cần thiết bị disable và clear
+- Validation chỉ áp dụng cho trường đang active
+- DTO được tạo với đúng loại và giá trị tương ứng
+
+**Ưu điểm của thiết kế này:**
+- Người dùng không thể nhập sai trường (hour cho daily invoice)  
+- Giao diện clean, chỉ hiển thị trường cần thiết
+- Business logic rõ ràng: mỗi loại invoice có thuộc tính riêng

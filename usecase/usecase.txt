@@ -1,0 +1,248 @@
+# HỆ THỐNG QUẢN LÝ HÓA ĐƠN - CÁC USE CASE
+
+## USE CASE 1: Khởi động hệ thống
+
+**Tên UseCase:** Khởi động hệ thống quản lý hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin khởi động ứng dụng.
+2. [Phần mềm] Khởi tạo giao diện JavaFX với màn hình chính 1280x720.
+3. [Phần mềm] Thiết lập kết nối đến SQL Server database với thông tin xác thực.
+4. [Phần mềm] Khởi tạo các Use Case và Controller (Add, Update, Delete, Search, Statistics).
+5. [Phần mềm] Thiết lập Observer Pattern để kết nối Model-View.
+6. [Phần mềm] Tự động gọi Use Case "Hiển thị danh sách hóa đơn" để load dữ liệu ban đầu.
+7. [Actor] Admin thấy màn hình chính với danh sách hóa đơn và các chức năng sẵn sàng.
+
+**Điều kiện bắt đầu:** Ứng dụng chưa được khởi động.
+**Điều kiện kết thúc:** Giao diện chính hiển thị với các controller đã được khởi tạo và sẵn sàng sử dụng.
+
+---
+
+## USE CASE 2: Hiển thị danh sách hóa đơn
+
+**Tên UseCase:** Hiển thị danh sách hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Hệ thống (tự động khi khởi động)
+- Có thể được gọi bởi: Admin (thông qua các chức năng Refresh, Clear Search)
+
+**Luồng sự kiện:**
+1. [Phần mềm] Hệ thống gọi ShowInvoiceListController.execute().
+2. [Phần mềm] ShowInvoiceListUseCase gọi invoiceDAOGateway.getAll().
+3. [Phần mềm] InvoiceDAO thực hiện truy vấn `SELECT * FROM invoices` để lấy toàn bộ hóa đơn.
+4. [Phần mềm] Chuyển đổi ResultSet thành List<InvoiceDTO>.
+5. [Phần mềm] ShowInvoiceListUseCase chuyển đổi dữ liệu qua các tầng:
+   - InvoiceDTO → Invoice Entity (sử dụng InvoiceFactory)
+   - Invoice Entity → InvoiceViewDTO
+   - InvoiceViewDTO → InvoiceViewItem (cho hiển thị)
+6. [Phần mềm] Cập nhật InvoiceViewModel: model.listitem = listItem.
+7. [Phần mềm] Gọi model.notifySubscribers() để thông báo Observer Pattern.
+8. [Phần mềm] InvoiceTableView nhận notification và refresh hiển thị.
+9. [Phần mềm] Tính toán và cập nhật thống kê cơ bản (tổng hóa đơn, doanh thu).
+10. [Kết quả] Danh sách hóa đơn được hiển thị trong bảng với đầy đủ thông tin.
+
+**Điều kiện bắt đầu:** Database connection đã được thiết lập.
+**Điều kiện kết thúc:** Bảng danh sách hiển thị tất cả hóa đơn từ database và thống kê được cập nhật.
+
+---
+
+## USE CASE 3: Thêm hóa đơn mới
+
+**Tên UseCase:** Thêm hóa đơn mới
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin điền thông tin hóa đơn vào form (khách hàng, phòng, đơn giá, loại hóa đơn, số giờ/ngày) và nhấn "Thêm".
+2. [Phần mềm] Validate dữ liệu đầu vào: tên khách hàng, số phòng không rỗng; đơn giá > 0; loại hóa đơn được chọn; số giờ/ngày >= 0.
+3. [Phần mềm] Nếu validation fail → hiển thị Alert với danh sách lỗi và kết thúc.
+4. [Phần mềm] Chuyển đổi dữ liệu form thành AddInvoiceViewDTO với thời gian hiện tại.
+5. [Phần mềm] Thực hiện business logic validation và tạo Invoice entity (Hourly/Daily).
+6. [Phần mềm] Chuyển đổi thành AddInvoiceDTO và thực hiện INSERT vào database.
+7. [Phần mềm] Nếu thành công → hiển thị "Thêm hóa đơn thành công!", clear form và refresh statistics.
+8. [Phần mềm] Nếu thất bại → hiển thị "Thêm hóa đơn thất bại!".
+9. [Actor] Admin thấy thông báo và form đã được reset (nếu thành công).
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình chính với form thêm hóa đơn.
+**Điều kiện kết thúc:** Hóa đơn được thêm vào database và giao diện được cập nhật, hoặc hiển thị thông báo lỗi.
+
+---
+
+## USE CASE 4: Cập nhật hóa đơn
+
+**Tên UseCase:** Cập nhật hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin chọn một hóa đơn trong danh sách để load dữ liệu vào form.
+2. [Phần mềm] Load thông tin chi tiết từ database và populate vào form sửa.
+3. [Actor] Admin chỉnh sửa thông tin trong form và nhấn "Cập nhật".
+4. [Phần mềm] Kiểm tra có hóa đơn được chọn không (ID hợp lệ). Nếu chưa chọn → hiển thị lỗi và kết thúc.
+5. [Phần mềm] Validate dữ liệu form giống như khi thêm mới.
+6. [Phần mềm] Tạo UpdateInvoiceViewDTO với ID từ hóa đơn được chọn và dữ liệu mới từ form.
+7. [Phần mềm] Thực hiện UPDATE trong database với câu lệnh WHERE id = ?.
+8. [Phần mềm] Nếu thành công → hiển thị "Cập nhật hóa đơn thành công!" và refresh danh sách + statistics.
+9. [Phần mềm] Nếu thất bại → hiển thị "Không thể cập nhật hóa đơn".
+10. [Actor] Admin thấy thông báo và danh sách được cập nhật với thông tin mới.
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình chính và đã chọn một hóa đơn để sửa.
+**Điều kiện kết thúc:** Hóa đơn được cập nhật trong database hoặc hiển thị thông báo lỗi.
+
+---
+
+## USE CASE 5: Xóa hóa đơn
+
+**Tên UseCase:** Xóa hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin chọn một hóa đơn trong danh sách và nhấn nút "Xóa".
+2. [Phần mềm] Kiểm tra hóa đơn được chọn có tồn tại (ID hợp lệ, khác null). Nếu chưa chọn hóa đơn → hiển thị thông báo lỗi và kết thúc.
+3. [Phần mềm] Gửi yêu cầu xóa hóa đơn đến cơ sở dữ liệu với câu lệnh DELETE WHERE id = ?.
+4. [Phần mềm] Nếu xóa thành công → hiển thị thông báo "Xóa hóa đơn thành công!", cập nhật lại danh sách và thống kê.
+5. [Phần mềm] Nếu lỗi hoặc không tìm thấy hóa đơn → hiển thị thông báo "Không thể xóa hóa đơn".
+6. [Actor] Admin thấy thông báo thành công hoặc thất bại.
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình danh sách hóa đơn.
+**Điều kiện kết thúc:** Phần mềm phản hồi lại cho Admin kết quả: thành công hoặc thất bại.
+
+---
+
+## USE CASE 6: Tìm kiếm hóa đơn
+
+**Tên UseCase:** Tìm kiếm hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin nhập từ khóa vào ô tìm kiếm và nhấn "Tìm kiếm".
+2. [Phần mềm] Validate từ khóa không rỗng. Nếu rỗng → hiển thị "Vui lòng nhập từ khóa tìm kiếm" và kết thúc.
+3. [Phần mềm] Thực hiện truy vấn SQL với LIKE '%keyword%' trên tất cả các cột (id, customer, room_id, type, unitPrice, hour, day, date).
+4. [Phần mềm] Chuyển đổi kết quả từ database thành danh sách InvoiceViewItem.
+5. [Phần mềm] Cập nhật bảng danh sách chỉ hiển thị các hóa đơn matching với từ khóa.
+6. [Phần mềm] Console log "Found X invoices matching 'keyword'".
+7. [Actor] Admin thấy danh sách đã được lọc theo từ khóa tìm kiếm.
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình chính với danh sách hóa đơn hiển thị.
+**Điều kiện kết thúc:** Danh sách hiển thị kết quả tìm kiếm hoặc thông báo lỗi.
+
+---
+
+## USE CASE 6: Xóa bộ lọc tìm kiếm
+
+**Tên UseCase:** Xóa bộ lọc tìm kiếm
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin nhấn nút "Xóa bộ lọc" sau khi đã tìm kiếm.
+2. [Phần mềm] Clear nội dung trong ô tìm kiếm (searchField.clear()).
+3. [Phần mềm] Tái sử dụng Use Case "Hiển thị danh sách hóa đơn" để load lại toàn bộ dữ liệu.
+4. [Phần mềm] Thực hiện SELECT * FROM invoices (không có WHERE clause).
+5. [Phần mềm] Cập nhật bảng hiển thị tất cả hóa đơn trong database.
+6. [Phần mềm] Hiển thị thông báo "Đã xóa bộ lọc và hiển thị toàn bộ danh sách!".
+7. [Actor] Admin thấy danh sách đầy đủ và ô tìm kiếm trống.
+
+**Điều kiện bắt đầu:** Admin đã thực hiện tìm kiếm và danh sách đang bị lọc.
+**Điều kiện kết thúc:** Danh sách hiển thị toàn bộ hóa đơn như ban đầu.
+
+---
+
+## USE CASE 7: Làm mới danh sách
+
+**Tên UseCase:** Làm mới danh sách hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin nhấn nút "Tải lại danh sách" để đồng bộ dữ liệu.
+2. [Phần mềm] Tái sử dụng Use Case "Hiển thị danh sách hóa đơn" để query database mới nhất.
+3. [Phần mềm] Thực hiện SELECT * FROM invoices để lấy tất cả records hiện tại.
+4. [Phần mềm] Chuyển đổi dữ liệu qua các tầng: DTO → Entity → ViewDTO → ViewItem.
+5. [Phần mềm] Notify Observer Pattern để cập nhật giao diện.
+6. [Phần mềm] Refresh TableView với dữ liệu mới nhất từ database.
+7. [Phần mềm] Console log "Retrieved X invoices from database" và "Table refreshed".
+8. [Actor] Admin thấy danh sách được cập nhật với dữ liệu mới nhất.
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình chính.
+**Điều kiện kết thúc:** Danh sách hiển thị dữ liệu đồng bộ với database.
+
+---
+
+## USE CASE 8: Chọn hóa đơn để sửa/xóa
+
+**Tên UseCase:** Chọn hóa đơn trong danh sách
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin click vào một hàng trong bảng danh sách hóa đơn.
+2. [Phần mềm] JavaFX TableView phát hiện sự kiện selectedItemProperty và trigger listener.
+3. [Phần mềm] Lấy InvoiceViewItem từ hàng được chọn.
+4. [Phần mềm] Chuẩn bị DeleteInvoiceViewDTO với ID để sẵn sàng cho chức năng xóa.
+5. [Phần mềm] Truy vấn database SELECT * FROM invoices WHERE id = ? để lấy thông tin chi tiết.
+6. [Phần mềm] Chuyển đổi thành UpdateInvoiceViewDTO và populate vào form sửa.
+7. [Phần mềm] Toggle các trường trong form theo loại hóa đơn (hourField/dayField).
+8. [Actor] Admin thấy form được điền sẵn thông tin và sẵn sàng cho việc sửa/xóa.
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình chính với danh sách hóa đơn.
+**Điều kiện kết thúc:** Hóa đơn được chọn và form sửa được populate với dữ liệu.
+
+---
+
+## USE CASE 9: Xem thống kê hóa đơn
+
+**Tên UseCase:** Xem thống kê và báo cáo hóa đơn
+
+**Các tác nhân tham gia:**
+- Khởi xướng bởi: Admin
+
+**Luồng sự kiện:**
+1. [Actor] Admin nhấn nút "Thống kê" để xem báo cáo chi tiết.
+2. [Phần mềm] Mở cửa sổ modal "Báo cáo thống kê chi tiết".
+3. [Phần mềm] Truy vấn SELECT * FROM invoices để lấy toàn bộ dữ liệu.
+4. [Phần mềm] Loop qua từng hóa đơn để tính toán:
+   - Tổng doanh thu: cộng dồn `invoice.calculateTotal()`
+   - Đếm số lượng theo loại: hourlyCount và dailyCount
+   - Trung bình doanh thu: totalRevenue / totalInvoices
+5. [Phần mềm] Group hóa đơn theo tháng/năm và tính average cho mỗi tháng.
+6. [Phần mềm] Hiển thị kết quả trong modal:
+   - Labels: "Số lượng thuê theo giờ/ngày"
+   - TableView: thống kê trung bình theo tháng với format VND
+7. [Actor] Admin xem các số liệu thống kê và đóng modal khi xong.
+
+**Điều kiện bắt đầu:** Admin đang ở màn hình chính.
+**Điều kiện kết thúc:** Modal thống kê hiển thị hoặc thông báo lỗi nếu có vấn đề.
+
+---
+
+## TÓM TẮT CÁC USE CASE
+
+1. **UC01: Khởi động hệ thống** - Khởi tạo ứng dụng và load dữ liệu ban đầu
+2. **UC02: Thêm hóa đơn mới** - Tạo hóa đơn mới với validation
+3. **UC03: Cập nhật hóa đơn** - Sửa đổi hóa đơn đã có
+4. **UC04: Xóa hóa đơn** - Xóa hóa đơn khỏi hệ thống
+5. **UC05: Tìm kiếm hóa đơn** - Lọc hóa đơn theo từ khóa
+6. **UC06: Xóa bộ lọc tìm kiếm** - Hiển thị lại toàn bộ danh sách
+7. **UC07: Làm mới danh sách** - Đồng bộ với database mới nhất
+8. **UC08: Chọn hóa đơn** - Chuẩn bị dữ liệu cho sửa/xóa
+9. **UC09: Xem thống kê** - Hiển thị báo cáo và phân tích dữ liệu
+
+**Đặc điểm chung:**
+- Tất cả UC đều có validation và error handling
+- UC06 và UC07 tái sử dụng logic từ UC khởi động
+- UC08 là tiền đề cho UC03 và UC04
+- Hệ thống sử dụng Observer Pattern để đồng bộ giao diện
+- Mọi thay đổi dữ liệu đều trigger refresh statistics

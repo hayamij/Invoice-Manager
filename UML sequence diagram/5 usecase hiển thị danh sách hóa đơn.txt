@@ -1,0 +1,67 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+
+actor "user" as user
+participant "MainView" as boundary
+participant "ShowInvoiceListController" as control1 
+participant "ShowInvoiceListUseCase" as control2 
+participant "InvoiceFactory" as control3 
+participant "Invoice" as entity 
+participant "InvoiceViewModel" as control4 
+participant "InvoiceTableView" as boundary2
+participant "InvoiceDAO" as dao 
+database "Database" as db 
+
+user -> boundary : mở phần mềm
+boundary -> control1 : khởi động ShowInvoiceListController
+activate control1
+
+control1 -> control2 : Gọi execute()
+activate control2
+
+control2 -> dao : Lấy danh sách DTO từ DB
+activate dao
+
+dao -> db : Truy vấn SELECT * FROM invoices
+activate db
+db --> dao : Trả về ResultSet
+deactivate db
+
+dao --> control2 : Danh sách InvoiceDTO
+deactivate dao
+
+loop Với mỗi InvoiceDTO
+    control2 -> control3 : Chuyển đổi DTO thành Entity
+    activate control3
+    
+    control3 -> entity : Tạo đối tượng Invoice
+    activate entity
+    entity --> control3 : Invoice object
+    deactivate entity
+    
+    control3 --> control2 : Invoice object
+    deactivate control3
+end
+
+control2 --> control1 : Danh sách InvoiceViewDTO
+deactivate control2
+
+control1 -> control4 : Cập nhật model với dữ liệu mới
+activate control4
+
+control4 -> boundary2 : Thông báo cập nhật giao diện
+activate boundary2
+
+boundary2 -> boundary2 : Render danh sách trong TableView
+boundary2 --> control4 : Hoàn thành cập nhật UI
+deactivate boundary2
+
+control4 --> control1 : Model đã được cập nhật
+deactivate control4
+
+control1 --> boundary : Hiển thị danh sách hóa đơn
+deactivate control1
+
+@enduml

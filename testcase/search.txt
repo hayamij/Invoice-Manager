@@ -1,0 +1,69 @@
+## Luồng hoạt động khi bấm nút "Tìm kiếm"
+
+**1. Xử lý sự kiện click**
+- JavaFX phát hiện người dùng click nút "Tìm kiếm" trong SearchBarView
+- Gọi method `searchInvoices(ActionEvent event)`
+- Lấy từ khóa từ `searchField.getText()`
+
+**2. Validation từ khóa tìm kiếm**
+- SearchBarView kiểm tra `query == null || query.trim().isEmpty()`
+- Nếu từ khóa rỗng, hiển thị Alert "Vui lòng nhập từ khóa tìm kiếm" và return
+- Nếu hợp lệ, trim whitespace và tiếp tục
+
+**3. Chuẩn bị DTO tìm kiếm**
+- Tạo `SearchInvoiceViewDTO` mới
+- Set `searchDTO.searchText = query.trim()`
+- Gọi `searchInvoiceController.execute(searchDTO)`
+
+**4. Xử lý trong SearchInvoiceController**
+- SearchInvoiceController nhận searchDTO
+- Lấy `searchText` và validate lần nữa (không null/empty)
+- Gọi `searchInvoiceUseCase.execute(searchText.trim())`
+
+**5. Thực hiện tìm kiếm trong database**
+- SearchInvoiceUseCase gọi `invoiceDAO.searchInvoiceByText(searchText)`
+- SearchInvoiceDAO chuẩn bị câu SQL phức tạp:
+```sql
+SELECT * FROM Invoices WHERE 
+id LIKE ? OR customer LIKE ? OR room_id LIKE ? OR type LIKE ? OR 
+CAST(unitPrice AS VARCHAR) LIKE ? OR CAST(hour AS VARCHAR) LIKE ? OR 
+CAST(day AS VARCHAR) LIKE ? OR FORMAT(date, 'dd/MM/yyyy') LIKE ?
+```
+- Set tất cả 8 tham số với pattern `"%" + searchText + "%"`
+- Database tìm kiếm trong tất cả các cột và trả về ResultSet
+
+**6. Chuyển đổi kết quả tìm kiếm**
+- SearchInvoiceDAO chuyển ResultSet thành danh sách `SearchInvoiceDTO`
+- SearchInvoiceUseCase loop qua từng SearchInvoiceDTO:
+  - Gọi `InvoiceSearchRequest.createSearchInvoice(dto)` 
+  - InvoiceSearchRequest chuyển SearchInvoiceDTO → InvoiceDTO → Invoice entity
+  - Sử dụng InvoiceFactory để tạo đúng loại Invoice (Hourly/Daily)
+  - Chuyển Invoice entity thành InvoiceViewDTO để hiển thị
+
+**7. Cập nhật Model và giao diện**
+- SearchInvoiceController nhận danh sách `InvoiceViewDTO` kết quả tìm kiếm
+- Gọi `convertToViewItems()` để chuyển thành `InvoiceViewItem` 
+- Cập nhật Model: `model.listitem = listItem` (chỉ chứa kết quả tìm kiếm)
+- Gọi `model.notifySubscribers()` để thông báo Observer
+
+**8. Refresh TableView với kết quả**
+- InvoiceTableView nhận notification qua `update()` method
+- `invoiceTable.setItems(observableItems)` với danh sách đã lọc
+- `invoiceTable.refresh()` để cập nhật hiển thị
+- Bảng chỉ hiển thị các hóa đơn matching với từ khóa
+
+**Kết quả cuối cùng:**
+- Bảng danh sách chỉ hiển thị các hóa đơn có chứa từ khóa tìm kiếm
+- Tìm kiếm trong tất cả trường: ID, customer, room_id, type, unitPrice, hour, day, date
+- Console in "Found X invoices matching 'keyword'"
+- Từ khóa vẫn còn trong search field để tiện chỉnh sửa
+
+**Đặc biệt:**
+- Tìm kiếm cả trong số (unitPrice, hour, day) bằng cách CAST sang VARCHAR
+- Tìm kiếm date với format 'dd/MM/yyyy' 
+- Search không phân biệt hoa thường (SQL LIKE)
+- Nếu không tìm thấy kết quả nào, bảng sẽ trống
+
+**Trường hợp lỗi:**
+- Database error → Console in lỗi, trả về danh sách rỗng
+- SearchInvoiceController null → Hiển thị Alert "Controller tìm kiếm không khả dụng"

@@ -1,0 +1,55 @@
+## Luồng hoạt động khi bấm nút "Xóa" hóa đơn
+
+**1. Xử lý sự kiện click**
+- JavaFX Framework phát hiện người dùng click nút "Xóa"
+- Gọi method `deleteInvoice(ActionEvent event)` trong DeleteInvoiceView
+
+**2. Kiểm tra hóa đơn được chọn**
+- DeleteInvoiceView kiểm tra `currentInvoice != null`
+- Kiểm tra `currentInvoice.id` không null và không rỗng
+- Nếu chưa chọn hóa đơn: hiển thị `showErrorAlert("Vui lòng chọn một hóa đơn để xóa")` và return
+
+**3. Gọi Controller xử lý**
+- DeleteInvoiceView gọi `deleteInvoiceController.execute(currentInvoice)`
+- DeleteInvoiceController nhận `DeleteInvoiceViewDTO`
+- Chuyển đổi ViewDTO thành DTO: `convertToDTO()` tạo `DeleteInvoiceDTO` với cùng ID
+
+**4. Business logic validation**
+- DeleteInvoiceUseCase gọi `execute(DeleteInvoiceDTO)`
+- Kiểm tra `invoiceDTO != null` và `invoiceDTO.id` không null/rỗng
+- Nếu validation fail, return false
+
+**5. Xóa khỏi cơ sở dữ liệu**
+- DeleteInvoiceUseCase gọi `invoiceDAO.deleteInvoice(DeleteInvoiceDTO)`
+- DeleteInvoiceDAO chuẩn bị câu SQL: `"DELETE FROM invoices WHERE id = ?"`
+- Tạo PreparedStatement và set tham số `preparedStatement.setString(1, dto.getId())`
+- Thực hiện `executeUpdate()` đến SQL Server database
+- Database xóa record và trả về số dòng bị ảnh hưởng
+
+**6. Xử lý kết quả**
+- DeleteInvoiceDAO kiểm tra `rowsAffected > 0`
+- Return true nếu xóa thành công, false nếu không có record nào bị xóa
+- Kết quả được trả về qua DeleteInvoiceUseCase → DeleteInvoiceController → DeleteInvoiceView
+
+**7. Cập nhật giao diện khi thành công**
+- DeleteInvoiceView nhận kết quả true
+- Hiển thị `showSuccessAlert("Xóa hóa đơn thành công!")`
+- Gọi `onSuccessCallback.run()` để refresh statistics
+- InvoiceStatisticView cập nhật lại số liệu thống kê
+
+**8. Refresh danh sách hóa đơn**
+- Thông qua Observer pattern hoặc manual refresh
+- InvoiceViewModel được notify về sự thay đổi
+- InvoiceTableView tự động reload danh sách từ database
+- Hóa đơn vừa xóa biến mất khỏi bảng
+- Statistics labels được cập nhật với số liệu mới
+
+**Trường hợp lỗi:**
+- Nếu database error hoặc không tìm thấy record
+- DeleteInvoiceView nhận false và hiển thị `showErrorAlert("Không thể xóa hóa đơn")`
+- Danh sách giữ nguyên, không có thay đổi
+
+**Console output:**
+- "Invoice deleted and UI refreshed." nếu thành công  
+- "Delete failed." nếu thất bại
+- "Error deleting invoice: [error message]" nếu có lỗi database

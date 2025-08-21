@@ -1,0 +1,64 @@
+## Luồng hoạt động khi bấm nút "Xóa bộ lọc"
+
+**1. Xử lý sự kiện click**
+- JavaFX phát hiện người dùng click nút "Xóa bộ lọc" trong SearchBarView
+- Gọi method `clearSearch(ActionEvent event)`
+- Bắt đầu xử lý trong try-catch block
+
+**2. Xóa từ khóa tìm kiếm**
+- SearchBarView gọi `searchField.clear()`
+- TextField trở về trạng thái rỗng, người dùng thấy ô tìm kiếm trống
+
+**3. Khôi phục danh sách đầy đủ**
+- SearchBarView kiểm tra `showInvoiceListController != null`
+- Gọi `showInvoiceListController.execute()` để load lại toàn bộ danh sách
+- Đây chính là **tái sử dụng Use Case "Hiển thị danh sách hóa đơn"**
+
+**4. Lấy tất cả dữ liệu từ database**
+- ShowInvoiceListController gọi `showInvoiceListUseCase.execute()`
+- ShowInvoiceListUseCase gọi `invoiceDAOGateway.getAll()`
+- InvoiceDAO thực hiện truy vấn `SELECT * FROM invoices` (không có WHERE clause)
+- Database trả về **tất cả records** trong bảng invoices
+
+**5. Chuyển đổi dữ liệu đầy đủ**
+- InvoiceDAO chuyển ResultSet thành danh sách **đầy đủ** InvoiceDTO
+- ShowInvoiceListUseCase loop qua tất cả InvoiceDTO:
+  - Gọi `InvoiceFactory.createInvoice(dto)` cho từng record
+  - Tạo Invoice entity (Hourly/Daily) với đầy đủ thông tin
+  - Chuyển thành InvoiceViewDTO để hiển thị
+
+**6. Cập nhật Model với danh sách đầy đủ**
+- ShowInvoiceListController gọi `convert()` để tạo InvoiceViewItem từ **tất cả** InvoiceViewDTO
+- Cập nhật Model: `model.listitem = listItem` (bây giờ chứa toàn bộ hóa đơn)
+- Gọi `model.notifySubscribers()` để thông báo Observer
+
+**7. Refresh TableView hiển thị tất cả**
+- InvoiceTableView nhận notification qua `update()` method
+- `invoiceTable.setItems(observableItems)` với **danh sách đầy đủ**
+- `invoiceTable.refresh()` để cập nhật hiển thị
+- Bảng hiển thị lại **tất cả hóa đơn** trong database
+
+**8. Thông báo thành công**
+- SearchBarView gọi `showSuccessAlert("Đã xóa bộ lọc và hiển thị toàn bộ danh sách!")`
+- Hiển thị Alert dialog thông báo cho người dùng
+- Console in "Search cleared, showing full list"
+
+**Kết quả cuối cùng:**
+- Search field trống rỗng
+- Bảng danh sách hiển thị **tất cả hóa đơn** (không còn lọc)
+- Số lượng hóa đơn trong bảng = tổng số records trong database
+- Thông báo thành công hiển thị
+- Người dùng có thể tìm kiếm mới hoặc thao tác với danh sách đầy đủ
+
+**So sánh trước/sau:**
+- **Trước**: Bảng chỉ hiển thị hóa đơn matching với từ khóa
+- **Sau**: Bảng hiển thị toàn bộ hóa đơn (giống lúc mới khởi động app)
+
+**Trường hợp lỗi:**
+- Nếu `showInvoiceListController == null` → Hiển thị Alert "Không thể khôi phục danh sách đầy đủ"
+- Database error → Alert "Đã xảy ra lỗi khi xóa bộ lọc" + stacktrace
+
+**Đặc biệt:**
+- Chức năng này **tái sử dụng hoàn toàn** logic của Use Case "Hiển thị danh sách hóa đơn"
+- Không cần code riêng để load data, chỉ gọi lại controller có sẵn
+- Đảm bảo consistency với lúc khởi động ứng dụng

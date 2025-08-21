@@ -1,0 +1,92 @@
+## Luồng hoạt động khi bấm nút "Thêm" hóa đơn
+
+**1. Xử lý sự kiện click**
+- JavaFX Framework phát hiện người dùng click nút "Thêm"
+- Gọi method `addInvoice(ActionEvent event)` trong InvoiceFormView
+- InvoiceFormView bắt đầu xử lý trong try-catch block
+
+**2. Validation dữ liệu đầu vào**
+- InvoiceFormView gọi `validateInput()` để kiểm tra dữ liệu
+- Kiểm tra các trường bắt buộc:
+  - `customerField.getText()` không được rỗng
+  - `roomField.getText()` không được rỗng  
+  - `unitPriceField.getText()` không rỗng và phải là số > 0
+  - `typeComboBox` phải có lựa chọn (Hourly Invoice hoặc Daily Invoice)
+- Với loại "Hourly Invoice": kiểm tra `hourField` phải có giá trị >= 0
+- Với loại "Daily Invoice": kiểm tra `dayField` phải có giá trị >= 0
+- Nếu có lỗi validation, hiển thị Alert dialog với danh sách lỗi và return
+
+**3. Tạo DTO từ dữ liệu form**
+- InvoiceFormView gọi `createDTOFromForm()` để tạo AddInvoiceViewDTO
+- Lấy dữ liệu từ các TextField và ComboBox:
+  - `dto.customer = customerField.getText().trim()`
+  - `dto.room_id = roomField.getText().trim()`
+  - `dto.unitPrice = Double.parseDouble(unitPriceField.getText().trim())`
+  - `dto.type = typeComboBox.getSelectionModel().getSelectedItem()`
+  - `dto.date = new Date()` (thời gian hiện tại)
+- Tùy theo loại hóa đơn, set `dto.hour` hoặc `dto.day`, còn lại set = 0
+
+**4. Gọi Controller xử lý**
+- InvoiceFormView gọi `addInvoiceController.execute(dto)`
+- AddInvoiceController nhận AddInvoiceViewDTO và chuyển cho AddInvoiceUseCase
+- AddInvoiceUseCase gọi `addInvoice(AddInvoiceViewDTO dto)`
+
+**5. Business logic validation**
+- AddInvoiceUseCase thực hiện validation nghiệp vụ một lần nữa:
+  - Kiểm tra DTO không null
+  - Kiểm tra customer, room_id không rỗng
+  - Kiểm tra unitPrice > 0
+  - Kiểm tra hour trong khoảng 0-30, day >= 0
+  - Nếu validation fail, return false
+
+**6. Chuyển đổi dữ liệu Model → Entity**
+- AddInvoiceUseCase gọi `convertToObject(dto)`
+- Gọi `InvoiceAddRequest.createAddRequest(dto)` 
+- InvoiceAddRequest kiểm tra `dto.type`:
+  - Nếu "Hourly Invoice": tạo HourlyInvoice object với các tham số từ DTO
+  - Nếu "Daily Invoice": tạo DailyInvoice object với các tham số từ DTO
+  - Set ID nếu cần thiết
+- Trả về Invoice entity object
+
+**7. Chuyển đổi Entity → Persistence DTO**  
+- AddInvoiceUseCase gọi `convertToDTO(dto)`
+- Tạo AddInvoiceDTO object và copy các field từ AddInvoiceViewDTO
+- Map tất cả thuộc tính: date, customer, room_id, unitPrice, hour, day, type
+
+**8. Lưu vào cơ sở dữ liệu**
+- AddInvoiceUseCase gọi `invoiceDAO.addInvoice(AddInvoiceDTO)`
+- AddInvoiceDAO chuẩn bị câu SQL: `"INSERT INTO invoices (date, customer, room_id, unitPrice, hour, day, type) VALUES (?, ?, ?, ?, ?, ?, ?)"`
+- Tạo PreparedStatement và set các tham số:
+  - `setTimestamp(1, new Timestamp(dto.getDate().getTime()))`
+  - `setString(2, dto.getCustomer())`
+  - `setString(3, dto.getRoom_id())`, etc.
+- Thực hiện `executeUpdate()` đến SQL Server database
+- Database trả về số dòng bị ảnh hưởng (rows affected)
+
+**9. Xử lý kết quả**
+- AddInvoiceDAO kiểm tra `rowsAffected > 0` 
+- Nếu thành công, return true về AddInvoiceUseCase
+- AddInvoiceUseCase return true về AddInvoiceController  
+- AddInvoiceController return true về InvoiceFormView
+
+**10. Cập nhật giao diện khi thành công**
+- InvoiceFormView nhận kết quả true
+- Gọi `showSuccessAlert("Thêm hóa đơn thành công!")` - hiển thị dialog thông báo
+- Gọi `clearForm()` để xóa sạch tất cả các trường nhập liệu
+- Form quay về trạng thái ban đầu, sẵn sàng cho việc nhập hóa đơn mới
+
+**11. Refresh dữ liệu (nếu có Observer setup)**
+- Nếu có callback hoặc Observer pattern được thiết lập
+- InvoiceViewModel sẽ được notify về sự thay đổi
+- InvoiceTableView tự động refresh để hiển thị hóa đơn mới
+- Statistics cũng được cập nhật với số liệu mới
+
+**Trường hợp lỗi:**
+- Nếu bất kỳ bước nào thất bại (validation, database error)
+- InvoiceFormView nhận false và hiển thị `showErrorAlert("Thêm hóa đơn thất bại!")`
+- Form giữ nguyên dữ liệu để người dùng có thể sửa và thử lại
+
+**Console output:**
+- "Invoice added successfully. Rows affected: 1" nếu thành công
+- "Error adding invoice: [error message]" nếu có lỗi database
+- "Failed to add invoice." nếu validation fail

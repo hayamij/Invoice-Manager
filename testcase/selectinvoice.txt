@@ -1,0 +1,37 @@
+## Luồng hoạt động khi chọn hóa đơn trong danh sách
+
+**1. Phát hiện sự kiện click**
+- JavaFX TableView phát hiện người dùng click vào một hàng
+- `selectedItemProperty().addListener()` trong InvoiceTableView được trigger
+- Lấy `InvoiceViewItem newSelection` từ hàng được chọn
+
+**2. Chuẩn bị dữ liệu cho chức năng xóa**
+- Tạo `DeleteInvoiceViewDTO` mới
+- Set `dto.id = newSelection.id` 
+- Gọi `deleteInvoiceView.setCurrentInvoice(dto)` để chuẩn bị cho nút Xóa
+
+**3. Lấy thông tin chi tiết từ database**
+- Lấy ID từ `newSelection.id`
+- Tạo `UpdateInvoiceDAO` và gọi `getInvoiceById(ID)`
+- Database truy vấn `SELECT * FROM invoices WHERE id = ?`
+- Trả về `UpdateInvoiceDTO` với đầy đủ thông tin (bao gồm unitPrice, hour, day, date)
+
+**4. Chuẩn bị dữ liệu cho form sửa**
+- Chuyển đổi `UpdateInvoiceDTO` thành `UpdateInvoiceViewDTO` 
+- Lưu `selectedInvoiceId` và `selectedInvoiceDate` để dùng khi update
+- Gọi `invoiceFormView.setCurrentInvoiceForEdit(editDto)`
+
+**5. Cập nhật form sửa**
+- InvoiceFormView populate các trường:
+  - `customerField.setText(dto.customer)`
+  - `roomField.setText(dto.room_id)` 
+  - `unitPriceField.setText(String.valueOf(dto.unitPrice))`
+  - `typeComboBox.select(dto.type)`
+- Tùy loại hóa đơn fill `hourField` hoặc `dayField`
+- Gọi `toggleFieldsBasedOnType()` để enable/disable đúng trường
+
+**Kết quả:**
+- Hóa đơn được chọn, thông tin hiển thị trong form
+- Nút "Xóa" sẵn sàng với ID hóa đơn
+- Nút "Cập nhật" sẵn sàng với dữ liệu đầy đủ
+- Form có thể chỉnh sửa và lưu ngay lập tức

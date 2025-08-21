@@ -1,0 +1,67 @@
+## Luồng hoạt động khi bấm nút "Thống kê"
+
+**1. Xử lý sự kiện click**
+- JavaFX phát hiện người dùng click nút thống kê trong InvoiceStatisticView
+- Gọi method `statsInvoice(ActionEvent event)`
+- InvoiceStatisticView kiểm tra `statisticController != null`
+
+**2. Chuẩn bị mở cửa sổ thống kê chi tiết**
+- InvoiceStatisticView gọi `showMonthlyStatistics()`
+- Tạo FXMLLoader để load file `/presentation/stats.fxml`
+- Load FXML và tạo Scene mới cho cửa sổ modal
+
+**3. Khởi tạo controller cho form thống kê**
+- Lấy `InvoiceStatisticFormView` từ FXMLLoader
+- Gọi `statsFormController.setStatisticController(statisticController)`
+- Gọi `statsFormController.loadStatistics()`
+
+**4. Tính toán thống kê cơ bản**
+- InvoiceStatisticFormView gọi `statisticController.getBasicStatistics()`
+- InvoiceStatisticController gọi `invoiceDAOGateway.getAll()`
+- InvoiceDAO truy vấn `SELECT * FROM invoices` lấy tất cả records
+- Database trả về danh sách đầy đủ InvoiceDTO
+
+**5. Xử lý từng hóa đơn để tính thống kê**
+- Loop qua từng InvoiceDTO:
+  - Gọi `InvoiceFactory.createInvoice(dto)` tạo Invoice entity
+  - Invoice tự tính `calculateTotal()` theo logic riêng (Hourly/Daily)
+  - Cộng dồn `totalRevenue += invoice.calculateTotal()`
+  - Đếm loại: `hourlyCount++` nếu "Hourly Invoice", `dailyCount++` nếu "Daily Invoice"
+- Tính `averagePerInvoice = totalRevenue / totalInvoices`
+
+**6. Tính thống kê theo tháng/năm**  
+- InvoiceStatisticController gọi `statisticController.getAverageTotalByMonthYear()`
+- InvoiceStatisticsUseCase gọi `averageTotalByMonthYear()`
+- Lại lấy dữ liệu từ database và group theo tháng:
+  - Dùng Calendar để extract tháng/năm từ `invoice.date`
+  - Tạo key format "MM/yyyy" (ví dụ: "08/2024")
+  - Group các hóa đơn theo key và tính average cho mỗi tháng
+
+**7. Cập nhật giao diện thống kê**
+- InvoiceStatisticFormView nhận kết quả và update:
+  - `hourlyLabel.setText("Số lượng thuê theo giờ: " + hourlyCount)`
+  - `dailyLabel.setText("Số lượng thuê theo ngày: " + dailyCount)`
+- Gọi `loadMonthlyAverageTable(monthlyAverages)`
+
+**8. Populate bảng thống kê tháng**
+- Tạo danh sách `MonthlyStatItem` từ Map<String, Double>
+- Split key "MM/yyyy" thành month và year riêng biệt
+- Sắp xếp theo năm và tháng mới nhất trước
+- Set dữ liệu vào TableView với format tiền tệ (VND)
+
+**9. Hiển thị cửa sổ modal**
+- Tạo Stage mới với title "Báo cáo thống kê chi tiết"
+- Set `initModality(APPLICATION_MODAL)` để block cửa sổ chính
+- `setResizable(false)` và `showAndWait()` hiển thị modal
+
+**Kết quả cuối cùng:**
+- Cửa sổ thống kê chi tiết hiển thị với:
+  - Số lượng hóa đơn theo giờ và theo ngày
+  - Bảng thống kê trung bình doanh thu theo từng tháng/năm
+  - Format tiền tệ VND đẹp mắt
+  - Sắp xếp thời gian từ mới nhất
+- Người dùng có thể đóng modal để quay lại màn hình chính
+
+**Trường hợp lỗi:**
+- Nếu có exception, hiển thị Alert "Lỗi hệ thống!" và in stacktrace ra console
+- Labels hiển thị "Lỗi" thay vì số liệu thực
